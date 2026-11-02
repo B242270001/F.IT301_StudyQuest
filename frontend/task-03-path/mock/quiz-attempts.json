@@ -1,0 +1,38 @@
+{
+  "attempts": [
+    {
+      "id": "ATT01",
+      "userId": "U05",
+      "unitId": "UN04",
+      "answers": [
+        { "questionId": "Q01", "answer": "Block элемент", "isCorrect": true },
+        { "questionId": "Q02", "answer": "Худал", "isCorrect": true },
+        { "questionId": "Q03", "answer": "object", "isCorrect": true },
+        { "questionId": "Q04", "answer": "Босоо чиглэлд голлуулна", "isCorrect": false }
+      ],
+      "correctCount": 3,
+      "totalCount": 4,
+      "scorePercent": 75,
+      "xpEarned": 30,
+      "weakTopics": ["CSS Flexbox"],
+      "createdAt": "2026-10-22T15:30:00Z"
+    },
+    {
+      "id": "ATT02",
+      "userId": "U01",
+      "unitId": "UN04",
+      "answers": [
+        { "questionId": "Q01", "answer": "Block элемент", "isCorrect": true },
+        { "questionId": "Q02", "answer": "Худал", "isCorrect": true },
+        { "questionId": "Q03", "answer": "object", "isCorrect": true },
+        { "questionId": "Q04", "answer": "Хэвтээ чиглэлд голлуулна (main axis)", "isCorrect": true }
+      ],
+      "correctCount": 4,
+      "totalCount": 4,
+      "scorePercent": 100,
+      "xpEarned": 40,
+      "weakTopics": [],
+      "createdAt": "2026-10-21T10:00:00Z"
+    }
+  ]
+}

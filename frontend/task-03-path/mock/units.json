@@ -1,0 +1,14 @@
+{
+  "units": [
+    { "id": "UN01", "courseId": "C01", "section": "Вебийн үндэс", "title": "Вебийн архитектур", "order": 1 },
+    { "id": "UN02", "courseId": "C01", "section": "Вебийн үндэс", "title": "HTTP ба HTTPS", "order": 2 },
+    { "id": "UN03", "courseId": "C01", "section": "Вебийн үндэс", "title": "Client ба Server", "order": 3 },
+    { "id": "UN04", "courseId": "C01", "section": "Frontend суурь", "title": "HTML ба CSS", "order": 4 },
+    { "id": "UN05", "courseId": "C01", "section": "Frontend суурь", "title": "JavaScript", "order": 5 },
+    { "id": "UN06", "courseId": "C01", "section": "Frontend суурь", "title": "React үндэс", "order": 6 },
+    { "id": "UN07", "courseId": "C02", "section": "OS суурь", "title": "Процесс менежмент", "order": 1 },
+    { "id": "UN08", "courseId": "C02", "section": "OS суурь", "title": "Санах ойн удирдлага", "order": 2 },
+    { "id": "UN09", "courseId": "C03", "section": "DB суурь", "title": "SQL үндэс", "order": 1 },
+    { "id": "UN10", "courseId": "C03", "section": "DB суурь", "title": "NoSQL ба MongoDB", "order": 2 }
+  ]
+}

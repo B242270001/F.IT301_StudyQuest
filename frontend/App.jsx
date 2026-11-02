@@ -1,16 +1,33 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
-import { mockAuth } from "./mock";
-import Login from "./Login";
-import Dashboard from "./Dashboard";
-import Leaderboard from "./Leaderboard";
-import GlobalUIStates from "./GlobalUIStates";
-import QuizResult from "./QuizResult";
-import TeacherRoom from "./TeacherRoom";
-import TeacherCourseForm from "./TeacherCourseForm";
-import LectureDetail from "./LectureDetail";
+import { mockAuth } from "./task-01-auth/mock/mockAuth";
 
-// Role бүрийн нүүр хуудсыг санахгүй — нэвтэрсэн хэрэглэгчийн role өөрөө шийднэ
+// TASK-01: Auth, Dashboard (А. Төгөлдөр)
+import Login from "./task-01-auth/Login";
+import Dashboard from "./task-01-auth/Dashboard";
+
+// TASK-02: Practice, Quiz, Admin Questions (Мөнхбаяр)
+import PracticeCourses from "./task-02-quiz/PracticeCourses";
+import QuizQuestion from "./task-02-quiz/QuizQuestion";
+import AdminQuestions from "./task-02-quiz/AdminQuestions";
+
+// TASK-03: Learning Path, Quiz Result (Тэмүүлэн - Temka)
+import HorizontalLearningPath from "./task-03-path/HorizontalLearningPath";
+import QuizResult from "./task-03-path/QuizResult";
+
+// TASK-04: Teacher Room, Course CRUD (Д. Баттөмөр)
+import TeacherRoom from "./task-04-teacher/TeacherRoom";
+import TeacherCourseForm from "./task-04-teacher/TeacherCourseForm";
+
+// TASK-05: Explore Courses & Lecture Detail (Хүслэн О.)
+import ExploreCourses from "./task-05-explore/ExploreCourses";
+import LectureDetail from "./task-05-explore/LectureDetail";
+
+// TASK-06: Leaderboard, UI States (Цогжавхлан Б.)
+import Leaderboard from "./task-06-leaderboard/Leaderboard";
+import GlobalUIStates from "./task-06-leaderboard/GlobalUIStates";
+
+// Role бүрийн нүүр хуудас
 const HOME_PAGES = ["/dashboard", "/teacher"];
 
 // Нэвтрээгүй бол /login руу илгээж, очих гэсэн хаягийг state-д хадгална
@@ -28,12 +45,12 @@ function AfterLogin({ home }) {
 export default function App() {
   const [user, setUser] = useState(() => mockAuth.getCurrentUser());
 
-  // Нэвтрэх функц (Login хуудаснаас дуудагдана)
+  // Нэвтрэх функц
   const handleLogin = (loggedInUser) => {
     setUser(loggedInUser);
   };
 
-  // Гарах (Ор дээр дарах) функц
+  // Системээс гарах функц
   const handleLogout = () => {
     mockAuth.logout();
     setUser(null);
@@ -43,15 +60,16 @@ export default function App() {
   const isTeacher = user?.role === "TEACHER";
 
   /**
-   * Login-ы дараа role-ээр чиглүүлэх:
-   *   TEACHER  → /teacher
-   *   STUDENT  → /dashboard
+   * Нэвтэрсний дараа role-оор чиглүүлэх:
+   * TEACHER  → /teacher
+   * STUDENT  → /dashboard
    */
   const afterLoginRedirect = isTeacher ? "/teacher" : "/dashboard";
 
   return (
     <BrowserRouter>
       <Routes>
+        {/* TASK-01: Auth & Dashboard */}
         <Route
           path="/login"
           element={
@@ -72,29 +90,52 @@ export default function App() {
             )
           }
         />
+
+        {/* TASK-02: Practice & Quiz */}
         <Route
-          path="/leaderboard"
+          path="/practice"
           element={
             isLoggedIn ? (
-              <Leaderboard user={user} />
+              <PracticeCourses user={user} />
             ) : (
               <RequireLogin />
             )
           }
         />
-        <Route path="/ui-states" element={<GlobalUIStates />} />
-        {/* TASK-06: Б. Цогжавхлан — лекцийн дэлгэрэнгүй */}
         <Route
-          path="/explore/lecture/:id"
+          path="/quiz/:unitId"
           element={
             isLoggedIn ? (
-              <LectureDetail user={user} />
+              <QuizQuestion user={user} />
             ) : (
               <RequireLogin />
             )
           }
         />
-        {/* TASK-04: Д. Баттөмөр */}
+        <Route
+          path="/admin/questions"
+          element={
+            isLoggedIn && isTeacher ? (
+              <AdminQuestions user={user} />
+            ) : isLoggedIn ? (
+              <Navigate to="/dashboard" />
+            ) : (
+              <RequireLogin />
+            )
+          }
+        />
+
+        {/* TASK-03: Learning Path & Quiz Result */}
+        <Route
+          path="/practice/:courseId"
+          element={
+            isLoggedIn ? (
+              <HorizontalLearningPath user={user} />
+            ) : (
+              <RequireLogin />
+            )
+          }
+        />
         <Route
           path="/quiz/result"
           element={
@@ -105,6 +146,8 @@ export default function App() {
             )
           }
         />
+
+        {/* TASK-04: Teacher Room & Course CRUD */}
         <Route
           path="/teacher"
           element={
@@ -129,6 +172,43 @@ export default function App() {
             )
           }
         />
+
+        {/* TASK-05: Explore Lectures */}
+        <Route
+          path="/explore"
+          element={
+            isLoggedIn ? (
+              <ExploreCourses user={user} />
+            ) : (
+              <RequireLogin />
+            )
+          }
+        />
+        <Route
+          path="/explore/lecture/:id"
+          element={
+            isLoggedIn ? (
+              <LectureDetail user={user} />
+            ) : (
+              <RequireLogin />
+            )
+          }
+        />
+
+        {/* TASK-06: Leaderboard & UI States */}
+        <Route
+          path="/leaderboard"
+          element={
+            isLoggedIn ? (
+              <Leaderboard user={user} />
+            ) : (
+              <RequireLogin />
+            )
+          }
+        />
+        <Route path="/ui-states" element={<GlobalUIStates />} />
+
+        {/* Fallback */}
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </BrowserRouter>

@@ -1,0 +1,92 @@
+{
+  "questions": [
+    {
+      "id": "Q01",
+      "unitId": "UN04",
+      "type": "MULTIPLE_CHOICE",
+      "questionText": "HTML-д <div> элемент ямар төрлийн элемент вэ?",
+      "codeSnippet": null,
+      "options": ["Inline элемент", "Block элемент", "Inline-block элемент", "Flex элемент"],
+      "correctAnswer": "Block элемент",
+      "explanation": "<div> нь block-level элемент бөгөөд шинэ мөрөөс эхэлнэ.",
+      "xpReward": 10
+    },
+    {
+      "id": "Q02",
+      "unitId": "UN04",
+      "type": "TRUE_FALSE",
+      "questionText": "CSS-д class selector нь # тэмдэгтээр эхэлдэг.",
+      "codeSnippet": null,
+      "options": ["Үнэн", "Худал"],
+      "correctAnswer": "Худал",
+      "explanation": "Class selector нь . (цэг) тэмдэгтээр эхэлнэ. # нь id selector юм.",
+      "xpReward": 10
+    },
+    {
+      "id": "Q03",
+      "unitId": "UN04",
+      "type": "CODE_OUTPUT",
+      "questionText": "Доорх кодын гаралт юу вэ?",
+      "codeSnippet": "console.log(typeof []);",
+      "options": ["array", "object", "undefined", "string"],
+      "correctAnswer": "object",
+      "explanation": "JavaScript-д массив нь object төрлийн утга юм.",
+      "xpReward": 10
+    },
+    {
+      "id": "Q04",
+      "unitId": "UN04",
+      "type": "MULTIPLE_CHOICE",
+      "questionText": "CSS Flexbox-д justify-content: center; юу хийдэг вэ?",
+      "codeSnippet": null,
+      "options": ["Босоо чиглэлд голлуулна", "Хэвтээ чиглэлд голлуулна (main axis)", "Элементийг нуулна", "Фонтын хэмжээг өөрчилнө"],
+      "correctAnswer": "Хэвтээ чиглэлд голлуулна (main axis)",
+      "explanation": "justify-content нь main axis (анхдагчаар хэвтээ)-ийн дагуу элементүүдийг байрлуулна.",
+      "xpReward": 10
+    },
+    {
+      "id": "Q05",
+      "unitId": "UN05",
+      "type": "MULTIPLE_CHOICE",
+      "questionText": "JavaScript дээр 'const' түлхүүр үг ямар үүрэгтэй вэ?",
+      "codeSnippet": null,
+      "options": ["Дахин утга оноох боломжгүй хувьсагч зарлах", "Глобал хувьсагч зарлах", "Функц зарлах", "Массив үүсгэх"],
+      "correctAnswer": "Дахин утга оноох боломжгүй хувьсагч зарлах",
+      "explanation": "const нь тогтмол хувьсагч зарлах бөгөөд дахин утга оноох боломжгүй.",
+      "xpReward": 10
+    },
+    {
+      "id": "Q06",
+      "unitId": "UN05",
+      "type": "CODE_OUTPUT",
+      "questionText": "Доорх кодын гаралт юу вэ?",
+      "codeSnippet": "let x = 5;\nlet y = '5';\nconsole.log(x == y);",
+      "options": ["true", "false", "undefined", "Error"],
+      "correctAnswer": "true",
+      "explanation": "== оператор нь type coercion хийдэг тул 5 == '5' нь true буцаана.",
+      "xpReward": 10
+    },
+    {
+      "id": "Q07",
+      "unitId": "UN06",
+      "type": "MULTIPLE_CHOICE",
+      "questionText": "React-д JSX гэж юу вэ?",
+      "codeSnippet": null,
+      "options": ["JavaScript XML — HTML-тэй төстэй синтакс", "CSS framework", "Серверийн хэл", "Өгөгдлийн сангийн query"],
+      "correctAnswer": "JavaScript XML — HTML-тэй төстэй синтакс",
+      "explanation": "JSX нь React-д HTML-тэй төстэй бичиглэлээр UI тодорхойлох боломж олгоно.",
+      "xpReward": 10
+    },
+    {
+      "id": "Q08",
+      "unitId": "UN06",
+      "type": "TRUE_FALSE",
+      "questionText": "React компонент заавал PascalCase нэртэй байх ёстой.",
+      "codeSnippet": null,
+      "options": ["Үнэн", "Худал"],
+      "correctAnswer": "Үнэн",
+      "explanation": "React нь PascalCase нэртэй функцийг компонент гэж таньдаг. Жижиг үсгээр эхэлбэл HTML tag гэж ойлгоно.",
+      "xpReward": 10
+    }
+  ]
+}

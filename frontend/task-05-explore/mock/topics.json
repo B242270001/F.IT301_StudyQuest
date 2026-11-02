@@ -1,0 +1,15 @@
+{
+  "topics": [
+    { "id": "TP01", "courseId": "C01", "title": "Client-Server архитектур", "order": 1 },
+    { "id": "TP02", "courseId": "C01", "title": "HTTP Request ба Response", "order": 2 },
+    { "id": "TP03", "courseId": "C01", "title": "HTML Бүтэц", "order": 3 },
+    { "id": "TP04", "courseId": "C01", "title": "JavaScript Events", "order": 4 },
+    { "id": "TP05", "courseId": "C01", "title": "React Components", "order": 5 },
+    { "id": "TP06", "courseId": "C01", "title": "Props ба State", "order": 6 },
+    { "id": "TP07", "courseId": "C02", "title": "Процессийн төлөв", "order": 1 },
+    { "id": "TP08", "courseId": "C02", "title": "Thread ба Concurrency", "order": 2 },
+    { "id": "TP09", "courseId": "C02", "title": "Санах ойн хуваарилалт", "order": 3 },
+    { "id": "TP10", "courseId": "C03", "title": "SQL Query", "order": 1 },
+    { "id": "TP11", "courseId": "C03", "title": "MongoDB CRUD", "order": 2 }
+  ]
+}

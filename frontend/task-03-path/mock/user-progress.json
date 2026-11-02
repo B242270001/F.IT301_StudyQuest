@@ -1,0 +1,16 @@
+{
+  "progress": [
+    { "userId": "U05", "unitId": "UN01", "status": "COMPLETED", "score": 90 },
+    { "userId": "U05", "unitId": "UN02", "status": "COMPLETED", "score": 85 },
+    { "userId": "U05", "unitId": "UN03", "status": "COMPLETED", "score": 80 },
+    { "userId": "U05", "unitId": "UN04", "status": "CURRENT", "score": 75 },
+    { "userId": "U05", "unitId": "UN05", "status": "LOCKED", "score": 0 },
+    { "userId": "U05", "unitId": "UN06", "status": "LOCKED", "score": 0 },
+    { "userId": "U01", "unitId": "UN01", "status": "COMPLETED", "score": 100 },
+    { "userId": "U01", "unitId": "UN02", "status": "COMPLETED", "score": 95 },
+    { "userId": "U01", "unitId": "UN03", "status": "COMPLETED", "score": 90 },
+    { "userId": "U01", "unitId": "UN04", "status": "COMPLETED", "score": 100 },
+    { "userId": "U01", "unitId": "UN05", "status": "CURRENT", "score": 0 },
+    { "userId": "U01", "unitId": "UN06", "status": "LOCKED", "score": 0 }
+  ]
+}

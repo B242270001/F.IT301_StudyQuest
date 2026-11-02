@@ -1,0 +1,40 @@
+{
+  "courses": [
+    {
+      "id": "C01",
+      "title": "Веб систем ба технологи",
+      "description": "Вебийн архитектур, HTTP, HTML/CSS, JavaScript, React хүртэлх үндсэн ойлголтуудыг судлах хичээл.",
+      "category": "WEB",
+      "icon": "web",
+      "isFeatured": true,
+      "createdBy": "U10",
+      "totalUnits": 6,
+      "totalTopics": 6,
+      "createdAt": "2026-09-01T00:00:00Z"
+    },
+    {
+      "id": "C02",
+      "title": "Үйлдлийн систем",
+      "description": "Процесс менежмент, санах ойн удирдлага, файлын систем зэрэг OS-ийн үндсэн ойлголтууд.",
+      "category": "OS",
+      "icon": "os",
+      "isFeatured": false,
+      "createdBy": "U10",
+      "totalUnits": 2,
+      "totalTopics": 3,
+      "createdAt": "2026-09-05T00:00:00Z"
+    },
+    {
+      "id": "C03",
+      "title": "Өгөгдлийн сан",
+      "description": "SQL, NoSQL, ER диаграм, нормалчлал, индексчлэл зэрэг өгөгдлийн сангийн суурь ойлголтууд.",
+      "category": "DATABASE",
+      "icon": "db",
+      "isFeatured": false,
+      "createdBy": "U10",
+      "totalUnits": 2,
+      "totalTopics": 2,
+      "createdAt": "2026-09-10T00:00:00Z"
+    }
+  ]
+}

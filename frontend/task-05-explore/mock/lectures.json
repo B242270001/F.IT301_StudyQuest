@@ -1,0 +1,118 @@
+{
+  "lectures": [
+    {
+      "id": "L01",
+      "topicId": "TP01",
+      "courseId": "C01",
+      "title": "Client-Server загвар",
+      "summary": "Вэб хэрхэн ажилладаг талаар суурь ойлголт.",
+      "content": "Client (Үйлчлүүлэгч) нь хэрэглэгчийн төхөөрөмж дээр ажиллах програм юм. Server (Сервер) нь хүсэлтэд хариу өгөх программ хангамж юм.\n\nХэрэглэгч браузер дээрээс URL бичихэд → браузер нь HTTP request илгээнэ → Сервер хүлээн авч боловсруулна → HTML/CSS/JS файлуудыг response-ээр буцаана.",
+      "codeSample": "// Express.js жишээ\nconst express = require('express');\nconst app = express();\n\napp.get('/', (req, res) => {\n  res.send('Сайн байна уу!');\n});\n\napp.listen(3000);",
+      "demoType": "CLIENT_SERVER",
+      "materials": [],
+      "knowledgeCheck": [
+        {
+          "question": "Client гэж юу вэ?",
+          "options": ["Серверт хүсэлт илгээгч програм", "Өгөгдлийн сан", "API Gateway", "DNS сервер"],
+          "correctAnswer": "Серверт хүсэлт илгээгч програм"
+        }
+      ],
+      "createdBy": "U10",
+      "createdAt": "2026-09-02T00:00:00Z"
+    },
+    {
+      "id": "L02",
+      "topicId": "TP02",
+      "courseId": "C01",
+      "title": "HTTP Request ба Response",
+      "summary": "HTTP протоколын ажиллагааны зарчим.",
+      "content": "HTTP (HyperText Transfer Protocol) нь вебийн үндсэн протокол юм.\n\nHTTP Methods:\n- GET: Өгөгдөл авах\n- POST: Шинэ өгөгдөл үүсгэх\n- PUT: Өгөгдөл шинэчлэх\n- DELETE: Өгөгдөл устгах\n\nStatus Codes:\n- 200: Амжилттай\n- 404: Олдсонгүй\n- 500: Серверийн алдаа",
+      "codeSample": "// Fetch API жишээ\nfetch('https://api.example.com/data')\n  .then(res => res.json())\n  .then(data => console.log(data));",
+      "demoType": "HTTP",
+      "materials": [],
+      "knowledgeCheck": [
+        {
+          "question": "POST method ямар үүрэгтэй вэ?",
+          "options": ["Өгөгдөл авах", "Шинэ өгөгдөл үүсгэх", "Өгөгдөл устгах", "Серверийг унтраах"],
+          "correctAnswer": "Шинэ өгөгдөл үүсгэх"
+        }
+      ],
+      "createdBy": "U10",
+      "createdAt": "2026-09-03T00:00:00Z"
+    },
+    {
+      "id": "L03",
+      "topicId": "TP03",
+      "courseId": "C01",
+      "title": "HTML-ийн бүтэц",
+      "summary": "HTML документын суурь бүтэц ба семантик tag-ууд.",
+      "content": "HTML (HyperText Markup Language) нь вэб хуудасны бүтцийг тодорхойлно.\n\nБүтэц:\n- <!DOCTYPE html> → HTML5 зарлалт\n- <html> → Үндсэн элемент\n- <head> → Мета мэдээлэл\n- <body> → Харагдах агуулга\n\nСемантик tag-ууд: <header>, <nav>, <main>, <section>, <article>, <footer>",
+      "codeSample": "<!DOCTYPE html>\n<html lang=\"mn\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Миний хуудас</title>\n</head>\n<body>\n  <header>\n    <h1>Тавтай морил</h1>\n  </header>\n  <main>\n    <p>Энд агуулга байрлана.</p>\n  </main>\n</body>\n</html>",
+      "demoType": "NONE",
+      "materials": [],
+      "knowledgeCheck": [],
+      "createdBy": "U10",
+      "createdAt": "2026-09-05T00:00:00Z"
+    },
+    {
+      "id": "L04",
+      "topicId": "TP04",
+      "courseId": "C01",
+      "title": "JavaScript Events",
+      "summary": "DOM event-ийн ажиллагаа ба event listener.",
+      "content": "JavaScript Events нь хэрэглэгчийн үйлдэлд (click, input, submit) хариу үзүүлэх механизм юм.\n\nEvent listener нэмэх 2 арга:\n1. HTML attribute: onclick=\"...\"\n2. addEventListener() method\n\nEvent объект нь e.target, e.preventDefault() зэрэг хэрэгтэй property-уудтай.",
+      "codeSample": "const btn = document.querySelector('#myBtn');\nbtn.addEventListener('click', (e) => {\n  alert('Товч дарагдлаа!');\n  console.log(e.target);\n});",
+      "demoType": "NONE",
+      "materials": [],
+      "knowledgeCheck": [
+        {
+          "question": "addEventListener() юу хийдэг вэ?",
+          "options": ["DOM элемент үүсгэх", "Event сонсогч нэмэх", "CSS стиль өөрчлөх", "HTTP хүсэлт илгээх"],
+          "correctAnswer": "Event сонсогч нэмэх"
+        }
+      ],
+      "createdBy": "U10",
+      "createdAt": "2026-09-08T00:00:00Z"
+    },
+    {
+      "id": "L05",
+      "topicId": "TP05",
+      "courseId": "C01",
+      "title": "React Components",
+      "summary": "React компонентийн тухай ойлголт ба функц компонент.",
+      "content": "React компонент нь UI-ийн дахин ашиглах боломжтой хэсэг юм.\n\nФункц компонент:\n- JavaScript функц\n- JSX буцаана\n- Props хүлээн авна\n\nКомпонент нэрлэх дүрэм:\n- PascalCase ашиглана (VD: MyComponent)\n- Файлын нэр = Компонентийн нэр",
+      "codeSample": "function Header() {\n  return <h1>Миний хичээл</h1>;\n}\nfunction Content() {\n  return <p>React сурцгаая!</p>;\n}\nfunction App() {\n  return <><Header /><Content /></>;\n}",
+      "demoType": "REACT_RENDER",
+      "materials": [],
+      "knowledgeCheck": [
+        {
+          "question": "React компонент яагаад PascalCase ашигладаг вэ?",
+          "options": ["HTML tag-аас ялгахын тулд", "Хурд нэмэхийн тулд", "CSS-тэй холбохын тулд", "Заавал биш"],
+          "correctAnswer": "HTML tag-аас ялгахын тулд"
+        }
+      ],
+      "createdBy": "U10",
+      "createdAt": "2026-09-10T00:00:00Z"
+    },
+    {
+      "id": "L06",
+      "topicId": "TP06",
+      "courseId": "C01",
+      "title": "Props ба State",
+      "summary": "React-ийн props ба state ойлголт, useState hook.",
+      "content": "Props: Компонент хооронд өгөгдөл дамжуулах механизм.\n- Зөвхөн дээрээс доош (parent → child)\n- Read-only\n\nState: Компонентийн дотоод өгөгдөл.\n- useState() hook ашиглана\n- State өөрчлөгдөхөд re-render хийгдэнэ\n\nState vs Props:\n- State → Компонент өөрөө удирдана\n- Props → Эцэг компонентоос ирнэ",
+      "codeSample": "import { useState } from 'react';\n\nfunction Counter() {\n  const [count, setCount] = useState(0);\n  return (\n    <div>\n      <p>Тоолуур: {count}</p>\n      <button onClick={() => setCount(count + 1)}>+1</button>\n    </div>\n  );\n}",
+      "demoType": "STATE",
+      "materials": [],
+      "knowledgeCheck": [
+        {
+          "question": "useState hook юу буцаадаг вэ?",
+          "options": ["Зөвхөн утга", "Утга ба setter функц", "DOM элемент", "Promise"],
+          "correctAnswer": "Утга ба setter функц"
+        }
+      ],
+      "createdBy": "U10",
+      "createdAt": "2026-09-12T00:00:00Z"
+    }
+  ]
+}
