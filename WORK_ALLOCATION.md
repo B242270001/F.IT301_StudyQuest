@@ -46,11 +46,7 @@
 
 Дүрэм: хамтын файлыг өөрчлөхөөс өмнө эзэнтэй issue дээр хүрээг тохирч, тусдаа branch/MR ашиглана. Дахин ашигласан код нь хэрэглэгчийн шинэ ажил гэж тооцогдохгүй.
 
-## 4. Lab 3 — ажлын бүртгэл
-
-Нийтлэг: Үе шат **Lab 3** · Хугацаа: Lab 3-ын товлосон хугацаа · Issue/MR: ажлыг эхлэхэд бодит холбоосоор бөглөнө · Commit: дуусахад өөрийн бодит commit hash-аар бөглөнө · Нотолгоо: screenshot/video болон `test:ci` үр дүнгийн холбоос · Төлөв: planned. Branch нэр: `feature/<taskId>-<сэдэв>`. Commit: `<taskId>: <өөрчлөлт>`; гишүүн бүр дор хаяж 2 commit.
-
-### TASK-01-L3 · А. Төгөлдөр · Reviewer: TASK-02
+### TASK-01 · А. Төгөлдөр · Reviewer: TASK-02
 - **Хэсэг:** Login, Dashboard, AuthContext, ProtectedRoute, router, mock login/role
 - **Routes:** `/login`, `/dashboard`
 - **Файл:** `frontend/src/features/auth/LoginScreen.jsx`, `frontend/src/features/dashboard/VirtualRoomDashboard.jsx`, `frontend/src/auth/*`, `frontend/src/router.jsx`, `frontend/src/components/TopHUD.jsx`
@@ -62,7 +58,7 @@
   3. Student-д `room-computer`, Teacher-д `room-board` харагдана; Ор → гарах modal → `/login`.
   4. `role` scenario бүх алхамдаа амжилттай.
 
-### TASK-02-L3 · Мөнхбаяр · Reviewer: TASK-03
+### TASK-02 · Мөнхбаяр · Reviewer: TASK-03
 - **Хэсэг:** Practice course grid, Quiz page (3 төрлийн асуулт, inline feedback)
 - **Routes:** `/practice`, `/quiz/:unitId`
 - **Файл:** `frontend/src/features/practice/PracticeCourses.jsx`, `frontend/src/features/quiz/QuizQuestion.jsx` (+ `MultipleChoice`, `TrueFalse`, `CodeOutput` дэд component)
@@ -73,7 +69,7 @@
   2. `/quiz/UN04` дээр 3 төрлийн асуулт нэг page-д ажиллаж, `Шалгах` → ногоон/улаан feedback → `Дараагийн асуулт`.
   3. Сүүлийн асуултын дараа `Дуусгах` → `/quiz/result`; буруу unitId → `state-not-found`.
 
-### TASK-03-L3 · Тэмүүлэн (Temka) · Reviewer: TASK-04
+### TASK-03 · Тэмүүлэн (Temka) · Reviewer: TASK-04
 - **Хэсэг:** Хэвтээ суралцах зам, Quiz result, mock store (Context + localStorage)
 - **Routes:** `/practice/:courseId`, `/quiz/result`
 - **Файл:** `frontend/src/features/path/HorizontalLearningPath.jsx`, `frontend/src/features/quiz/QuizResult.jsx`, `frontend/src/mock/db.js`, `frontend/src/mock/MockStoreContext.jsx`
@@ -85,7 +81,7 @@
   3. `/quiz/result` дээр score %, зөв хариулт, +XP, ахиц; attempt байхгүй үед хоосон төлөв.
   4. Mock store seed-ээр сэргэж, reload-д төлөв хадгалагдана.
 
-### TASK-04-L3 · Д. Баттөмөр · Reviewer: TASK-05
+### TASK-04 · Д. Баттөмөр · Reviewer: TASK-05
 - **Хэсэг:** Багшийн өрөө (статистик, хичээл, суралцагч), Course CRUD, материал upload (frontend validation), лекц үүсгэх маягт
 - **Routes:** `/teacher`, `/teacher/courses/new`
 - **Файл:** `frontend/src/features/teacher/TeacherRoom.jsx`, `TeacherCourseForm.jsx`, `CourseForm.jsx`, `frontend/src/utils/validators.js`
@@ -96,7 +92,8 @@
   2. Хоосон нэр, богино тайлбар, буруу файл төрөл/хэмжээнд талбарын алдаа гарч record үүсэхгүй.
   3. Статистик карт, bar chart, суралцагчийн хүснэгт (хайлттай) харагдана.
   4. Student-д `state-forbidden`.
-### TASK-05-L3 · Хүслэн О. · Reviewer: TASK-06
+
+### TASK-05 · Хүслэн О. · Reviewer: TASK-06
 - **Хэсэг:** Хичээлийн сан (хайлт, шүүлт), сэдвийн жагсаалт
 - **Routes:** `/explore`, `/topics/:courseId`
 - **Файл:** `frontend/src/features/explore/ExploreCourses.jsx`, `frontend/src/features/topics/UnitTopics.jsx`
@@ -107,7 +104,7 @@
   2. Хайлтын утга, ангиллын шүүлтүүр URL-ийн `?search=&category=` параметртэй sync хийнэ.
   3. Сэдэв сонгоход тухайн сэдвийн лекцийн жагсаалт зөв харагдана.
 
-### TASK-06-L3 · Цогжавхлан Б. · Reviewer: TASK-01
+### TASK-06 · Цогжавхлан Б. · Reviewer: TASK-01
 - **Хэсэг:** Чансаа, лекцийн дэлгэрэнгүй (Render demo, Knowledge Check, багшийн засах/устгах), нийтлэг UI төлөв component, responsive layout, validation/smoke/responsive Playwright scenario
 - **Routes:** `/leaderboard`, `/explore/lecture/:id`
 - **Файл:**
