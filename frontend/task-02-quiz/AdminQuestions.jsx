@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
-import { mockQuiz } from './mock/mockQuiz';
+import { quizApi } from '../services/api';
 
 export default function AdminQuestions({ user }) {
   const [formData, setFormData] = useState({
@@ -18,7 +18,7 @@ export default function AdminQuestions({ user }) {
       alert('Асуултын текст оруулна уу');
       return;
     }
-    await mockQuiz.createQuestion(formData);
+    await quizApi.addQuestion(formData);
     setSuccess(true);
     setTimeout(() => setSuccess(false), 3000);
     setFormData({

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import { mockPath } from "./mock/mockPath";
+import { pathApi } from "../services/api";
 
 export default function QuizResult({ user }) {
   const navigate = useNavigate();
@@ -10,7 +10,7 @@ export default function QuizResult({ user }) {
 
   useEffect(() => {
     async function load() {
-      const data = await mockPath.getLatestAttempt(user?.id || "U05");
+      const data = await pathApi.getLatestAttempt(user?.id || "U05");
       setAttempt(data);
       setLoading(false);
     }

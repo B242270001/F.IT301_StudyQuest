@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import { mockQuiz } from './mock/mockQuiz';
+import { quizApi } from '../services/api';
 
 export default function QuizQuestion({ user }) {
   const { unitId = 'UN04' } = useParams();
@@ -16,10 +16,10 @@ export default function QuizQuestion({ user }) {
   useEffect(() => {
     async function load() {
       setLoading(true);
-      const list = await mockQuiz.getByUnit(unitId);
+      const list = await quizApi.getQuestions(unitId);
       // Хэрэв тухайн unit-д асуулт олдохгүй бол бүх асуултаас харуулъя
       if (list.length === 0) {
-        const all = await mockQuiz.fetchAllQuestions();
+        const all = await quizApi.getQuestions();
         setQuestions(all.slice(0, 4));
       } else {
         setQuestions(list);

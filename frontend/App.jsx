@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
-import { mockAuth } from "./task-01-auth/mock/mockAuth";
+import { authApi } from "./services/api";
 
 // TASK-01: Auth, Dashboard (А. Төгөлдөр)
 import Login from "./task-01-auth/Login";
@@ -43,7 +43,7 @@ function AfterLogin({ home }) {
 }
 
 export default function App() {
-  const [user, setUser] = useState(() => mockAuth.getCurrentUser());
+  const [user, setUser] = useState(() => authApi.getCurrentUser());
 
   // Нэвтрэх функц
   const handleLogin = (loggedInUser) => {
@@ -52,7 +52,7 @@ export default function App() {
 
   // Системээс гарах функц
   const handleLogout = () => {
-    mockAuth.logout();
+    authApi.logout();
     setUser(null);
   };
 

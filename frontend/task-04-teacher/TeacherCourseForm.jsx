@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { mockTeacher } from "./mock/mockTeacher";
+import { courseApi } from "../services/api";
 
 /**
  * TASK-04 — Д. Баттөмөр
@@ -81,7 +81,7 @@ export default function TeacherCourseForm() {
   const handleSave = async () => {
     if (!validate()) return;
     setSaving(true);
-    await mockTeacher.createCourse({
+    await courseApi.createCourse({
       title,
       category,
       icon,

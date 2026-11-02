@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { mockAuth } from "./mock/mockAuth";
+import { authApi } from "../services/api";
 import virtualRoomNight from "./assets/virtualRoomNight.jpg";
 import "./Login.css";
 
@@ -20,7 +20,7 @@ export default function Login({ onLogin }) {
 
     setLoading(true);
     try {
-      const user = await mockAuth.login(studentCode, password);
+      const user = await authApi.login(studentCode, password);
       if (!user) {
         setError("Оюутны код эсвэл нууц үг буруу байна. Дахин оролдоно уу.");
         setLoading(false);

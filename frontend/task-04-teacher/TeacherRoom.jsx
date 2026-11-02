@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { mockTeacher } from "./mock/mockTeacher";
+import { courseApi } from "../services/api";
 
 /**
  * TASK-04 — Д. Баттөмөр
@@ -24,7 +24,7 @@ export default function TeacherRoom({ user, onLogout }) {
       try {
         setLoading(true);
         // Хичээлүүд
-        const allCourses = await mockTeacher.getCourses();
+        const allCourses = await courseApi.getCourses();
         setCourses(allCourses);
 
         // Оюутнуудын жагсаалт (users.json-аас STUDENT-уудыг татна)
@@ -47,7 +47,7 @@ export default function TeacherRoom({ user, onLogout }) {
   // Хичээл устгах
   const handleDelete = async (id) => {
     if (!window.confirm("Энэ хичээлийг устгах уу?")) return;
-    await mockTeacher.deleteCourse(id);
+    await courseApi.deleteCourse(id);
     setCourses(courses.filter((c) => c.id !== id));
   };
 

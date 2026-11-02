@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import { mockPath } from './mock/mockPath';
+import { pathApi } from '../services/api';
 
 export default function HorizontalLearningPath({ user }) {
   const { courseId = 'C01' } = useParams();
@@ -13,7 +13,7 @@ export default function HorizontalLearningPath({ user }) {
   useEffect(() => {
     async function load() {
       setLoading(true);
-      const units = await mockPath.getLearningPath(user?.id || 'U05', courseId);
+      const units = await pathApi.getLearningPath(user?.id || 'U05', courseId);
       setPathUnits(units);
       setLoading(false);
     }

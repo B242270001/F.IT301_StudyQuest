@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import ConfirmDialog from "../components/ConfirmDialog";
-import { mockCourses, mockLectures, mockProgress, mockTopics } from "./mock/mockExplore";
+import { exploreApi, courseApi } from "../services/api";
 import arrowLeft from "./assets/arrow-left.svg";
 import circleCheck from "./assets/circle-check.svg";
 import circle from "./assets/circle.svg";
@@ -89,13 +89,13 @@ const highlight = (code) =>
 const prefersReducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
 async function loadLecture(id, studentId) {
-  const lecture = await mockLectures.getById(id);
+  const lecture = await exploreApi.getLectureById(id);
   if (!lecture) return null;
   const [course, topics, lectures, progress] = await Promise.all([
-    mockCourses.getById(lecture.courseId),
-    mockTopics.getByCourse(lecture.courseId),
-    mockLectures.getByCourse(lecture.courseId),
-    studentId ? mockProgress.getTopicProgress(studentId) : [],
+    courseApi.getById(lecture.courseId),
+    exploreApi.getTopics(lecture.courseId),
+    exploreApi.getByCourse(lecture.courseId),
+    studentId ? exploreApi.getTopicProgress(studentId) : [],
   ]);
   return {
     lecture,
@@ -149,16 +149,16 @@ export default function LectureDetail({ user }) {
   const patchData = (patch) => setResult((r) => ({ ...r, data: { ...r.data, ...patch } }));
 
   const saveLecture = async (changes) => {
-    patchData({ lecture: await mockLectures.update(data.lecture.id, changes) });
+    patchData({ lecture: await exploreApi.updateLecture(data.lecture.id, changes) });
   };
 
   const deleteLecture = async () => {
-    await mockLectures.remove(data.lecture.id);
+    await exploreApi.deleteLecture(data.lecture.id);
     navigate(`/topics/${data.lecture.courseId}`);
   };
 
   const completeTopic = async (topicId, score) => {
-    await mockProgress.completeTopic(studentId, topicId, score);
+    await exploreApi.completeTopic(studentId, topicId, score);
     patchData({ topics: data.topics.map((t) => (t.id === topicId ? { ...t, status: "DONE" } : t)) });
   };
 

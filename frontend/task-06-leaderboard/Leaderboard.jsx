@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import { mockLeaderboard } from "./mock/mockLeaderboard";
+import { leaderboardApi } from "../services/api";
 import graduationCap from "./assets/leaderboard/graduation-cap.svg";
 import crown from "./assets/leaderboard/crown.svg";
 import trendingUp from "./assets/leaderboard/trending-up.svg";
@@ -60,13 +60,7 @@ export default function Leaderboard({ user }) {
   const [week] = useState(() => currentWeek(new Date()));
 
   useEffect(() => {
-    // Бие даалт 1: mock өгөгдөл (public/mock). Бие даалт 2-т `/api/leaderboard?period=${p}` болгоно.
-    const load = (p) =>
-      fetch(`/mock/leaderboard-${p}.json`).then((res) => {
-        if (!res.ok) throw new Error(res.statusText);
-        return res.json();
-      });
-    Promise.all([load("weekly"), load("allTime")])
+    Promise.all([leaderboardApi.getWeekly(), leaderboardApi.getAllTime()])
       .then(([weekly, allTime]) => setData({ weekly, allTime }))
       .catch(() => setError(true));
   }, [attempt]);

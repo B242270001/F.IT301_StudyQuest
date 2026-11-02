@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import { mockLectures } from './mock/mockExplore';
+import { exploreApi } from '../services/api';
 
 export default function ExploreCourses({ user }) {
   const [lectures, setLectures] = useState([]);
@@ -11,7 +11,7 @@ export default function ExploreCourses({ user }) {
   useEffect(() => {
     async function load() {
       setLoading(true);
-      const list = await mockLectures.getAll();
+      const list = await exploreApi.getLectures();
       setLectures(list);
       setLoading(false);
     }
