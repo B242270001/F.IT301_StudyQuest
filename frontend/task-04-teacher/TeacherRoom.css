@@ -1,0 +1,714 @@
+/* TeacherRoom.css — Багшийн өрөө (TASK-04) */
+
+/* ── Root reset ── */
+#root:has(.tr-page) {
+  width: auto;
+  max-width: none;
+  border: 0;
+  text-align: left;
+}
+
+.tr-page {
+  min-height: 100vh;
+  background: #f7f8fc;
+  color: #252538;
+  line-height: 1.45;
+  letter-spacing: normal;
+  color-scheme: light;
+}
+
+.tr-page,
+.tr-content,
+.tr-content * {
+  box-sizing: border-box;
+  margin: 0;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+.tr-content :focus-visible {
+  outline: 2px solid #7c5cfc;
+  outline-offset: 2px;
+}
+
+/* ── Teacher Topbar ── */
+.tr-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 64px;
+  background-color: #271f47;
+  border-bottom: 1px solid #362b5e;
+}
+
+.tr-topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tr-topbar-logo {
+  font-size: 22px;
+}
+
+.tr-topbar-title {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tr-badge-teacher {
+  display: inline-block;
+  padding: 2px 8px;
+  background-color: #7c5cfc;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+.tr-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.tr-teacher-name {
+  color: #e3d8ff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.tr-btn-logout {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 16px;
+  border: 1px solid #7c5cfc;
+  border-radius: 100px;
+  background: rgba(124, 92, 252, 0.15);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tr-btn-logout:hover {
+  background: #7c5cfc;
+  box-shadow: 0 0 12px rgba(124, 92, 252, 0.4);
+}
+
+/* ── Layout ── */
+.tr-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 28px 64px;
+}
+
+/* ── Header row ── */
+.tr-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.tr-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tr-header-left h1 {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.45;
+  color: #252538;
+}
+
+.tr-header-left p {
+  font-size: 14px;
+  color: #77778c;
+}
+
+.tr-header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* ── Buttons (shared) ── */
+.tr-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 24px;
+  border: 0;
+  border-radius: 14px;
+  background: #7c5cfc;
+  box-shadow: inset 0 -4px 0 #5038b2;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.tr-btn-primary:hover {
+  background: #8c70ff;
+}
+
+.tr-btn-primary:active {
+  background: #5038b2;
+  box-shadow: none;
+}
+
+.tr-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 10px 20px;
+  border: 1px solid #eae6f3;
+  border-radius: 14px;
+  background: #fff;
+  color: #252538;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.tr-btn-secondary:hover {
+  border-color: #7c5cfc;
+  background: #eee9ff;
+}
+
+.tr-btn-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 10px 20px;
+  border: 1px solid #eae6f3;
+  border-radius: 14px;
+  background: #fff;
+  color: #ff5b6e;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.tr-btn-danger:hover {
+  border-color: #ff5b6e;
+  background: #fff0f2;
+}
+
+/* ── Statistics cards ── */
+.tr-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.tr-stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px 24px;
+  border: 1px solid #eae6f3;
+  border-radius: 20px;
+  background: #fff;
+}
+
+.tr-stat-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #77778c;
+}
+
+.tr-stat-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: #252538;
+  line-height: 1.2;
+}
+
+.tr-stat-card:nth-child(1) .tr-stat-value { color: #7c5cfc; }
+.tr-stat-card:nth-child(2) .tr-stat-value { color: #7c5cfc; }
+.tr-stat-card:nth-child(3) .tr-stat-value { color: #58cc02; }
+.tr-stat-card:nth-child(4) .tr-stat-value { color: #ffc857; }
+
+/* ── Bar chart ── */
+.tr-chart-card {
+  padding: 24px 28px;
+  border: 1px solid #eae6f3;
+  border-radius: 20px;
+  background: #fff;
+}
+
+.tr-chart-card h2 {
+  font-size: 17px;
+  font-weight: 700;
+  color: #252538;
+  margin-bottom: 20px;
+}
+
+.tr-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+  height: 180px;
+  padding-bottom: 4px;
+}
+
+.tr-bar-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.tr-bar {
+  width: 100%;
+  max-width: 80px;
+  min-height: 12px;
+  border-radius: 8px 8px 4px 4px;
+  background: linear-gradient(180deg, #7c5cfc 0%, #a78bfa 100%);
+  transition: height 0.4s ease;
+}
+
+.tr-bar-xp {
+  font-size: 13px;
+  font-weight: 700;
+  color: #7c5cfc;
+}
+
+.tr-bar-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #77778c;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+/* ── Section headings ── */
+.tr-section-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tr-section-header h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #252538;
+}
+
+/* ── Course table ── */
+.tr-table-card {
+  overflow: hidden;
+  border: 1px solid #eae6f3;
+  border-radius: 20px;
+  background: #fff;
+}
+
+.tr-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.tr-table thead {
+  background: #f7f8fc;
+}
+
+.tr-table th {
+  padding: 14px 20px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: #77778c;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #eae6f3;
+}
+
+.tr-table td {
+  padding: 14px 20px;
+  border-bottom: 1px solid #eae6f3;
+  color: #252538;
+  vertical-align: middle;
+}
+
+.tr-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.tr-table tbody tr:hover {
+  background: #faf9ff;
+}
+
+.tr-course-title {
+  font-weight: 600;
+}
+
+.tr-course-category {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 100px;
+  background: #eee9ff;
+  color: #7c5cfc;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tr-actions-cell {
+  display: flex;
+  gap: 8px;
+}
+
+/* ── Student search ── */
+.tr-search-input {
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid #eae6f3;
+  border-radius: 12px;
+  background: #fff;
+  color: #252538;
+  font-size: 14px;
+  font-family: "Inter", system-ui, sans-serif;
+  width: 280px;
+  max-width: 100%;
+  transition: border-color 0.15s;
+}
+
+.tr-search-input::placeholder {
+  color: #b0afc0;
+}
+
+.tr-search-input:focus {
+  outline: none;
+  border-color: #7c5cfc;
+  box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.12);
+}
+
+/* ── States ── */
+.tr-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 80px 28px;
+  color: #77778c;
+  font-size: 14px;
+  text-align: center;
+}
+
+.tr-state-icon {
+  font-size: 48px;
+}
+
+.tr-state p {
+  font-size: 16px;
+  color: #77778c;
+  max-width: 400px;
+}
+
+.tr-state h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #252538;
+}
+
+/* ── Spinner ── */
+.tr-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #eae6f3;
+  border-top-color: #7c5cfc;
+  border-radius: 50%;
+  animation: tr-spin 0.8s linear infinite;
+}
+
+@keyframes tr-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Empty state inside course table ── */
+.tr-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 64px 28px;
+  border: 1px solid #eae6f3;
+  border-radius: 20px;
+  background: #fff;
+  text-align: center;
+}
+
+.tr-empty p {
+  font-size: 15px;
+  color: #77778c;
+}
+
+/* ── Edit modal ── */
+.tr-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(40, 35, 61, 0.45);
+}
+
+.tr-modal-card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  max-width: 520px;
+  padding: 28px;
+  border: 1px solid #eae6f3;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 8px 28px rgba(69, 48, 120, 0.12);
+}
+
+.tr-modal-card h2 {
+  font-size: 19px;
+  font-weight: 700;
+  color: #252538;
+}
+
+.tr-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tr-form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #77778c;
+}
+
+.tr-form-group input,
+.tr-form-group select,
+.tr-form-group textarea {
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid #eae6f3;
+  border-radius: 12px;
+  background: #fff;
+  color: #252538;
+  font-size: 14px;
+  font-family: "Inter", system-ui, sans-serif;
+  transition: border-color 0.15s;
+}
+
+.tr-form-group textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.tr-form-group input:focus,
+.tr-form-group select:focus,
+.tr-form-group textarea:focus {
+  outline: none;
+  border-color: #7c5cfc;
+  box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.12);
+}
+
+.tr-form-error {
+  font-size: 12px;
+  color: #ff5b6e;
+  font-weight: 500;
+}
+
+.tr-modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.tr-modal-actions button {
+  flex: 1;
+}
+
+/* ── Toast ── */
+.tr-toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  border-radius: 14px;
+  background: #58cc02;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgba(88, 204, 2, 0.3);
+  animation: tr-toast-in 0.3s ease;
+}
+
+@keyframes tr-toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* ── Stat icon wrapper ── */
+.tr-stat-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #eee9ff;
+}
+
+.tr-stat-icon-wrap img {
+  filter: brightness(0) saturate(100%) invert(39%) sepia(73%) saturate(3907%) hue-rotate(237deg) brightness(99%) contrast(99%);
+}
+
+/* ── Student name + avatar ── */
+.tr-student-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+}
+
+.tr-student-avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #7c5cfc;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ── XP badge ── */
+.tr-xp-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 100px;
+  background: #eee9ff;
+  color: #7c5cfc;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ── Search wrapper ── */
+.tr-search-wrap {
+  position: relative;
+}
+
+.tr-search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.tr-search-wrap .tr-search-input {
+  padding-left: 40px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .tr-content {
+    padding: 24px;
+  }
+
+  .tr-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .tr-table-card {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .tr-content {
+    padding: 20px 16px;
+  }
+
+  .tr-header-left h1 {
+    font-size: 22px;
+  }
+
+  .tr-stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .tr-stat-value {
+    font-size: 22px;
+  }
+
+  .tr-chart {
+    height: 140px;
+  }
+
+  .tr-search-input {
+    width: 100%;
+  }
+
+  .tr-header-actions {
+    width: 100%;
+  }
+
+  .tr-header-actions .tr-btn-primary {
+    flex: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tr-spinner {
+    animation: none;
+  }
+
+  .tr-toast {
+    animation: none;
+  }
+
+  .tr-bar {
+    transition: none;
+  }
+}
