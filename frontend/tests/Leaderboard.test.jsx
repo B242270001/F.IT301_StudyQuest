@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import Leaderboard from "../Leaderboard";
+import Leaderboard from "../task-06-leaderboard/Leaderboard";
 import weekly from "../../public/mock/leaderboard-weekly.json";
 import allTime from "../../public/mock/leaderboard-allTime.json";
 
