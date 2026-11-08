@@ -109,16 +109,29 @@ export const courseApi = {
 };
 
 // 5. Explore & Lectures Service (TASK-05)
+// Лекц болон сэдвийн ахицыг анх /mock-оос татаж localStorage-д хадгална,
+// ингэснээр багшийн засвар/устгал, оюутны дуусгасан сэдэв хуудас солиход хадгалагдана.
+const LECTURES_KEY = 'studyquest.lectures';
+const TOPIC_PROGRESS_KEY = 'studyquest.topicProgress';
+
+async function loadStored(key, url, field) {
+  const saved = localStorage.getItem(key);
+  if (saved) return JSON.parse(saved);
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(res.statusText);
+  const list = (await res.json())[field] || [];
+  localStorage.setItem(key, JSON.stringify(list));
+  return list;
+}
+
 export const exploreApi = {
   async getLectures() {
-    const res = await fetch('/mock/lectures.json');
-    const data = await res.json();
-    return data.lectures || [];
+    return loadStored(LECTURES_KEY, '/mock/lectures.json', 'lectures');
   },
 
   async getLectureById(id) {
     const lectures = await this.getLectures();
-    return lectures.find((l) => l.id === id) || lectures[0] || null;
+    return lectures.find((l) => l.id === id) || null;
   },
 
   async getByCourse(courseId) {
@@ -127,29 +140,42 @@ export const exploreApi = {
   },
 
   async updateLecture(id, changes) {
-    return { id, ...changes };
+    const lectures = await this.getLectures();
+    const idx = lectures.findIndex((l) => l.id === id);
+    if (idx === -1) return null;
+    lectures[idx] = { ...lectures[idx], ...changes };
+    localStorage.setItem(LECTURES_KEY, JSON.stringify(lectures));
+    return lectures[idx];
   },
 
   async deleteLecture(id) {
-    return true;
+    const lectures = await this.getLectures();
+    const remaining = lectures.filter((l) => l.id !== id);
+    localStorage.setItem(LECTURES_KEY, JSON.stringify(remaining));
+    return remaining.length < lectures.length;
   },
 
   async getTopics(courseId) {
     const res = await fetch('/mock/topics.json');
+    if (!res.ok) throw new Error(res.statusText);
     const data = await res.json();
-    const list = data.topics || [];
+    const list = (data.topics || []).sort((a, b) => a.order - b.order);
     return courseId ? list.filter((t) => t.courseId === courseId) : list;
   },
 
   async getTopicProgress(studentId) {
-    return [
-      { userId: studentId, topicId: 'TP01', status: 'DONE', knowledgeScore: 100 },
-      { userId: studentId, topicId: 'TP02', status: 'DONE', knowledgeScore: 80 },
-    ];
+    const progress = await loadStored(TOPIC_PROGRESS_KEY, '/mock/topic-progress.json', 'topicProgress');
+    return progress.filter((p) => p.userId === studentId);
   },
 
   async completeTopic(studentId, topicId, score) {
-    return true;
+    const progress = await loadStored(TOPIC_PROGRESS_KEY, '/mock/topic-progress.json', 'topicProgress');
+    const entry = { userId: studentId, topicId, status: 'DONE', knowledgeScore: score };
+    const idx = progress.findIndex((p) => p.userId === studentId && p.topicId === topicId);
+    if (idx === -1) progress.push(entry);
+    else progress[idx] = entry;
+    localStorage.setItem(TOPIC_PROGRESS_KEY, JSON.stringify(progress));
+    return entry;
   },
 };
 
