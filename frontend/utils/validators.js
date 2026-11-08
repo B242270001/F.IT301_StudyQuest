@@ -77,3 +77,47 @@ export function validateCourseForm({ title, category, description, lectureTitle,
 
   return { isValid: Object.keys(errors).length === 0, errors };
 }
+
+
+// --- Task 03 (Г. Тэмүүжин): Суралцах замналын нэгж болон тэмдэглэл шалгах ---
+export function validatePathUnitInput(input = {}) {
+  const errors = {};
+  const title = (input.title || '').trim();
+  const unitGroup = Number(input.unitGroup);
+  const xp = Number(input.xp);
+
+  if (!title) {
+    errors.title = 'Нэгжийн нэрийг заавал оруулна уу.';
+  } else if (title.length < 2) {
+    errors.title = 'Нэгжийн нэр хамгийн багадаа 2 тэмдэгт байна.';
+  } else if (title.length > 40) {
+    errors.title = 'Нэгжийн нэр 40 тэмдэгтээс хэтрэхгүй байна.';
+  }
+
+  if (!Number.isInteger(unitGroup) || unitGroup < 1 || unitGroup > 10) {
+    errors.unitGroup = 'Нэгжийн дугаар 1-ээс 10 хооронд бүхэл тоо байна.';
+  }
+
+  if (Number.isNaN(xp) || xp < 10 || xp > 500) {
+    errors.xp = 'XP оноо 10-аас 500 хооронд байх ёстой.';
+  }
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+  };
+}
+
+export function validateStudyNoteInput(noteText = '') {
+  const trimmed = String(noteText || '').trim();
+  if (!trimmed) {
+    return { isValid: false, error: 'Тэмдэглэлийн агуулга хоосон байж болохгүй.' };
+  }
+  if (trimmed.length < 5) {
+    return { isValid: false, error: 'Тэмдэглэл хамгийн багадаа 5 тэмдэгт байна.' };
+  }
+  if (trimmed.length > 300) {
+    return { isValid: false, error: 'Тэмдэглэл 300 тэмдэгтээс хэтрэхгүй байна.' };
+  }
+  return { isValid: true, error: '' };
+}

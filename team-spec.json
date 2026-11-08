@@ -2,6 +2,21 @@
   "projectName": "StudyQuest",
   "version": "2.0.0",
   "roles": ["STUDENT", "TEACHER"],
+  "routes": [
+    "/login",
+    "/dashboard",
+    "/practice",
+    "/practice/:courseId",
+    "/topics",
+    "/quiz/:unitId",
+    "/quiz/result",
+    "/admin/questions",
+    "/admin/courses",
+    "/explore",
+    "/explore/lecture/:id",
+    "/leaderboard",
+    "/ui-states"
+  ],
   "teamMembers": [
     {
       "taskId": "TASK-01",
@@ -9,7 +24,7 @@
       "role": "Frontend / Auth & Dashboard",
       "routes": ["/login", "/dashboard"],
       "apiEndpoints": ["POST /api/auth/login", "GET /api/user/profile"],
-      "tests": ["frontend/src/tests/Login.test.jsx"]
+      "tests": ["frontend/tests/Login.test.jsx"]
     },
     {
       "taskId": "TASK-02",
@@ -27,10 +42,19 @@
     {
       "taskId": "TASK-03",
       "name": "Тэмүүлэн (Temka)",
-      "role": "Frontend / Horizontal Learning Path",
-      "routes": ["/practice/:courseId", "/topics"],
-      "apiEndpoints": ["GET /api/units/path/:courseId", "GET /api/topics/:unitId"],
-      "tests": ["frontend/src/tests/HorizontalPath.test.jsx"]
+      "studentId": "B242270046",
+      "role": "Frontend / Horizontal Learning Path & Topics CRUD",
+      "routes": ["/practice/:courseId", "/topics", "/quiz/result"],
+      "apiEndpoints": [
+        "GET /api/units/path/:courseId",
+        "GET /api/topics/:unitId",
+        "POST /api/units/path/:courseId",
+        "PUT /api/units/path/:id",
+        "DELETE /api/units/path/:id"
+      ],
+      "tests": [
+        "frontend/tests/HorizontalPath.test.jsx"
+      ]
     },
     {
       "taskId": "TASK-04",
@@ -42,7 +66,10 @@
         "POST /api/admin/courses",
         "DELETE /api/admin/courses/:id"
       ],
-      "tests": ["backend/tests/courses_crud.test.js"]
+      "tests": [
+        "frontend/tests/TeacherRoom.test.jsx",
+        "frontend/tests/CourseForm.test.jsx"
+      ]
     },
     {
       "taskId": "TASK-05",
@@ -50,7 +77,7 @@
       "role": "Frontend / Explore Library with Search",
       "routes": ["/explore", "/explore/lecture/:id"],
       "apiEndpoints": ["GET /api/courses/explore", "GET /api/lectures/:id"],
-      "tests": ["frontend/src/tests/ExploreSearch.test.jsx"]
+      "tests": ["frontend/tests/LectureDetail.test.jsx"]
     },
     {
       "taskId": "TASK-06",
@@ -58,7 +85,64 @@
       "role": "Frontend & QA / Leaderboard, UI States & E2E Testing",
       "routes": ["/leaderboard", "/ui-states"],
       "apiEndpoints": ["GET /api/leaderboard"],
-      "tests": ["frontend/tests/Leaderboard.test.jsx", "frontend/tests/GlobalUIStates.test.jsx"]
+      "tests": [
+        "frontend/tests/Leaderboard.test.jsx",
+        "frontend/tests/GlobalUIStates.test.jsx"
+      ]
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "task03-path-role",
+      "taskId": "TASK-03",
+      "tags": ["role"],
+      "route": "/practice/C01",
+      "description": "STUDENT эрхээр зөвхөн суралцах зам харагдана, TEACHER эрх рүү шилжихэд нэгж/сэдэв удирдах CRUD самбар нээгдэнэ.",
+      "steps": [
+        { "action": "goto", "url": "/practice/C01" },
+        { "action": "expectHidden", "testId": "teacher-path-controls" },
+        { "action": "click", "testId": "role-toggle-btn" },
+        { "action": "expectVisible", "testId": "teacher-path-controls" }
+      ]
+    },
+    {
+      "id": "task03-path-validation",
+      "taskId": "TASK-03",
+      "tags": ["validation"],
+      "route": "/practice/C01",
+      "description": "Нэгж нэмэх форм дээр хоосон нэр болон буруу XP утга оруулахад validation алдааны мэдээлэл харуулна.",
+      "steps": [
+        { "action": "goto", "url": "/practice/C01" },
+        { "action": "click", "testId": "role-toggle-btn" },
+        { "action": "click", "testId": "open-create-unit-btn" },
+        { "action": "fill", "testId": "unit-title-input", "value": "" },
+        { "action": "fill", "testId": "unit-xp-input", "value": "3" },
+        { "action": "click", "testId": "save-unit-btn" },
+        { "action": "expectVisible", "testId": "error-unit-title" },
+        { "action": "expectVisible", "testId": "error-unit-xp" }
+      ]
+    },
+    {
+      "id": "task03-path-crud",
+      "taskId": "TASK-03",
+      "tags": ["crud"],
+      "route": "/practice/C01",
+      "description": "Сургалтын замналын нэгж дээр Create -> Read -> Update -> Delete бүтэн урсгал ажиллана.",
+      "steps": [
+        { "action": "goto", "url": "/practice/C01" },
+        { "action": "click", "testId": "role-toggle-btn" },
+        { "action": "click", "testId": "open-create-unit-btn" },
+        { "action": "fill", "testId": "unit-title-input", "value": "Custom Hooks" },
+        { "action": "fill", "testId": "unit-xp-input", "value": "60" },
+        { "action": "click", "testId": "save-unit-btn" },
+        { "action": "expectText", "text": "Custom Hooks" },
+        { "action": "click", "testId": "edit-unit-UN01" },
+        { "action": "fill", "testId": "unit-title-input", "value": "HTML5 Суурь" },
+        { "action": "click", "testId": "save-unit-btn" },
+        { "action": "expectText", "text": "HTML5 Суурь" },
+        { "action": "click", "testId": "delete-unit-UN01" },
+        { "action": "expectNotText", "text": "HTML5 Суурь" }
+      ]
     }
   ]
 }

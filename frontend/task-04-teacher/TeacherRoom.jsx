@@ -56,26 +56,8 @@ export default function TeacherRoom({ user, onLogout }) {
     setTimeout(() => setToast(null), 4000);
   }
 
-  /* ── Auth шалгах ── */
-  if (user && user.role !== "TEACHER") {
-    return (
-      <div data-testid="page-teacher-room" className="tr-page">
-        <div className="tr-state" data-testid="state-forbidden">
-          <span className="tr-state-icon">🚫</span>
-          <h2>Хандах эрхгүй</h2>
-          <p>Энэ хуудсыг зөвхөн багш үзэх боломжтой</p>
-          <button
-            className="tr-btn-secondary"
-            onClick={() => navigate("/dashboard")}
-          >
-            Өрөө рүү буцах
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   // Mock өгөгдлийг ачаалах
+  // ЗАСВАР: useEffect нь role шалгах эрт буцаалтаас ӨМНӨ байх ёстой
   useEffect(() => {
     async function load() {
       try {
@@ -116,6 +98,25 @@ export default function TeacherRoom({ user, onLogout }) {
     }
     load();
   }, []);
+
+  /* ── Auth шалгах (hooks-ийн дараа) ── */
+  if (user && user.role !== "TEACHER") {
+    return (
+      <div data-testid="page-teacher-room" className="tr-page">
+        <div className="tr-state" data-testid="state-forbidden">
+          <span className="tr-state-icon">🚫</span>
+          <h2>Хандах эрхгүй</h2>
+          <p>Энэ хуудсыг зөвхөн багш үзэх боломжтой</p>
+          <button
+            className="tr-btn-secondary"
+            onClick={() => navigate("/dashboard")}
+          >
+            Өрөө рүү буцах
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   /* ── Хичээл устгах ── */
   const handleDelete = async (id) => {
@@ -179,10 +180,11 @@ export default function TeacherRoom({ user, onLogout }) {
   };
 
   // Bar chart-ийн XP өгөгдөл
+  // ЗАСВАР: Math.random() биш тогтмол утга
   const xpByCourse = courses.map((c) => ({
     courseId: c.id,
     title: c.title,
-    xp: Math.floor(Math.random() * 2000 + 500),
+    xp: c.xp ?? 500 + (c.totalUnits || 1) * 250,
   }));
   const maxXp = Math.max(...xpByCourse.map((x) => x.xp), 1);
 
@@ -239,7 +241,7 @@ export default function TeacherRoom({ user, onLogout }) {
   /* ── Үндсэн агуулга ── */
   return (
     <div data-testid="page-teacher-room" className="tr-page">
-      {/* ── Багшийн тусгай топ бар (суралцагчийн navbar байхгүй) ── */}
+      {/* ── Багшийн тусгай топ бар ── */}
       <header className="tr-topbar">
         <div className="tr-topbar-brand">
           <span className="tr-topbar-logo">🎓</span>
@@ -405,12 +407,7 @@ export default function TeacherRoom({ user, onLogout }) {
                           className="tr-btn-secondary"
                           onClick={() => handleEditClick(course)}
                         >
-                          <img
-                            src={iconEdit}
-                            alt=""
-                            width="14"
-                            height="14"
-                          />
+                          <img src={iconEdit} alt="" width="14" height="14" />
                           Засах
                         </button>
                         <button
@@ -418,12 +415,7 @@ export default function TeacherRoom({ user, onLogout }) {
                           className="tr-btn-danger"
                           onClick={() => handleDelete(course.id)}
                         >
-                          <img
-                            src={iconTrash}
-                            alt=""
-                            width="14"
-                            height="14"
-                          />
+                          <img src={iconTrash} alt="" width="14" height="14" />
                           Устгах
                         </button>
                       </div>

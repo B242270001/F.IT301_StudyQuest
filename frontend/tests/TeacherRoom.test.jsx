@@ -1,5 +1,5 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import TeacherRoom from "../task-04-teacher/TeacherRoom";
 import coursesData from "../../public/mock/courses.json";
@@ -30,10 +30,15 @@ function renderPage(user = teacher) {
   );
 }
 
+beforeEach(() => {
+  localStorage.clear();
+});
+
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
+  localStorage.clear();
 });
 
 describe("TeacherRoom", () => {
@@ -67,8 +72,8 @@ describe("TeacherRoom", () => {
     const rows = await screen.findAllByTestId("course-row");
     expect(rows).toHaveLength(coursesData.courses.length);
 
-    // First course title is visible
-    expect(screen.getByText("Веб систем ба технологи")).toBeTruthy();
+    // First course title is visible (bar chart болон table-д давхардах тул getAllByText)
+    expect(screen.getAllByText("Веб систем ба технологи").length).toBeGreaterThan(0);
   });
 
   it("shows student table with student data", async () => {
@@ -108,7 +113,7 @@ describe("TeacherRoom", () => {
     renderPage();
 
     expect(await screen.findByTestId("state-empty")).toBeTruthy();
-    expect(screen.getByText(/Хичээл алга/)).toBeTruthy();
+    expect(screen.getAllByText(/Хичээл алга/).length).toBeGreaterThan(0);
   });
 
   it("delete button triggers window.confirm", async () => {
@@ -134,8 +139,10 @@ describe("TeacherRoom", () => {
     fireEvent.click(screen.getAllByTestId("course-delete-btn")[0]);
 
     // After deletion, one fewer row
-    const rowsAfter = screen.getAllByTestId("course-row");
-    expect(rowsAfter).toHaveLength(initialCount - 1);
+    await waitFor(() => {
+      const rowsAfter = screen.getAllByTestId("course-row");
+      expect(rowsAfter).toHaveLength(initialCount - 1);
+    });
   });
 
   it("shows loading state initially", () => {
