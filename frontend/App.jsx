@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { authApi } from "./services/api";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // TASK-01: Auth, Dashboard (А. Төгөлдөр)
 import Login from "./task-01-auth/Login";
@@ -102,6 +103,17 @@ export default function App() {
             )
           }
         />
+        {/* TASK-03: static /quiz/result-ыг dynamic /quiz/:unitId-ээс өмнө тодорхойлно */}
+        <Route
+          path="/quiz/result"
+          element={
+            isLoggedIn ? (
+              <QuizResult user={user} />
+            ) : (
+              <RequireLogin />
+            )
+          }
+        />
         <Route
           path="/quiz/:unitId"
           element={
@@ -115,17 +127,13 @@ export default function App() {
         <Route
           path="/admin/questions"
           element={
-            isLoggedIn && isTeacher ? (
+            <ProtectedRoute user={user} requiredRole="TEACHER">
               <AdminQuestions user={user} />
-            ) : isLoggedIn ? (
-              <Navigate to="/dashboard" />
-            ) : (
-              <RequireLogin />
-            )
+            </ProtectedRoute>
           }
         />
 
-        {/* TASK-03: Learning Path & Quiz Result */}
+        {/* TASK-03: Learning Path */}
         <Route
           path="/practice/:courseId"
           element={
@@ -136,37 +144,31 @@ export default function App() {
             )
           }
         />
-        <Route
-          path="/quiz/result"
-          element={
-            isLoggedIn ? (
-              <QuizResult user={user} />
-            ) : (
-              <RequireLogin />
-            )
-          }
-        />
 
-        {/* TASK-04: Teacher Room & Course CRUD */}
+        {/* TASK-04: Teacher Room & Course CRUD (Зөвхөн TEACHER эрхээр) */}
         <Route
           path="/teacher"
           element={
-            isLoggedIn && isTeacher ? (
+            <ProtectedRoute user={user} requiredRole="TEACHER">
               <TeacherRoom user={user} onLogout={handleLogout} />
-            ) : isLoggedIn ? (
-              <Navigate to="/dashboard" />
-            ) : (
-              <RequireLogin />
-            )
+            </ProtectedRoute>
           }
         />
         <Route
           path="/teacher/courses/new"
           element={
-            isLoggedIn && isTeacher ? (
+            <ProtectedRoute user={user} requiredRole="TEACHER">
               <TeacherCourseForm user={user} />
-            ) : isLoggedIn ? (
-              <Navigate to="/dashboard" />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* TASK-05: Topics & Explore Lectures */}
+        <Route
+          path="/topics"
+          element={
+            isLoggedIn ? (
+              <Navigate to="/explore" replace />
             ) : (
               <RequireLogin />
             )

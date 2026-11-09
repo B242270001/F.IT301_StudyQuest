@@ -6,21 +6,37 @@ import "./Login.css";
 export default function Login({ onLogin }) {
   const [studentCode, setStudentCode] = useState("");
   const [password, setPassword] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setNameError("");
+    setPasswordError("");
 
-    if (!studentCode.trim || !password.trim) {
-      setError("Оюутны код болон нууц үгээ оруулна уу!");
+    const trimmedCode = (studentCode || "").trim();
+    const trimmedPass = (password || "").trim();
+
+    let hasError = false;
+    if (!trimmedCode) {
+      setNameError("Оюутны код эсвэл нэрээ оруулна уу");
+      hasError = true;
+    }
+    if (!trimmedPass) {
+      setPasswordError("Нууц үгээ оруулна уу");
+      hasError = true;
+    }
+
+    if (hasError) {
       return;
     }
 
     setLoading(true);
     try {
-      const user = await authApi.login(studentCode, password);
+      const user = await authApi.login(trimmedCode, trimmedPass);
       if (!user) {
         setError("Оюутны код эсвэл нууц үг буруу байна. Дахин оролдоно уу.");
         setLoading(false);
@@ -35,7 +51,7 @@ export default function Login({ onLogin }) {
   };
 
   return (
-    <div className="login-container">
+    <div className="login-container" data-testid="page-login">
       {/* Зүүн талын хэсэг */}
       <div className="login-left-section">
         <div className="brand-header">
@@ -76,7 +92,11 @@ export default function Login({ onLogin }) {
           </div>
 
           {error && (
-            <div className="login-error" style={{ color: "#ef4444", background: "#fef2f2", padding: "8px 12px", borderRadius: "8px", marginBottom: "12px", fontSize: "14px" }}>
+            <div
+              className="login-error"
+              data-testid="login-error"
+              style={{ color: "#ef4444", background: "#fef2f2", padding: "8px 12px", borderRadius: "8px", marginBottom: "12px", fontSize: "14px" }}
+            >
               {error}
             </div>
           )}
@@ -88,10 +108,24 @@ export default function Login({ onLogin }) {
                 <input
                   type="text"
                   placeholder="temuulen/bagsh"
+                  data-testid="login-name-input"
                   value={studentCode}
-                  onChange={(e) => setStudentCode(e.target.value)}
+                  onChange={(e) => {
+                    setStudentCode(e.target.value);
+                    if (nameError) setNameError("");
+                    if (error) setError("");
+                  }}
                 />
               </div>
+              {nameError && (
+                <span
+                  className="login-name-error"
+                  data-testid="login-name-error"
+                  style={{ color: "#ef4444", fontSize: "12px", marginTop: "4px", display: "block" }}
+                >
+                  {nameError}
+                </span>
+              )}
             </div>
 
             <div className="input-group">
@@ -100,17 +134,31 @@ export default function Login({ onLogin }) {
                 <input
                   type="password"
                   placeholder="student123/teacher123"
+                  data-testid="login-password-input"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (passwordError) setPasswordError("");
+                    if (error) setError("");
+                  }}
                 />
               </div>
+              {passwordError && (
+                <span
+                  className="login-password-error"
+                  data-testid="login-password-error"
+                  style={{ color: "#ef4444", fontSize: "12px", marginTop: "4px", display: "block" }}
+                >
+                  {passwordError}
+                </span>
+              )}
             </div>
 
             <div className="forgot-password">
               <a href="#forgot">Нууц үгээ мартсан уу?</a>
             </div>
 
-            <button type="submit" className="login-btn" disabled={loading}>
+            <button type="submit" className="login-btn" data-testid="login-submit-btn" disabled={loading}>
               <span>{loading ? "Нэвтэрж байна..." : "Сэрэх"}</span>
               <span>🚀</span>
             </button>

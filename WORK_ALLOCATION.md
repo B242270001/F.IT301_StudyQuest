@@ -49,8 +49,8 @@
 ### TASK-01 · А. Төгөлдөр · Reviewer: TASK-02
 - **Хэсэг:** Login, Dashboard, AuthContext, ProtectedRoute, router, mock login/role
 - **Routes:** `/login`, `/dashboard`
-- **Файл:** `frontend/src/features/auth/LoginScreen.jsx`, `frontend/src/features/dashboard/VirtualRoomDashboard.jsx`, `frontend/src/auth/*`, `frontend/src/router.jsx`, `frontend/src/components/TopHUD.jsx`
-- **Тест:** `frontend/src/tests/Login.test.jsx`, `ProtectedRoute.test.jsx`, `e2e/role.spec.js` (tag `role`)
+- **Файл:** `frontend/task-01-auth/Login.jsx`, `frontend/task-01-auth/Dashboard.jsx`, `frontend/components/ProtectedRoute.jsx`, `frontend/components/AuthContext.jsx`, `frontend/App.jsx`, `frontend/components/Navbar.jsx`
+- **Тест:** `frontend/tests/Login.test.jsx`, `frontend/tests/ProtectedRoute.test.jsx`, `e2e/role.spec.js` (tag `role`)
 - **Хамаарал:** TASK-03-ийн mock store (хэрэглэгчийн өгөгдөл), TASK-06-ийн state component
 - **Хүлээн авах шалгуур:**
   1. Зөв нэр/нууц үгээр нэвтэрч `/dashboard` нээгдэнэ; reload хийхэд session хэвээр.

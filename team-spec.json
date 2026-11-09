@@ -24,7 +24,10 @@
       "role": "Frontend / Auth & Dashboard",
       "routes": ["/login", "/dashboard"],
       "apiEndpoints": ["POST /api/auth/login", "GET /api/user/profile"],
-      "tests": ["frontend/tests/Login.test.jsx"]
+      "tests": [
+        "frontend/tests/Login.test.jsx",
+        "frontend/tests/ProtectedRoute.test.jsx"
+      ]
     },
     {
       "taskId": "TASK-02",
@@ -92,6 +95,34 @@
     }
   ],
   "scenarios": [
+    {
+      "id": "task01-auth-role",
+      "taskId": "TASK-01",
+      "tags": ["role"],
+      "route": "/login",
+      "description": "Зөв нэр/нууц үгээр нэвтэрч /dashboard нээгдэнэ, оюутанд room-computer, багшид room-board харагдана.",
+      "steps": [
+        { "action": "goto", "url": "/login" },
+        { "action": "fill", "testId": "login-name-input", "value": "temuulen" },
+        { "action": "fill", "testId": "login-password-input", "value": "student123" },
+        { "action": "click", "testId": "login-submit-btn" },
+        { "action": "expectVisible", "testId": "page-dashboard" },
+        { "action": "expectVisible", "testId": "room-computer" }
+      ]
+    },
+    {
+      "id": "task01-auth-validation",
+      "taskId": "TASK-01",
+      "tags": ["validation"],
+      "route": "/login",
+      "description": "Хоосон нэр нууц үг оруулахад validation алдааны мэдээлэл харуулна.",
+      "steps": [
+        { "action": "goto", "url": "/login" },
+        { "action": "click", "testId": "login-submit-btn" },
+        { "action": "expectVisible", "testId": "login-name-error" },
+        { "action": "expectVisible", "testId": "login-password-error" }
+      ]
+    },
     {
       "id": "task03-path-role",
       "taskId": "TASK-03",
