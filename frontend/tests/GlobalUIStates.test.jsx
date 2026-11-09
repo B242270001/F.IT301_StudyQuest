@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
-import GlobalUIStates from "../GlobalUIStates";
+import GlobalUIStates from "../task-06-leaderboard/GlobalUIStates";
 
 afterEach(cleanup);
 

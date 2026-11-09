@@ -38,7 +38,8 @@ describe('Task 3: HorizontalLearningPath & QuizResult', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Хувьсагч ба өгөгдлийн төрөл')).toBeInTheDocument();
-      expect(screen.getByText('Нөхцөл шалгах оператор')).toBeInTheDocument();
+      // CURRENT нэгж замд болон "Дараагийн хичээл" картад давхар харагдана
+      expect(screen.getAllByText('Нөхцөл шалгах оператор')).toHaveLength(2);
     });
 
     expect(screen.getByTestId('path-completed-count')).toHaveTextContent('1 / 3');
