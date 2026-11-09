@@ -16,12 +16,7 @@ export default function Navbar({ user }) {
   return (
     <header className="navbar">
       <div className="nav-brand">
-        <img
-          src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/aN0ksSNPo6/h3krnzrs_expires_30_days.png"
-          className="brand-logo"
-          alt="Logo"
-        />
-        <span className="brand-name">StudyQuest</span>
+        <span className="brand-name">✨ StudyQuest</span>
       </div>
 
       {/* Цэсний товчлууруудыг хооронд нь ойртуулах контейнер */}
@@ -47,18 +42,10 @@ export default function Navbar({ user }) {
 
       <div className="nav-stats">
         <div className="stat-item">
-          <img
-            src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/aN0ksSNPo6/ndp6yrkn_expires_30_days.png"
-            alt="XP"
-          />
-          <span className="stat-text">{totalXp} XP</span>
+          <span className="stat-text">⚡ {totalXp} XP</span>
         </div>
         <div className="stat-item">
-          <img
-            src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/aN0ksSNPo6/d12a4c24_expires_30_days.png"
-            alt="Streak"
-          />
-          <span className="stat-text">{streak} өдөр</span>
+          <span className="stat-text">🔥 {streak} өдөр</span>
         </div>
         <button
           className="user-avatar-btn"

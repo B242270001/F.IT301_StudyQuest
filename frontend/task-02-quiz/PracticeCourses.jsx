@@ -89,7 +89,7 @@ export default function PracticeCourses({ user }) {
                   <Link
                     to={`/practice/${course.id}`}
                     style={{
-                      background: '#2563eb',
+                      background: '#eb6e25',
                       color: '#ffffff',
                       padding: '8px 16px',
                       borderRadius: '8px',

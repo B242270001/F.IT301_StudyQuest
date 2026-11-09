@@ -146,10 +146,6 @@ export default function Dashboard({ user, onLogout }) {
               </div>
 
               <div className="streak-card-overlay">
-                <img
-                  src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/aN0ksSNPo6/epwsr4vp_expires_30_days.png"
-                  alt="Streak badge"
-                />
                 {/* 2. Streak-ийн утгаас хамаарсан динамик текст */}
                 <span>{getStreakMessage(streak)}</span>
               </div>
