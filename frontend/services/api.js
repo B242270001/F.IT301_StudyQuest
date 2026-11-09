@@ -125,6 +125,28 @@ async function loadStored(key, url, field) {
 }
 
 export const exploreApi = {
+  // GET /api/courses/explore?search=&category= (docs/04-api-pages.md)
+  // search: нэр/тайлбараар, том жижгийг ялгахгүй. category: enum (WEB, OS, DATABASE).
+  async searchCourses({ search = '', category = '' } = {}) {
+    const [courses, topics, lectures] = await Promise.all([
+      courseApi.getCourses(),
+      this.getTopics(),
+      this.getLectures(),
+    ]);
+    const q = search.trim().toLowerCase();
+    return courses
+      .filter((c) => !category || c.category === category)
+      .filter((c) => !q || `${c.title} ${c.description || ''}`.toLowerCase().includes(q))
+      .map((c) => ({
+        id: c.id,
+        title: c.title,
+        description: c.description,
+        category: c.category,
+        topicCount: topics.filter((t) => t.courseId === c.id).length,
+        lectureCount: lectures.filter((l) => l.courseId === c.id).length,
+      }));
+  },
+
   async getLectures() {
     return loadStored(LECTURES_KEY, '/mock/lectures.json', 'lectures');
   },
