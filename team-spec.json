@@ -23,10 +23,20 @@
       "name": "А. Төгөлдөр",
       "role": "Frontend / Auth & Dashboard",
       "routes": ["/login", "/dashboard"],
-      "apiEndpoints": ["POST /api/auth/login", "GET /api/user/profile"],
+      "apiEndpoints": [
+        "GET /api/health",
+        "GET /api/users",
+        "GET /api/users/:id",
+        "POST /api/users",
+        "POST /api/auth/login",
+        "GET /api/user/profile"
+      ],
       "tests": [
         "frontend/tests/Login.test.jsx",
-        "frontend/tests/ProtectedRoute.test.jsx"
+        "frontend/tests/ProtectedRoute.test.jsx",
+        "backend/tests/health.test.js",
+        "backend/tests/users.test.js",
+        "backend/tests/auth.test.js"
       ]
     },
     {
@@ -174,6 +184,111 @@
         { "action": "click", "testId": "delete-unit-UN01" },
         { "action": "expectNotText", "text": "HTML5 Суурь" }
       ]
+    }
+  ],
+  "endpoints": [
+    {
+      "lab": 4,
+      "taskId": "TASK-01",
+      "id": "health",
+      "method": "GET",
+      "path": "/api/health",
+      "expectedStatus": 200
+    },
+    {
+      "lab": 4,
+      "taskId": "TASK-01",
+      "id": "users-list",
+      "method": "GET",
+      "path": "/api/users",
+      "expectedStatus": 200
+    },
+    {
+      "lab": 4,
+      "taskId": "TASK-01",
+      "id": "users-detail",
+      "method": "GET",
+      "path": "/api/users/U01",
+      "expectedStatus": 200
+    },
+    {
+      "lab": 4,
+      "taskId": "TASK-01",
+      "id": "users-detail-missing",
+      "method": "GET",
+      "path": "/api/users/NOPE",
+      "expectedStatus": 404
+    },
+    {
+      "lab": 4,
+      "taskId": "TASK-01",
+      "id": "users-create",
+      "method": "POST",
+      "path": "/api/users",
+      "body": {
+        "username": "lab4user",
+        "password": "secret123",
+        "displayName": "Лабын Хэрэглэгч",
+        "role": "STUDENT"
+      },
+      "expectedStatus": 201
+    },
+    {
+      "lab": 4,
+      "taskId": "TASK-01",
+      "id": "users-create-invalid",
+      "method": "POST",
+      "path": "/api/users",
+      "body": {
+        "username": "",
+        "password": "secret123",
+        "displayName": "Лабын Хэрэглэгч"
+      },
+      "expectedStatus": 422
+    },
+    {
+      "lab": 4,
+      "taskId": "TASK-01",
+      "id": "auth-login",
+      "method": "POST",
+      "path": "/api/auth/login",
+      "body": {
+        "username": "temuulen",
+        "password": "student123"
+      },
+      "expectedStatus": 200
+    },
+    {
+      "lab": 4,
+      "taskId": "TASK-01",
+      "id": "auth-login-invalid",
+      "method": "POST",
+      "path": "/api/auth/login",
+      "body": {
+        "username": "",
+        "password": "student123"
+      },
+      "expectedStatus": 422
+    },
+    {
+      "lab": 4,
+      "taskId": "TASK-01",
+      "id": "auth-login-unauthorized",
+      "method": "POST",
+      "path": "/api/auth/login",
+      "body": {
+        "username": "temuulen",
+        "password": "wrong-pass"
+      },
+      "expectedStatus": 401
+    },
+    {
+      "lab": 4,
+      "taskId": "TASK-01",
+      "id": "user-profile-unauthorized",
+      "method": "GET",
+      "path": "/api/user/profile",
+      "expectedStatus": 401
     }
   ]
 }

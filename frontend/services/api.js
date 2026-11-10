@@ -1,30 +1,43 @@
 /**
  * Central API & Mock Service — StudyQuest
  * ========================================
- * Одоогоор: public/mock/*.json-оос fetch хийж ажиллана.
- * Сүүлд: Backend API бэлэн болоход энд байгаа endpoint URL-уудыг
- *        /mock/*.json -> /api/... болгоход л бүх систем шууд DB-тэй холбогдоно.
+ * TASK-01 Auth: Express `/api/auth/login`, `/api/user/profile` (Lab 4).
+ * Бусад модуль Lab 5 хүртэл public/mock/*.json ашиглана.
  */
+
+const SESSION_KEY = "studyquest.currentUser";
 
 // 1. Auth & User Service (TASK-01)
 export const authApi = {
   async login(username, password) {
-    const res = await fetch('/mock/users.json');
-    const data = await res.json();
-    const user = data.users.find((u) => u.username === username && u.password === password);
-    if (!user) return null;
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+    if (res.status === 401 || res.status === 422) return null;
+    if (!res.ok) throw new Error("login failed");
 
-    const { password: _p, ...safeUser } = user;
-    sessionStorage.setItem('studyquest.currentUser', JSON.stringify(safeUser));
-    return safeUser;
+    const data = await res.json();
+    const profileRes = await fetch("/api/user/profile", {
+      headers: { Authorization: `Bearer ${data.token}` },
+    });
+    const profile = profileRes.ok ? await profileRes.json() : { ...data.user, username };
+    const session = {
+      ...profile,
+      username: profile.username || username,
+      token: data.token,
+    };
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    return session;
   },
 
   logout() {
-    sessionStorage.removeItem('studyquest.currentUser');
+    sessionStorage.removeItem(SESSION_KEY);
   },
 
   getCurrentUser() {
-    const raw = sessionStorage.getItem('studyquest.currentUser');
+    const raw = sessionStorage.getItem(SESSION_KEY);
     return raw ? JSON.parse(raw) : null;
   },
 };

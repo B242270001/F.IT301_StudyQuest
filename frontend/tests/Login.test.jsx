@@ -2,19 +2,70 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import Login from "../task-01-auth/Login";
-import usersData from "../../public/mock/users.json";
 
-/* ── Mock fetch for /mock/users.json ── */
-const mockFiles = {
-  "/mock/users.json": usersData,
+const ACCOUNTS = {
+  temuulen: {
+    password: "student123",
+    profile: {
+      id: "U05",
+      username: "temuulen",
+      displayName: "Б. Тэмүүлэн",
+      role: "STUDENT",
+      totalXp: 2480,
+      streakDays: 7,
+    },
+  },
+  bagsh: {
+    password: "teacher123",
+    profile: {
+      id: "U10",
+      username: "bagsh",
+      displayName: "Д. Батбаяр",
+      role: "TEACHER",
+      totalXp: 0,
+      streakDays: 0,
+    },
+  },
 };
 
-function serveMock(failing = false) {
-  const fetchMock = vi.fn(async (url) => {
-    if (failing) {
-      return { ok: false, status: 500, json: async () => ({}) };
+function serveApi() {
+  let tokenUser = null;
+  const fetchMock = vi.fn(async (url, options = {}) => {
+    const path = String(url);
+
+    if (path.includes("/api/auth/login")) {
+      const body = JSON.parse(options.body || "{}");
+      const account = ACCOUNTS[body.username];
+      if (!account || account.password !== body.password) {
+        return {
+          ok: false,
+          status: 401,
+          json: async () => ({ message: "Нэр эсвэл нууц үг буруу байна" }),
+        };
+      }
+      tokenUser = account.profile;
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          token: `tok-${account.profile.id}`,
+          user: {
+            id: account.profile.id,
+            displayName: account.profile.displayName,
+            role: account.profile.role,
+          },
+        }),
+      };
     }
-    return { ok: true, json: async () => mockFiles[url] || { users: [] } };
+
+    if (path.includes("/api/user/profile")) {
+      if (!tokenUser) {
+        return { ok: false, status: 401, json: async () => ({ message: "Нэвтрээгүй байна" }) };
+      }
+      return { ok: true, status: 200, json: async () => tokenUser };
+    }
+
+    return { ok: false, status: 404, json: async () => ({}) };
   });
   vi.stubGlobal("fetch", fetchMock);
   return fetchMock;
@@ -35,7 +86,7 @@ afterEach(() => {
 
 describe("TASK-01: Login component validation and authentication", () => {
   it("renders page-login, input fields, and submit button", () => {
-    serveMock();
+    serveApi();
     render(
       <MemoryRouter>
         <Login onLogin={vi.fn()} />
@@ -49,7 +100,7 @@ describe("TASK-01: Login component validation and authentication", () => {
   });
 
   it("shows login-name-error and login-password-error when submitted empty", async () => {
-    const fetchMock = serveMock();
+    const fetchMock = serveApi();
     const handleLogin = vi.fn();
 
     render(
@@ -69,7 +120,7 @@ describe("TASK-01: Login component validation and authentication", () => {
   });
 
   it("shows login-password-error when only student code is entered", async () => {
-    serveMock();
+    serveApi();
     const handleLogin = vi.fn();
 
     render(
@@ -89,7 +140,7 @@ describe("TASK-01: Login component validation and authentication", () => {
   });
 
   it("shows login-error message on invalid credentials", async () => {
-    serveMock();
+    serveApi();
     const handleLogin = vi.fn();
 
     render(
@@ -114,7 +165,7 @@ describe("TASK-01: Login component validation and authentication", () => {
   });
 
   it("logs in successfully as STUDENT and triggers onLogin with user info", async () => {
-    serveMock();
+    serveApi();
     const handleLogin = vi.fn();
 
     render(
@@ -142,7 +193,7 @@ describe("TASK-01: Login component validation and authentication", () => {
   });
 
   it("logs in successfully as TEACHER and triggers onLogin", async () => {
-    serveMock();
+    serveApi();
     const handleLogin = vi.fn();
 
     render(

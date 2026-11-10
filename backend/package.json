@@ -1,0 +1,19 @@
+{
+  "name": "studyquest-backend",
+  "private": true,
+  "version": "0.4.0",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "start:grader": "node src/server.js",
+    "test": "node --test tests/health.test.js tests/users.test.js tests/auth.test.js",
+    "test:ci": "node --test tests/health.test.js tests/users.test.js tests/auth.test.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "supertest": "^7.1.4"
+  }
+}
