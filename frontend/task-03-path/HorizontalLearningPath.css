@@ -15,9 +15,43 @@
 /* 1. Дээд гарчиг ба Зорилго */
 .sq-top-bar {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
+  gap: 14px;
   margin-bottom: 22px;
+}
+
+.sq-top-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.sq-role-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border: 1.5px solid #ddd6fe;
+  border-radius: 999px;
+  background-color: #ffffff;
+  color: #5b21b6;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sq-role-toggle:hover {
+  border-color: #7c3aed;
+}
+
+.sq-role-toggle.is-teacher {
+  background-color: #432889;
+  border-color: #432889;
+  color: #ffffff;
 }
 
 .sq-page-title {
@@ -201,9 +235,141 @@
 }
 
 .sq-chapter-count {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
   font-size: 13px;
   font-weight: 700;
   color: #5b21b6;
+}
+
+.sq-chapter-avg {
+  color: #8e8ea0;
+  font-weight: 600;
+}
+
+/* Багшийн нэгж удирдах самбар */
+.sq-teacher-panel {
+  text-align: left;
+  background-color: #ffffff;
+  border: 1.5px dashed #c4b5fd;
+  border-radius: 18px;
+  padding: 18px 22px;
+  margin-bottom: 22px;
+}
+
+.sq-teacher-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sq-teacher-panel-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1e1b4b;
+  margin: 0 0 4px;
+}
+
+.sq-teacher-panel-sub {
+  font-size: 12.5px;
+  color: #8e8ea0;
+  margin: 0;
+}
+
+.sq-teacher-panel-actions,
+.sq-unit-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sq-btn-primary,
+.sq-btn-ghost {
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sq-btn-primary {
+  border: none;
+  background-color: #7c3aed;
+  color: #ffffff;
+}
+
+.sq-btn-primary:hover {
+  background-color: #6d28d9;
+}
+
+.sq-btn-ghost {
+  border: 1px solid #e4e4e7;
+  background-color: #ffffff;
+  color: #52525b;
+}
+
+.sq-unit-form {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f1f5;
+}
+
+.sq-unit-form-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #1e1b4b;
+  margin: 0 0 12px;
+}
+
+.sq-unit-form-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1.4fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.sq-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.sq-field-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #52525b;
+}
+
+.sq-field input,
+.sq-field select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 12px;
+  border: 1px solid #e4e4e7;
+  border-radius: 10px;
+  background-color: #ffffff;
+  font-size: 13.5px;
+  color: #1e1b4b;
+}
+
+.sq-field input:focus,
+.sq-field select:focus {
+  outline: 2px solid #c4b5fd;
+  border-color: #7c3aed;
+}
+
+.sq-field [aria-invalid='true'] {
+  border-color: #dc2626;
+}
+
+.sq-field-error {
+  font-size: 12px;
+  font-weight: 600;
+  color: #dc2626;
 }
 
 .sq-loading-box {
@@ -222,6 +388,11 @@
   position: relative;
   min-width: 960px;
   height: 235px;
+}
+
+/* Багшийн горимд зангилаа бүрийн доор засах/устгах товч нэмэгдэнэ */
+.sq-wave-canvas.teacher-mode {
+  height: 275px;
 }
 
 /* Босоо тусгаарлагч шугам */
@@ -406,6 +577,38 @@
   font-weight: 600;
 }
 
+.sq-node-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.sq-node-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid #e4e2ee;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #5b21b6;
+  cursor: pointer;
+}
+
+.sq-node-action:hover {
+  border-color: #7c3aed;
+}
+
+.sq-node-action.danger {
+  color: #dc2626;
+}
+
+.sq-node-action.danger:hover {
+  border-color: #dc2626;
+}
+
 .sq-wave-next-arrow {
   margin-left: auto;
   margin-right: 12px;
@@ -554,9 +757,10 @@
 /* 5. Доод талын төлөвийн тайлбар (Footer Legend) */
 .sq-bottom-legend {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: 28px;
+  gap: 10px 28px;
   padding-top: 4px;
 }
 
@@ -571,7 +775,28 @@
 
 @media (max-width: 900px) {
   .sq-courses-row,
-  .sq-bottom-cards {
+  .sq-bottom-cards,
+  .sq-unit-form-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* 375px дээр legend болон padding хэвтээ overflow үүсгэхгүй байх */
+@media (max-width: 600px) {
+  .sq-path-container {
+    padding: 20px 16px 40px;
+  }
+
+  .sq-roadmap-header,
+  .sq-teacher-panel {
+    padding: 14px 16px;
+  }
+
+  .sq-chapter-pills {
+    flex-wrap: wrap;
+  }
+
+  .sq-bottom-legend {
+    gap: 10px 18px;
   }
 }

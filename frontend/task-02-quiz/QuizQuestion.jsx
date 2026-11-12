@@ -31,7 +31,7 @@ export default function QuizQuestion({ user }) {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+      <div data-testid="page-quiz" style={{ minHeight: '100vh', background: '#f8fafc' }}>
         <Navbar user={user} />
         <p style={{ textAlign: 'center', marginTop: '60px' }}>Асуулт ачаалж байна...</p>
       </div>
@@ -40,7 +40,7 @@ export default function QuizQuestion({ user }) {
 
   if (questions.length === 0) {
     return (
-      <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+      <div data-testid="page-quiz" style={{ minHeight: '100vh', background: '#f8fafc' }}>
         <Navbar user={user} />
         <div style={{ maxWidth: '600px', margin: '60px auto', textAlign: 'center', background: '#fff', padding: '30px', borderRadius: '12px' }}>
           <h2>Энэ нэгжид асуулт алга байна</h2>
@@ -85,7 +85,7 @@ export default function QuizQuestion({ user }) {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+    <div data-testid="page-quiz" style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
       <div style={{ maxWidth: '680px', margin: '40px auto', background: '#fff', padding: '32px', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>

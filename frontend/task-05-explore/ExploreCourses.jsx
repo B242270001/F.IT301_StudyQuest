@@ -96,7 +96,7 @@ export default function ExploreCourses({ user }) {
   const reset = () => { setQuery(""); setSearch(""); setCategory(""); };
 
   return (
-    <div className="explore-page">
+    <div className="explore-page" data-testid="page-explore">
       <Navbar user={user} />
       <main className="explore-main">
         <div className="explore-head">
