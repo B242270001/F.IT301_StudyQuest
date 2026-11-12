@@ -1,8 +1,9 @@
 //Lab3
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { pathApi } from '../services/api';
+import { validatePathUnitInput } from '../utils/validators';
 import './HorizontalLearningPath.css';
 
 const DEFAULT_COURSES = [
@@ -21,14 +22,59 @@ const DEFAULT_NODES = [
   { id: 'UN07', title: 'Бататгал', status: 'LOCKED', unitGroup: 2, pos: 'down', icon: 'flag' },
 ];
 
+// ── Багшийн нэгж CRUD (mock) ──
+// Ачаалсан нэгжүүдийг өөрчлөхгүй, багшийн өөрчлөлтийг хичээл бүрээр localStorage-д
+// тусад нь хадгалаад дээр нь давхарлана. Ингэснээр reload хийсэн ч төлөв хэвээр үлдэнэ.
+const EMPTY_EDITS = { created: [], updated: {}, deleted: [] };
+const EMPTY_FORM = { title: '', xp: '50', unitGroup: '2' };
+const editsKey = (courseId) => `studyquest.pathEdits.${courseId}`;
+
+function loadEdits(courseId) {
+  try {
+    const raw = localStorage.getItem(editsKey(courseId));
+    return raw ? { ...EMPTY_EDITS, ...JSON.parse(raw) } : EMPTY_EDITS;
+  } catch {
+    return EMPTY_EDITS;
+  }
+}
+
+function saveEdits(courseId, edits) {
+  try {
+    localStorage.setItem(editsKey(courseId), JSON.stringify(edits));
+  } catch {
+    // Storage хаалттай үед өөрчлөлт зөвхөн санах ойд үлдэнэ
+  }
+}
+
+function applyEdits(units, edits) {
+  return [...units, ...edits.created]
+    .filter((u) => !edits.deleted.includes(u.id))
+    .map((u) => (edits.updated[u.id] ? { ...u, ...edits.updated[u.id] } : u));
+}
+
+const isTeacherRole = (role) => String(role || '').toUpperCase() === 'TEACHER';
+
 export default function HorizontalLearningPath({ user }) {
   const { courseId = 'C01' } = useParams();
   const navigate = useNavigate();
   const scrollRef = useRef(null);
 
   const [selectedCourseId, setSelectedCourseId] = useState(courseId);
-  const [pathUnits, setPathUnits] = useState(DEFAULT_NODES);
+  const [baseUnits, setBaseUnits] = useState(DEFAULT_NODES);
   const [loading, setLoading] = useState(true);
+
+  // Mock role simulation: нэвтэрсэн хэрэглэгчийн role-оос эхэлж, товчоор сэлгэнэ
+  const [viewRole, setViewRole] = useState(isTeacherRole(user?.role) ? 'TEACHER' : 'STUDENT');
+  const isTeacherView = viewRole === 'TEACHER';
+
+  const [editsByCourse, setEditsByCourse] = useState({});
+  const storedEdits = useMemo(() => loadEdits(selectedCourseId), [selectedCourseId]);
+  const edits = editsByCourse[selectedCourseId] ?? storedEdits;
+  const pathUnits = useMemo(() => applyEdits(baseUnits, edits), [baseUnits, edits]);
+
+  const [form, setForm] = useState(null); // null үед форм хаалттай
+  const [editingId, setEditingId] = useState(null);
+  const [formErrors, setFormErrors] = useState({});
 
   useEffect(() => {
     let isMounted = true;
@@ -58,13 +104,13 @@ export default function HorizontalLearningPath({ user }) {
               icon: iconType,
             };
           });
-          setPathUnits(mapped);
+          setBaseUnits(mapped);
         } else {
-          setPathUnits(DEFAULT_NODES);
+          setBaseUnits(DEFAULT_NODES);
         }
       } catch {
         if (isMounted) {
-          setPathUnits(DEFAULT_NODES);
+          setBaseUnits(DEFAULT_NODES);
         }
       } finally {
         if (isMounted) {
@@ -81,8 +127,91 @@ export default function HorizontalLearningPath({ user }) {
 
   const currentUnit =
     pathUnits.find((u) => u.status === 'CURRENT') || pathUnits[3] || pathUnits[0];
-  const completedCount = pathUnits.filter((u) => u.status === 'COMPLETED').length;
+  const completedUnits = pathUnits.filter((u) => u.status === 'COMPLETED');
+  const completedCount = completedUnits.length;
   const totalCount = pathUnits.length || 7;
+  const scored = completedUnits.filter((u) => typeof u.score === 'number');
+  const avgScore = scored.length
+    ? Math.round(scored.reduce((sum, u) => sum + u.score, 0) / scored.length)
+    : null;
+
+  const updateEdits = (next) => {
+    setEditsByCourse((prev) => ({ ...prev, [selectedCourseId]: next }));
+    saveEdits(selectedCourseId, next);
+  };
+
+  const closeForm = () => {
+    setForm(null);
+    setEditingId(null);
+    setFormErrors({});
+  };
+
+  const openCreateForm = () => {
+    setEditingId(null);
+    setForm(EMPTY_FORM);
+    setFormErrors({});
+  };
+
+  const openEditForm = (unit) => {
+    setEditingId(unit.id);
+    setForm({
+      title: unit.title || '',
+      xp: String(unit.xp ?? 50),
+      unitGroup: String(unit.unitGroup ?? 1),
+    });
+    setFormErrors({});
+  };
+
+  const handleFormChange = (field) => (e) => {
+    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+  };
+
+  const handleSaveUnit = (e) => {
+    e.preventDefault();
+    const { isValid, errors } = validatePathUnitInput(form);
+    if (!isValid) {
+      setFormErrors(errors);
+      return;
+    }
+
+    const values = {
+      title: form.title.trim(),
+      xp: Number(form.xp),
+      unitGroup: Number(form.unitGroup),
+    };
+
+    if (editingId) {
+      updateEdits({
+        ...edits,
+        updated: { ...edits.updated, [editingId]: { ...edits.updated[editingId], ...values } },
+      });
+    } else {
+      const newUnit = {
+        id: `NEW${Date.now()}`,
+        ...values,
+        status: 'LOCKED',
+        icon: 'lock',
+        pos: pathUnits.length % 2 === 0 ? 'up' : 'down',
+      };
+      updateEdits({ ...edits, created: [...edits.created, newUnit] });
+    }
+    closeForm();
+  };
+
+  const handleDeleteUnit = (unit) => {
+    updateEdits({ ...edits, deleted: [...edits.deleted, unit.id] });
+    if (editingId === unit.id) closeForm();
+  };
+
+  const handleResetUnits = () => {
+    updateEdits(EMPTY_EDITS);
+    closeForm();
+  };
+
+  const handleRoleToggle = () => {
+    setViewRole((prev) => (prev === 'TEACHER' ? 'STUDENT' : 'TEACHER'));
+    closeForm();
+  };
 
   const handleCourseSelect = (id) => {
     setSelectedCourseId(id);
@@ -189,13 +318,34 @@ export default function HorizontalLearningPath({ user }) {
             </p>
           </div>
 
-          <div className="sq-goal-badge">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="9" stroke="#7c3aed" strokeWidth="2" />
-              <circle cx="12" cy="12" r="5" stroke="#7c3aed" strokeWidth="2" />
-              <circle cx="12" cy="12" r="1.5" fill="#7c3aed" />
-            </svg>
-            <span>Өнөөдрийн зорилго: 50 XP</span>
+          <div className="sq-top-actions">
+            <button
+              type="button"
+              data-testid="role-toggle-btn"
+              className={`sq-role-toggle ${isTeacherView ? 'is-teacher' : ''}`}
+              onClick={handleRoleToggle}
+              aria-pressed={isTeacherView}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M7 7H20M20 7L16 3M20 7L16 11M17 17H4M4 17L8 13M4 17L8 21"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              Горим: {isTeacherView ? 'Багш' : 'Оюутан'}
+            </button>
+
+            <div className="sq-goal-badge">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="9" stroke="#7c3aed" strokeWidth="2" />
+                <circle cx="12" cy="12" r="5" stroke="#7c3aed" strokeWidth="2" />
+                <circle cx="12" cy="12" r="1.5" fill="#7c3aed" />
+              </svg>
+              <span>Өнөөдрийн зорилго: 50 XP</span>
+            </div>
           </div>
         </header>
 
@@ -236,6 +386,102 @@ export default function HorizontalLearningPath({ user }) {
             );
           })}
         </section>
+
+        {/* Багшийн нэгж удирдах самбар (TEACHER горимд) */}
+        {isTeacherView && (
+          <section className="sq-teacher-panel" data-testid="teacher-path-controls">
+            <div className="sq-teacher-panel-head">
+              <div>
+                <h2 className="sq-teacher-panel-title">Нэгж удирдах</h2>
+                <p className="sq-teacher-panel-sub">
+                  Шинэ нэгж нэмэх, эсвэл замын зангилаа бүрийн доорх товчоор засах, устгах.
+                </p>
+              </div>
+              <div className="sq-teacher-panel-actions">
+                <button type="button" className="sq-btn-ghost" onClick={handleResetUnits}>
+                  Анхны төлөвт сэргээх
+                </button>
+                <button
+                  type="button"
+                  className="sq-btn-primary"
+                  data-testid="open-create-unit-btn"
+                  onClick={openCreateForm}
+                >
+                  + Нэгж нэмэх
+                </button>
+              </div>
+            </div>
+
+            {form && (
+              <form className="sq-unit-form" onSubmit={handleSaveUnit} noValidate>
+                <h3 className="sq-unit-form-title">{editingId ? 'Нэгж засах' : 'Шинэ нэгж'}</h3>
+                <div className="sq-unit-form-grid">
+                  <label className="sq-field">
+                    <span className="sq-field-label">Нэгжийн нэр</span>
+                    <input
+                      type="text"
+                      data-testid="unit-title-input"
+                      value={form.title}
+                      onChange={handleFormChange('title')}
+                      aria-invalid={Boolean(formErrors.title)}
+                      placeholder="Жишээ: Custom Hooks"
+                    />
+                    {formErrors.title && (
+                      <span className="sq-field-error" data-testid="error-unit-title">
+                        {formErrors.title}
+                      </span>
+                    )}
+                  </label>
+
+                  <label className="sq-field">
+                    <span className="sq-field-label">XP оноо</span>
+                    <input
+                      type="number"
+                      data-testid="unit-xp-input"
+                      value={form.xp}
+                      onChange={handleFormChange('xp')}
+                      aria-invalid={Boolean(formErrors.xp)}
+                      min="10"
+                      max="500"
+                    />
+                    {formErrors.xp && (
+                      <span className="sq-field-error" data-testid="error-unit-xp">
+                        {formErrors.xp}
+                      </span>
+                    )}
+                  </label>
+
+                  <label className="sq-field">
+                    <span className="sq-field-label">Нэгж</span>
+                    <select
+                      data-testid="unit-group-input"
+                      value={form.unitGroup}
+                      onChange={handleFormChange('unitGroup')}
+                      aria-invalid={Boolean(formErrors.unitGroup)}
+                    >
+                      <option value="1">Нэгж 1 · Вебийн үндэс</option>
+                      <option value="2">Нэгж 2 · React эхлэл</option>
+                    </select>
+                    {formErrors.unitGroup && (
+                      <span className="sq-field-error" data-testid="error-unit-group">
+                        {formErrors.unitGroup}
+                      </span>
+                    )}
+                  </label>
+                </div>
+
+                <div className="sq-unit-form-actions">
+                  <button type="button" className="sq-btn-ghost" onClick={closeForm}>
+                    Болих
+                  </button>
+                  <button type="submit" className="sq-btn-primary" data-testid="save-unit-btn">
+                    Хадгалах
+                  </button>
+                </div>
+              </form>
+            )}
+          </section>
+        )}
 
         {/* 3. Хэвтээ суралцах замын үндсэн карт */}
         <section className="sq-roadmap-card">
@@ -297,7 +543,12 @@ export default function HorizontalLearningPath({ user }) {
             </div>
 
             <div className="sq-chapter-count">
-              {completedCount} / {totalCount} хичээл дууссан
+              <span data-testid="path-completed-count">
+                {completedCount} / {totalCount} хичээл дууссан
+              </span>
+              <span className="sq-chapter-avg" data-testid="path-avg-score">
+                Дундаж оноо {avgScore === null ? '—' : `${avgScore}%`}
+              </span>
             </div>
           </div>
 
@@ -308,7 +559,7 @@ export default function HorizontalLearningPath({ user }) {
             </div>
           ) : (
             <div className="sq-roadmap-body" ref={scrollRef}>
-              <div className="sq-wave-canvas">
+              <div className={`sq-wave-canvas ${isTeacherView ? 'teacher-mode' : ''}`}>
                 {/* Босоо тусгаарлагч шугам (Нэгж 1 ба Нэгж 2-ын хооронд) */}
                 <div className="sq-unit-divider" />
 
@@ -394,6 +645,47 @@ export default function HorizontalLearningPath({ user }) {
                         >
                           {unit.title}
                         </span>
+
+                        {isTeacherView && (
+                          <div className="sq-node-actions">
+                            <button
+                              type="button"
+                              className="sq-node-action"
+                              data-testid={`edit-unit-${unit.id}`}
+                              aria-label={`${unit.title} нэгжийг засах`}
+                              title="Засах"
+                              onClick={() => openEditForm(unit)}
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path
+                                  d="M4 20H8L18.5 9.5C19.3284 8.67157 19.3284 7.32843 18.5 6.5C17.6716 5.67157 16.3284 5.67157 15.5 6.5L5 17V20"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            </button>
+                            <button
+                              type="button"
+                              className="sq-node-action danger"
+                              data-testid={`delete-unit-${unit.id}`}
+                              aria-label={`${unit.title} нэгжийг устгах`}
+                              title="Устгах"
+                              onClick={() => handleDeleteUnit(unit)}
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path
+                                  d="M4 7H20M10 11V17M14 11V17M6 7L7 19C7 20.1046 7.89543 21 9 21H15C16.1046 21 17 20.1046 17 19L18 7M9 7V4H15V7"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            </button>
+                          </div>
+                        )}
                       </div>
                     );
                   })}
