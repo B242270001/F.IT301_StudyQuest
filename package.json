@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "e2e": "playwright test",
     "postinstall": "npm --prefix backend install",
-    "start:grader": "npm --prefix backend run start:grader",
+    "start:grader": "vite build && npm --prefix backend run start:grader",
     "test:frontend": "vitest run",
     "test:ci": "npm --prefix backend run test:ci"
   },
