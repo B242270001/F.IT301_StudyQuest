@@ -21,6 +21,8 @@
     {
       "taskId": "TASK-01",
       "name": "А. Төгөлдөр",
+      "studentId": "B242270001",
+      "email": "b242270001@must.edu.mn",
       "role": "Frontend / Auth & Dashboard",
       "routes": ["/login", "/dashboard"],
       "apiEndpoints": [
@@ -42,6 +44,8 @@
     {
       "taskId": "TASK-02",
       "name": "Мөнхбаяр",
+      "studentId": "B242270058",
+      "email": "B242270058@must.edu.mn",
       "role": "Frontend & Backend / Practice & Question CRUD",
       "routes": ["/practice", "/quiz/:unitId", "/admin/questions"],
       "apiEndpoints": [
@@ -56,6 +60,7 @@
       "taskId": "TASK-03",
       "name": "Тэмүүлэн (Temka)",
       "studentId": "B242270046",
+      "email": "B242270046@must.edu.mn",
       "role": "Frontend / Horizontal Learning Path & Topics CRUD",
       "routes": ["/practice/:courseId", "/topics", "/quiz/result"],
       "apiEndpoints": [
@@ -72,6 +77,8 @@
     {
       "taskId": "TASK-04",
       "name": "Д. Баттөмөр",
+      "studentId": "B242270025",
+      "email": "b242270025@must.edu.mn",
       "role": "Frontend & Backend / Quiz Engine & Course CRUD",
       "routes": ["/quiz/result", "/admin/courses"],
       "apiEndpoints": [
@@ -87,6 +94,7 @@
     {
       "taskId": "TASK-05",
       "name": "Хүслэн О.",
+      "email": "otgoohuslen0918@gmail.com",
       "role": "Frontend / Explore Library with Search",
       "routes": ["/explore", "/explore/lecture/:id"],
       "apiEndpoints": ["GET /api/courses/explore", "GET /api/lectures/:id"],
@@ -95,6 +103,8 @@
     {
       "taskId": "TASK-06",
       "name": "Цогжавхлан Б.",
+      "studentId": "B222270838",
+      "email": "b222270838@must.edu.mn",
       "role": "Frontend & QA / Leaderboard, UI States & E2E Testing",
       "routes": ["/leaderboard", "/ui-states"],
       "apiEndpoints": ["GET /api/leaderboard"],
