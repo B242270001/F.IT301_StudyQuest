@@ -30,7 +30,7 @@ export default function PracticeCourses({ user }) {
   }, []);
 
   return (
-    <div className="practice-page" style={{ minHeight: '100vh', background: '#f8fafc' }}>
+    <div className="practice-page" data-testid="page-practice" style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
       <div style={{ maxWidth: '1000px', margin: '40px auto', padding: '0 20px' }}>
         <h1 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '8px', color: '#1e293b' }}>
