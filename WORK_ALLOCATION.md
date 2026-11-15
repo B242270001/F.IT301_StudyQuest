@@ -12,9 +12,9 @@
 | TASK-01 | А. Төгөлдөр | B242270001 | B242270001@must.edu.mn | Auth, Dashboard, Router, Role guard |
 | TASK-02 | Мөнхбаяр | B242270058| B242270058@must.edu.mn  | Practice, Quiz engine |
 | TASK-03 | Г. Тэмүүжин | B242270046 | temkagg1117@gmail.com | Learning path, Quiz result, Mock store |
-| TASK-04 | Д. Баттөмөр | REPLACE_WITH_STUDENT_CODE | REPLACE_WITH_GIT_EMAIL | Багшийн өрөө, Course CRUD, Upload |
-| TASK-05 | Хүслэн О. | REPLACE_WITH_STUDENT_CODE | REPLACE_WITH_GIT_EMAIL | Explore, Topics, Lecture |
-| TASK-06 | Цогжавхлан Б. | REPLACE_WITH_STUDENT_CODE | REPLACE_WITH_GIT_EMAIL | Leaderboard, UI states, E2E, Docker |
+| TASK-04 | Д. Баттөмөр | B242270025 | b242270025@must.edu.mn | Багшийн өрөө, Course CRUD, Upload |
+| TASK-05 | Хүслэн О. | REPLACE_WITH_STUDENT_CODE | otgoohuslen0918@gmail.com | Explore, Topics, Lecture |
+| TASK-06 | Цогжавхлан Б. | B222270838 | b222270838@must.edu.mn | Leaderboard, UI states, E2E, Docker |
 
 ## 2. Модулийн эзэмшил (12 хуудас, 22 endpoint)
 

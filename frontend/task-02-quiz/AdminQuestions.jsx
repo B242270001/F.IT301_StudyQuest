@@ -31,7 +31,7 @@ export default function AdminQuestions({ user }) {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+    <div data-testid="page-admin-questions" style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
       <div style={{ maxWidth: '700px', margin: '40px auto', background: '#fff', padding: '32px', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
         <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '8px', color: '#1e293b' }}>

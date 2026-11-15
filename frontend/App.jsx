@@ -154,6 +154,15 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        {/* team-spec.json-ийн /admin/courses: Course CRUD нь багшийн өрөөнд байрлана */}
+        <Route
+          path="/admin/courses"
+          element={
+            <ProtectedRoute user={user} requiredRole="TEACHER">
+              <TeacherRoom user={user} onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/teacher/courses/new"
           element={

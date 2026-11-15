@@ -12,7 +12,7 @@ authRouter.post("/auth/login", (req, res) => {
 
   const user = findUserByUsername(value.username);
   if (!user || user.password !== value.password) {
-    return res.status(401).json({ message: "Нэр эсвэл нууц bnooooo үг буруу байна" });
+    return res.status(401).json({ message: "Нэр эсвэл нууц үг буруу байна" });
   }
 
   const token = createSession(user);
