@@ -136,16 +136,14 @@
   z-index: 5;
 }
 
-.room-interactive-btn.computer,
-.room-interactive-btn.board {
+.room-interactive-btn.computer {
   top: 30%;
   left: 15%;
   width: 35%;
   height: 45%;
 }
 
-.room-interactive-btn.computer:hover,
-.room-interactive-btn.board:hover {
+.room-interactive-btn.computer:hover {
   background-color: rgba(168, 85, 247, 0.2);
   border-color: #c084fc;
 }

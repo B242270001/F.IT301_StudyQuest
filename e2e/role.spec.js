@@ -11,7 +11,6 @@ test.describe("TASK-01: Role simulation and access control @role", () => {
     await expect(page).toHaveURL(/\/dashboard/);
     await expect(page.getByTestId("page-dashboard")).toBeVisible();
     await expect(page.getByTestId("room-computer")).toBeVisible();
-    await expect(page.getByTestId("room-board")).not.toBeVisible();
   });
 
   test("teacher logs in and redirects to /teacher with teacher capabilities", async ({ page }) => {

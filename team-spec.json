@@ -110,7 +110,7 @@
       "taskId": "TASK-01",
       "tags": ["role"],
       "route": "/login",
-      "description": "Зөв нэр/нууц үгээр нэвтэрч /dashboard нээгдэнэ, оюутанд room-computer, багшид room-board харагдана.",
+      "description": "Зөв нэр/нууц үгээр нэвтэрч /dashboard нээгдэнэ, room-computer харагдана.",
       "steps": [
         { "action": "goto", "url": "/login" },
         { "action": "fill", "testId": "login-name-input", "value": "temuulen" },

@@ -92,28 +92,14 @@ describe("TASK-01: ProtectedRoute (Role Guard)", () => {
 });
 
 describe("TASK-01: Dashboard Role simulation & Note CRUD", () => {
-  it("shows room-computer for STUDENT and hides room-board", () => {
+  it("shows room-computer on dashboard", () => {
     render(
       <MemoryRouter>
         <Dashboard user={studentUser} onLogout={vi.fn()} />
       </MemoryRouter>
     );
 
-    expect(screen.getByTestId("page-dashboard")).toBeInTheDocument();
     expect(screen.getByTestId("room-computer")).toBeInTheDocument();
-    expect(screen.queryByTestId("room-board")).not.toBeInTheDocument();
-  });
-
-  it("shows room-board for TEACHER and hides room-computer", () => {
-    render(
-      <MemoryRouter>
-        <Dashboard user={teacherUser} onLogout={vi.fn()} />
-      </MemoryRouter>
-    );
-
-    expect(screen.getByTestId("page-dashboard")).toBeInTheDocument();
-    expect(screen.getByTestId("room-board")).toBeInTheDocument();
-    expect(screen.queryByTestId("room-computer")).not.toBeInTheDocument();
   });
 
   it("clicking bed opens logout confirmation modal and confirming calls onLogout", () => {

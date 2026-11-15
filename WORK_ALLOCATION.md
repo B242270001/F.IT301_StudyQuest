@@ -56,7 +56,7 @@
 - **Хүлээн авах шалгуур:**
   1. Зөв нэр/нууц үгээр нэвтэрч `/dashboard` нээгдэнэ; reload хийхэд session хэвээр.
   2. Хоосон/буруу оролтод `login-name-error`, `login-password-error`, `login-error` харагдана.
-  3. Student-д `room-computer`, Teacher-д `room-board` харагдана; Ор → гарах modal → `/login`.
+  3. Dashboard дээр `room-computer` харагдана; Ор → гарах modal → `/login`.
   4. `role` scenario бүх алхамдаа амжилттай.
 
 #### Lab 4 (Express REST) — TASK-01

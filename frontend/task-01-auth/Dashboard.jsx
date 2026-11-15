@@ -62,7 +62,6 @@ export default function Dashboard({ user, onLogout }) {
   const [errorMsg, setErrorMsg] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const isTeacher = user?.role === "TEACHER";
 
   const saveNotesToUser = (updatedNotes) => {
     setNotes(updatedNotes);
@@ -154,22 +153,13 @@ export default function Dashboard({ user, onLogout }) {
             {/* Үндсэн зураг */}
             <img src={roomImage} className="room-bg-img" alt="Virtual Room" />
 
-            {/* Student: Computer / Teacher: Board */}
-            {isTeacher ? (
-              <button
-                onClick={() => navigate("/teacher")}
-                className="room-interactive-btn board"
-                title="Багшийн өрөө 📋"
-                data-testid="room-board"
-              />
-            ) : (
-              <button
-                onClick={() => navigate("/practice")}
-                className="room-interactive-btn computer"
-                title="Дадлага хийх 💻"
-                data-testid="room-computer"
-              />
-            )}
+            {/* Computer Setup */}
+            <button
+              onClick={() => navigate("/practice")}
+              className="room-interactive-btn computer"
+              title="Дадлага хийх 💻"
+              data-testid="room-computer"
+            />
 
             {/* Bookshelf */}
             <button
