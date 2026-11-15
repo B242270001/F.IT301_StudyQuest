@@ -299,21 +299,21 @@
       "method": "GET",
       "path": "/api/user/profile",
       "expectedStatus": 401
+    },
+    {
+      "lab": 4,
+      "taskId": "TASK-02",
+      "endpoints": [
+        { "method": "GET",  "path": "/api/health",               "expectedStatus": [200] },
+        { "method": "GET",  "path": "/api/courses/practice",       "expectedStatus": [200] },
+        { "method": "GET",  "path": "/api/courses/practice/CR01",    "expectedStatus": [200] },
+        { "method": "GET",  "path": "/api/courses/practice/CR99",    "expectedStatus": [404] },
+        { "method": "POST", "path": "/api/courses/practice",         "expectedStatus": [201, 422] },
+        { "method": "GET",  "path": "/api/questions",                "expectedStatus": [200] },
+        { "method": "GET",  "path": "/api/questions/Q01",            "expectedStatus": [200] },
+        { "method": "GET",  "path": "/api/questions/Q99",            "expectedStatus": [404] },
+        { "method": "POST", "path": "/api/questions",                "expectedStatus": [201, 422] }
+      ]
     }
   ]
-  {
-  "lab": 4,
-  "taskId": "TASK-02",
-  "endpoints": [
-    { "method": "GET",  "path": "/api/health",                    "expectedStatus": [200] },
-    { "method": "GET",  "path": "/api/courses/practice",          "expectedStatus": [200] },
-    { "method": "GET",  "path": "/api/courses/practice/CR01",     "expectedStatus": [200] },
-    { "method": "GET",  "path": "/api/courses/practice/CR99",     "expectedStatus": [404] },
-    { "method": "POST", "path": "/api/courses/practice",          "expectedStatus": [201, 422] },
-    { "method": "GET",  "path": "/api/questions",                 "expectedStatus": [200] },
-    { "method": "GET",  "path": "/api/questions/Q01",             "expectedStatus": [200] },
-    { "method": "GET",  "path": "/api/questions/Q99",             "expectedStatus": [404] },
-    { "method": "POST", "path": "/api/questions",                 "expectedStatus": [201, 422] }
-  ]
-}
 }
