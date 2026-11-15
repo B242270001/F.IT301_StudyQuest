@@ -7,7 +7,6 @@ export default function PracticeCourses({ user }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 1. API оролдох, байхгүй бол public/mock/courses.json унших
     fetch('/api/courses/practice')
       .then((res) => {
         if (!res.ok) throw new Error();
@@ -18,7 +17,6 @@ export default function PracticeCourses({ user }) {
         setLoading(false);
       })
       .catch(() => {
-        // Fallback to mock
         fetch('/mock/courses.json')
           .then((res) => res.json())
           .then((data) => {
@@ -89,7 +87,7 @@ export default function PracticeCourses({ user }) {
                   <Link
                     to={`/practice/${course.id}`}
                     style={{
-                      background: '#eb6e25',
+                      background: '#2563eb',
                       color: '#ffffff',
                       padding: '8px 16px',
                       borderRadius: '8px',

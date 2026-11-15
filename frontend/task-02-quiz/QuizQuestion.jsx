@@ -17,7 +17,6 @@ export default function QuizQuestion({ user }) {
     async function load() {
       setLoading(true);
       const list = await quizApi.getQuestions(unitId);
-      // Хэрэв тухайн unit-д асуулт олдохгүй бол бүх асуултаас харуулъя
       if (list.length === 0) {
         const all = await quizApi.getQuestions();
         setQuestions(all.slice(0, 4));
@@ -72,7 +71,6 @@ export default function QuizQuestion({ user }) {
       setCurrentIndex((prev) => prev + 1);
       setSelectedOption(null);
     } else {
-      // Тест дууслаа -> local storage-д түр хадгалаад /quiz/result руу үсэрнэ
       const attemptData = {
         unitId,
         answers: newAnswers,
@@ -97,7 +95,6 @@ export default function QuizQuestion({ user }) {
           </span>
         </div>
 
-        {/* Progress bar */}
         <div style={{ width: '100%', height: '6px', background: '#e2e8f0', borderRadius: '3px', marginBottom: '24px', overflow: 'hidden' }}>
           <div
             style={{
@@ -113,7 +110,6 @@ export default function QuizQuestion({ user }) {
           {questionTitle}
         </h2>
 
-        {/* Хэрэв кодын жишээ байгаа бол */}
         {currentQ.codeSnippet && (
           <pre
             style={{
