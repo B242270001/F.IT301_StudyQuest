@@ -1,0 +1,63 @@
+/* ExploreCourses.css - TASK-05 Хичээлийн сан (Figma: "Судлах · Хичээлийн сан") */
+.explore-page {
+  --ex-bg: #f6f5ff;
+  --ex-card: #ffffff;
+  --ex-ink: #1e1b3a;
+  --ex-muted: #6b6890;
+  --ex-primary: #6c5ce7;
+  --ex-soft: #eceaff;
+  --ex-line: #e1defa;
+  --ex-ok: #2e9e6b;
+  --ex-err: #c0392b;
+  min-height: 100vh;
+  background: var(--ex-bg);
+  color: var(--ex-ink);
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.explore-main { max-width: 1040px; margin: 0 auto; padding: 28px 20px 48px; }
+.explore-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+.explore-head h1 { margin: 0 0 4px; font-size: 26px; }
+.explore-sub { margin: 0; color: var(--ex-muted); font-size: 14px; }
+.explore-search { width: 280px; max-width: 100%; padding: 10px 14px; border: 1px solid var(--ex-line); border-radius: 10px; font-size: 14px; background: #fff; box-sizing: border-box; }
+.explore-search:focus { outline: 2px solid var(--ex-primary); }
+
+.explore-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.explore-chips button { padding: 6px 14px; border-radius: 999px; border: 1px solid var(--ex-primary); background: #fff; color: var(--ex-primary); font-size: 13px; cursor: pointer; }
+.explore-chips button[aria-pressed="true"] { background: var(--ex-primary); color: #fff; }
+
+.explore-note { color: var(--ex-muted); }
+.explore-error { color: var(--ex-err); }
+.explore-empty { background: #fff; border: 1px dashed var(--ex-line); border-radius: 14px; padding: 28px; text-align: center; }
+
+.explore-courses { list-style: none; margin: 0 0 24px; padding: 0; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.explore-course { display: flex; flex-direction: column; gap: 8px; padding: 16px; background: var(--ex-card); border: 2px solid var(--ex-line); border-radius: 14px; }
+.explore-course.selected { border-color: var(--ex-primary); background: #faf9ff; }
+.explore-course-main { all: unset; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; cursor: pointer; width: 100%; }
+.explore-course-main:focus-visible { outline: 2px solid var(--ex-primary); outline-offset: 4px; border-radius: 6px; }
+.explore-course-title { font-weight: 700; }
+.explore-course-meta { font-size: 13px; color: var(--ex-muted); }
+.explore-bar { height: 6px; border-radius: 999px; background: var(--ex-soft); overflow: hidden; }
+.explore-bar span { display: block; height: 100%; background: var(--ex-primary); border-radius: 999px; }
+.explore-course-foot { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--ex-muted); }
+
+.explore-pill { display: inline-block; padding: 4px 10px; border-radius: 999px; background: var(--ex-soft); color: var(--ex-primary); font-size: 12px; font-weight: 600; text-decoration: none; }
+.explore-pill.muted { color: var(--ex-muted); }
+
+.explore-detail { background: var(--ex-card); border: 1px solid var(--ex-line); border-radius: 14px; padding: 20px; }
+.explore-detail h2 { margin: 0 0 4px; font-size: 18px; }
+.explore-detail ul { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 8px; }
+.explore-topic { display: grid; grid-template-columns: 24px 1fr auto auto; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--ex-line); border-radius: 10px; }
+.explore-topic.current { border-color: var(--ex-primary); background: var(--ex-soft); }
+.explore-topic.done .explore-dot { color: var(--ex-ok); }
+.explore-dot { color: var(--ex-primary); text-align: center; }
+.explore-topic-name { font-weight: 600; }
+.explore-topic-meta { font-size: 12px; color: var(--ex-muted); }
+
+.explore-btn { padding: 6px 14px; border-radius: 10px; border: 1px solid var(--ex-primary); background: var(--ex-primary); color: #fff; text-decoration: none; font-weight: 600; font-size: 13px; cursor: pointer; }
+.explore-empty .explore-btn { background: #fff; color: var(--ex-primary); }
+
+@media (max-width: 640px) {
+  .explore-topic { grid-template-columns: 24px 1fr; }
+  .explore-topic .explore-btn, .explore-topic > .explore-topic-meta:last-child { grid-column: 2; justify-self: start; }
+}

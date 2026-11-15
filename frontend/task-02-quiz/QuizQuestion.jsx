@@ -17,7 +17,6 @@ export default function QuizQuestion({ user }) {
     async function load() {
       setLoading(true);
       const list = await quizApi.getQuestions(unitId);
-      // Хэрэв тухайн unit-д асуулт олдохгүй бол бүх асуултаас харуулъя
       if (list.length === 0) {
         const all = await quizApi.getQuestions();
         setQuestions(all.slice(0, 4));
@@ -31,7 +30,7 @@ export default function QuizQuestion({ user }) {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+      <div data-testid="page-quiz" style={{ minHeight: '100vh', background: '#f8fafc' }}>
         <Navbar user={user} />
         <p style={{ textAlign: 'center', marginTop: '60px' }}>Асуулт ачаалж байна...</p>
       </div>
@@ -40,7 +39,7 @@ export default function QuizQuestion({ user }) {
 
   if (questions.length === 0) {
     return (
-      <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+      <div data-testid="page-quiz" style={{ minHeight: '100vh', background: '#f8fafc' }}>
         <Navbar user={user} />
         <div style={{ maxWidth: '600px', margin: '60px auto', textAlign: 'center', background: '#fff', padding: '30px', borderRadius: '12px' }}>
           <h2>Энэ нэгжид асуулт алга байна</h2>
@@ -72,7 +71,6 @@ export default function QuizQuestion({ user }) {
       setCurrentIndex((prev) => prev + 1);
       setSelectedOption(null);
     } else {
-      // Тест дууслаа -> local storage-д түр хадгалаад /quiz/result руу үсэрнэ
       const attemptData = {
         unitId,
         answers: newAnswers,
@@ -85,7 +83,7 @@ export default function QuizQuestion({ user }) {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+    <div data-testid="page-quiz" style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
       <div style={{ maxWidth: '680px', margin: '40px auto', background: '#fff', padding: '32px', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
@@ -97,7 +95,6 @@ export default function QuizQuestion({ user }) {
           </span>
         </div>
 
-        {/* Progress bar */}
         <div style={{ width: '100%', height: '6px', background: '#e2e8f0', borderRadius: '3px', marginBottom: '24px', overflow: 'hidden' }}>
           <div
             style={{
@@ -113,7 +110,6 @@ export default function QuizQuestion({ user }) {
           {questionTitle}
         </h2>
 
-        {/* Хэрэв кодын жишээ байгаа бол */}
         {currentQ.codeSnippet && (
           <pre
             style={{

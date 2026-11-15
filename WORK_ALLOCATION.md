@@ -11,21 +11,21 @@
 |---|---|---|---|---|
 | TASK-01 | А. Төгөлдөр | B242270001 | B242270001@must.edu.mn | Auth, Dashboard, Router, Role guard |
 | TASK-02 | Мөнхбаяр | B242270058| B242270058@must.edu.mn  | Practice, Quiz engine |
-| TASK-03 | Тэмүүлэн (Temka) | REPLACE_WITH_STUDENT_CODE | REPLACE_WITH_GIT_EMAIL | Learning path, Quiz result, Mock store |
-| TASK-04 | Д. Баттөмөр | REPLACE_WITH_STUDENT_CODE | REPLACE_WITH_GIT_EMAIL | Багшийн өрөө, Course CRUD, Upload |
-| TASK-05 | Хүслэн О. | REPLACE_WITH_STUDENT_CODE | REPLACE_WITH_GIT_EMAIL | Explore, Topics, Lecture |
-| TASK-06 | Цогжавхлан Б. | REPLACE_WITH_STUDENT_CODE | REPLACE_WITH_GIT_EMAIL | Leaderboard, UI states, E2E, Docker |
+| TASK-03 | Г. Тэмүүжин | B242270046 | temkagg1117@gmail.com | Learning path, Quiz result, Mock store |
+| TASK-04 | Д. Баттөмөр | B242270025 | b242270025@must.edu.mn | Багшийн өрөө, Course CRUD, Upload |
+| TASK-05 | Хүслэн О. | REPLACE_WITH_STUDENT_CODE | otgoohuslen0918@gmail.com | Explore, Topics, Lecture |
+| TASK-06 | Цогжавхлан Б. | B222270838 | b222270838@must.edu.mn | Leaderboard, UI states, E2E, Docker |
 
 ## 2. Модулийн эзэмшил (12 хуудас, 22 endpoint)
 
 | taskId | Route (хуудас) | API method ба path | Entity |
 |---|---|---|---|
-| TASK-01 | `/login`, `/dashboard` | `POST /api/auth/login`, `GET /api/user/profile` | User |
+| TASK-01 | `/login`, `/dashboard` | `GET /api/health`, `GET /api/users`, `GET /api/users/:id`, `POST /api/users`, `POST /api/auth/login`, `GET /api/user/profile` | User |
 | TASK-02 | `/practice`, `/quiz/:unitId` | `GET /api/courses/practice`, `GET /api/quiz/:unitId`, `POST /api/quiz/check`, `POST /api/quiz/submit` | QuizQuestion, QuizAttempt |
 | TASK-03 | `/practice/:courseId`, `/quiz/result` | `GET /api/units/path/:courseId`, `GET /api/attempts/latest` | Unit, UserProgress |
 | TASK-04 | `/teacher`, `/teacher/courses/new` | `GET /api/teacher/overview`, `POST/PUT/DELETE /api/teacher/courses[/:id]`, `POST /api/teacher/lectures`, `POST /api/uploads/material` | Course (CRUD), Lecture (Create) |
 | TASK-05 | `/explore`, `/topics/:courseId`, `/explore/lecture/:id` | `GET /api/courses/explore`, `GET /api/courses/:courseId/topics`, `GET/PUT/DELETE /api/lectures/:id`, `POST /api/lectures/:id/knowledge-check` | Topic, TopicProgress, Lecture (Read/Update/Delete) |
-| TASK-06 | `/leaderboard` | `GET /api/leaderboard`, `GET /api/health` | Leaderboard view |
+| TASK-06 | `/leaderboard` | `GET /api/leaderboard` | Leaderboard view |
 
 Нэг route-ийн ижил үйлдэл, ижил API method+path, ижил тест хоёр гишүүнд давхар оноогдоогүй. Lecture entity-ийн Create (TASK-04) болон Read/Update/Delete (TASK-05) нь ялгаатай taskId, ялгаатай шалгуурт хуваагдсан.
 
@@ -42,6 +42,7 @@
 | `frontend/src/styles/*` (token, responsive layout) | TASK-06 | [design.md](docs/design.md)-ийн token |
 | `e2e/*`, `playwright.config.js` | TASK-06 (`crud.spec.js` → TASK-04, `role.spec.js` → TASK-01) | Scenario бүр нэг эзэнтэй |
 | `docker-compose.yml`, `backend/Dockerfile` (Lab 6) | TASK-06 | |
+| `backend/` Express суурь, `start:grader` (Lab 4) | TASK-01 | Сервер, `GET /api/health`. Бусад гишүүн өөрийн router-оо `app.js`-д холбоно |
 | `backend/src/middleware/auth.js` (Lab 4) | TASK-01 | Бусад модуль өөрийн endpoint-д холбож тестлэнэ |
 
 Дүрэм: хамтын файлыг өөрчлөхөөс өмнө эзэнтэй issue дээр хүрээг тохирч, тусдаа branch/MR ашиглана. Дахин ашигласан код нь хэрэглэгчийн шинэ ажил гэж тооцогдохгүй.
@@ -49,14 +50,25 @@
 ### TASK-01 · А. Төгөлдөр · Reviewer: TASK-02
 - **Хэсэг:** Login, Dashboard, AuthContext, ProtectedRoute, router, mock login/role
 - **Routes:** `/login`, `/dashboard`
-- **Файл:** `frontend/src/features/auth/LoginScreen.jsx`, `frontend/src/features/dashboard/VirtualRoomDashboard.jsx`, `frontend/src/auth/*`, `frontend/src/router.jsx`, `frontend/src/components/TopHUD.jsx`
-- **Тест:** `frontend/src/tests/Login.test.jsx`, `ProtectedRoute.test.jsx`, `e2e/role.spec.js` (tag `role`)
+- **Файл:** `frontend/task-01-auth/Login.jsx`, `frontend/task-01-auth/Dashboard.jsx`, `frontend/components/ProtectedRoute.jsx`, `frontend/components/AuthContext.jsx`, `frontend/App.jsx`, `frontend/components/Navbar.jsx`
+- **Тест:** `frontend/tests/Login.test.jsx`, `frontend/tests/ProtectedRoute.test.jsx`, `e2e/role.spec.js` (tag `role`)
 - **Хамаарал:** TASK-03-ийн mock store (хэрэглэгчийн өгөгдөл), TASK-06-ийн state component
 - **Хүлээн авах шалгуур:**
   1. Зөв нэр/нууц үгээр нэвтэрч `/dashboard` нээгдэнэ; reload хийхэд session хэвээр.
   2. Хоосон/буруу оролтод `login-name-error`, `login-password-error`, `login-error` харагдана.
-  3. Student-д `room-computer`, Teacher-д `room-board` харагдана; Ор → гарах modal → `/login`.
+  3. Dashboard дээр `room-computer` харагдана; Ор → гарах modal → `/login`.
   4. `role` scenario бүх алхамдаа амжилттай.
+
+#### Lab 4 (Express REST) — TASK-01
+- **Хэсэг:** Express server суурь, User entity, login/profile, auth middleware
+- **Endpoint:** `GET /api/health` (200), `GET /api/users` (200), `GET /api/users/:id` (200/404), `POST /api/users` (201/422), `POST /api/auth/login` (200/401/422), `GET /api/user/profile` (200/401)
+- **Файл:** `backend/src/app.js`, `backend/src/server.js`, `backend/src/store/users.js`, `backend/src/routes/{health,users,auth}.js`, `backend/src/middleware/auth.js`, `backend/src/validators/user.js`
+- **Тест:** `backend/tests/health.test.js`, `backend/tests/users.test.js`, `backend/tests/auth.test.js`
+- **Хүлээн авах шалгуур:**
+  1. `npm run start:grader` Express API-г ажиллуулна; `GET /api/health` → 200 `{ "status": "ok" }`.
+  2. User-ийн list/detail/create болон буруу оролт (`username` хоосон → 422, байхгүй id → 404) `team-spec.json` `lab: 4` гэрээтэй таарна.
+  3. Зөв нэвтрэлт 200+token, буруу нууц үг 401, токенгүй profile 401.
+  4. `npm run test:ci` (backend Supertest + frontend vitest) амжилттай.
 
 ### TASK-02 · Мөнхбаяр · Reviewer: TASK-03
 - **Хэсэг:** Practice course grid, Quiz page (3 төрлийн асуулт, inline feedback)

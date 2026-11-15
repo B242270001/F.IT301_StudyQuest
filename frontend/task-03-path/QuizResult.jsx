@@ -236,7 +236,7 @@ export default function QuizResult({ user }) {
                   </svg>
                 </div>
                 <div className="qr-metric-val" data-testid="result-xp">
-                  +{xpEarned}
+                  +{xpEarned} XP
                 </div>
                 <div className="qr-metric-lbl">Цуглуулсан XP</div>
               </div>

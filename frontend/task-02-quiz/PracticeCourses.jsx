@@ -7,7 +7,6 @@ export default function PracticeCourses({ user }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 1. API оролдох, байхгүй бол public/mock/courses.json унших
     fetch('/api/courses/practice')
       .then((res) => {
         if (!res.ok) throw new Error();
@@ -18,7 +17,6 @@ export default function PracticeCourses({ user }) {
         setLoading(false);
       })
       .catch(() => {
-        // Fallback to mock
         fetch('/mock/courses.json')
           .then((res) => res.json())
           .then((data) => {
@@ -30,7 +28,7 @@ export default function PracticeCourses({ user }) {
   }, []);
 
   return (
-    <div className="practice-page" style={{ minHeight: '100vh', background: '#f8fafc' }}>
+    <div className="practice-page" data-testid="page-practice" style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
       <div style={{ maxWidth: '1000px', margin: '40px auto', padding: '0 20px' }}>
         <h1 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '8px', color: '#1e293b' }}>

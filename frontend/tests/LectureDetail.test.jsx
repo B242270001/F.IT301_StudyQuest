@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import LectureDetail from "../LectureDetail";
+import LectureDetail from "../task-05-explore/LectureDetail";
 import lectures from "../../public/mock/lectures.json";
 import topics from "../../public/mock/topics.json";
 import courses from "../../public/mock/courses.json";

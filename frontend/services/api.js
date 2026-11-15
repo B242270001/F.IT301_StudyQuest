@@ -1,30 +1,43 @@
 /**
  * Central API & Mock Service — StudyQuest
  * ========================================
- * Одоогоор: public/mock/*.json-оос fetch хийж ажиллана.
- * Сүүлд: Backend API бэлэн болоход энд байгаа endpoint URL-уудыг
- *        /mock/*.json -> /api/... болгоход л бүх систем шууд DB-тэй холбогдоно.
+ * TASK-01 Auth: Express `/api/auth/login`, `/api/user/profile` (Lab 4).
+ * Бусад модуль Lab 5 хүртэл public/mock/*.json ашиглана.
  */
+
+const SESSION_KEY = "studyquest.currentUser";
 
 // 1. Auth & User Service (TASK-01)
 export const authApi = {
   async login(username, password) {
-    const res = await fetch('/mock/users.json');
-    const data = await res.json();
-    const user = data.users.find((u) => u.username === username && u.password === password);
-    if (!user) return null;
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+    if (res.status === 401 || res.status === 422) return null;
+    if (!res.ok) throw new Error("login failed");
 
-    const { password: _p, ...safeUser } = user;
-    sessionStorage.setItem('studyquest.currentUser', JSON.stringify(safeUser));
-    return safeUser;
+    const data = await res.json();
+    const profileRes = await fetch("/api/user/profile", {
+      headers: { Authorization: `Bearer ${data.token}` },
+    });
+    const profile = profileRes.ok ? await profileRes.json() : { ...data.user, username };
+    const session = {
+      ...profile,
+      username: profile.username || username,
+      token: data.token,
+    };
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    return session;
   },
 
   logout() {
-    sessionStorage.removeItem('studyquest.currentUser');
+    sessionStorage.removeItem(SESSION_KEY);
   },
 
   getCurrentUser() {
-    const raw = sessionStorage.getItem('studyquest.currentUser');
+    const raw = sessionStorage.getItem(SESSION_KEY);
     return raw ? JSON.parse(raw) : null;
   },
 };
@@ -109,16 +122,51 @@ export const courseApi = {
 };
 
 // 5. Explore & Lectures Service (TASK-05)
+// Лекц болон сэдвийн ахицыг анх /mock-оос татаж localStorage-д хадгална,
+// ингэснээр багшийн засвар/устгал, оюутны дуусгасан сэдэв хуудас солиход хадгалагдана.
+const LECTURES_KEY = 'studyquest.lectures';
+const TOPIC_PROGRESS_KEY = 'studyquest.topicProgress';
+
+async function loadStored(key, url, field) {
+  const saved = localStorage.getItem(key);
+  if (saved) return JSON.parse(saved);
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(res.statusText);
+  const list = (await res.json())[field] || [];
+  localStorage.setItem(key, JSON.stringify(list));
+  return list;
+}
+
 export const exploreApi = {
+  // GET /api/courses/explore?search=&category= (docs/04-api-pages.md)
+  // search: нэр/тайлбараар, том жижгийг ялгахгүй. category: enum (WEB, OS, DATABASE).
+  async searchCourses({ search = '', category = '' } = {}) {
+    const [courses, topics, lectures] = await Promise.all([
+      courseApi.getCourses(),
+      this.getTopics(),
+      this.getLectures(),
+    ]);
+    const q = search.trim().toLowerCase();
+    return courses
+      .filter((c) => !category || c.category === category)
+      .filter((c) => !q || `${c.title} ${c.description || ''}`.toLowerCase().includes(q))
+      .map((c) => ({
+        id: c.id,
+        title: c.title,
+        description: c.description,
+        category: c.category,
+        topicCount: topics.filter((t) => t.courseId === c.id).length,
+        lectureCount: lectures.filter((l) => l.courseId === c.id).length,
+      }));
+  },
+
   async getLectures() {
-    const res = await fetch('/mock/lectures.json');
-    const data = await res.json();
-    return data.lectures || [];
+    return loadStored(LECTURES_KEY, '/mock/lectures.json', 'lectures');
   },
 
   async getLectureById(id) {
     const lectures = await this.getLectures();
-    return lectures.find((l) => l.id === id) || lectures[0] || null;
+    return lectures.find((l) => l.id === id) || null;
   },
 
   async getByCourse(courseId) {
@@ -127,29 +175,42 @@ export const exploreApi = {
   },
 
   async updateLecture(id, changes) {
-    return { id, ...changes };
+    const lectures = await this.getLectures();
+    const idx = lectures.findIndex((l) => l.id === id);
+    if (idx === -1) return null;
+    lectures[idx] = { ...lectures[idx], ...changes };
+    localStorage.setItem(LECTURES_KEY, JSON.stringify(lectures));
+    return lectures[idx];
   },
 
   async deleteLecture(id) {
-    return true;
+    const lectures = await this.getLectures();
+    const remaining = lectures.filter((l) => l.id !== id);
+    localStorage.setItem(LECTURES_KEY, JSON.stringify(remaining));
+    return remaining.length < lectures.length;
   },
 
   async getTopics(courseId) {
     const res = await fetch('/mock/topics.json');
+    if (!res.ok) throw new Error(res.statusText);
     const data = await res.json();
-    const list = data.topics || [];
+    const list = (data.topics || []).sort((a, b) => a.order - b.order);
     return courseId ? list.filter((t) => t.courseId === courseId) : list;
   },
 
   async getTopicProgress(studentId) {
-    return [
-      { userId: studentId, topicId: 'TP01', status: 'DONE', knowledgeScore: 100 },
-      { userId: studentId, topicId: 'TP02', status: 'DONE', knowledgeScore: 80 },
-    ];
+    const progress = await loadStored(TOPIC_PROGRESS_KEY, '/mock/topic-progress.json', 'topicProgress');
+    return progress.filter((p) => p.userId === studentId);
   },
 
   async completeTopic(studentId, topicId, score) {
-    return true;
+    const progress = await loadStored(TOPIC_PROGRESS_KEY, '/mock/topic-progress.json', 'topicProgress');
+    const entry = { userId: studentId, topicId, status: 'DONE', knowledgeScore: score };
+    const idx = progress.findIndex((p) => p.userId === studentId && p.topicId === topicId);
+    if (idx === -1) progress.push(entry);
+    else progress[idx] = entry;
+    localStorage.setItem(TOPIC_PROGRESS_KEY, JSON.stringify(progress));
+    return entry;
   },
 };
 

@@ -65,8 +65,7 @@
 
 | Объект | `data-testid` | Хаашаа | Role |
 |---|---|---|---|
-| Компьютер | `room-computer` | `/practice` | Зөвхөн Student |
-| Удирдах самбар | `room-board` | `/teacher` | Зөвхөн Teacher |
+| Компьютер | `room-computer` | `/practice` | Бүгд |
 | Номын тавиур | `room-bookshelf` | `/explore` | Бүгд |
 | Цом | `room-trophy` | `/leaderboard` | Бүгд |
 | Ор | `room-bed` | Гарах modal | Бүгд |
