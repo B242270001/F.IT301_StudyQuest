@@ -101,7 +101,7 @@ export default function ExploreCourses({ user }) {
   const selectedProgress = selected ? progressOf(selected.id) : null;
 
   return (
-    <div className="explore-page">
+    <div className="explore-page" data-testid="page-explore">
       <Navbar user={user} />
       <main className="explore-main">
         <section className="explore-hero">
