@@ -54,12 +54,10 @@ body {
   margin: 0;
 }
 
+/* Хуудас бүр дэлгэцийн бүтэн өргөнийг эзэлнэ (Vite template-ийн 1126px баганыг авсан) */
 #root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
+  width: 100%;
   text-align: center;
-  border-inline: 1px solid var(--border);
   min-height: 100svh;
   display: flex;
   flex-direction: column;

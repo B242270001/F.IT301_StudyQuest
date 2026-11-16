@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import ConfirmDialog from "../components/ConfirmDialog";
 import "./Dashboard.css";
 import virtualRoomDay from "./assets/virtualRoomDay.jpg";
 
 export default function Dashboard({ user, onLogout }) {
+  const navigate = useNavigate();
   const roomImage = virtualRoomDay;
 
   const displayName = user?.displayName || "Хэрэглэгч";
@@ -58,6 +61,7 @@ export default function Dashboard({ user, onLogout }) {
   const [noteContent, setNoteContent] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const saveNotesToUser = (updatedNotes) => {
     setNotes(updatedNotes);
@@ -124,7 +128,7 @@ export default function Dashboard({ user, onLogout }) {
   };
 
   return (
-    <div className="dashboard-container" data-testid="dashboard-page">
+    <div className="dashboard-container" data-testid="page-dashboard">
       <div className="dashboard-wrapper">
         {/* Топ цэс */}
         <Navbar user={user} />
@@ -141,10 +145,6 @@ export default function Dashboard({ user, onLogout }) {
               </div>
 
               <div className="streak-card-overlay">
-                <img
-                  src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/aN0ksSNPo6/epwsr4vp_expires_30_days.png"
-                  alt="Streak badge"
-                />
                 {/* 2. Streak-ийн утгаас хамаарсан динамик текст */}
                 <span>{getStreakMessage(streak)}</span>
               </div>
@@ -155,16 +155,18 @@ export default function Dashboard({ user, onLogout }) {
 
             {/* Computer Setup */}
             <button
-              onClick={() => (window.location.href = "/practice")}
+              onClick={() => navigate("/practice")}
               className="room-interactive-btn computer"
               title="Дадлага хийх 💻"
+              data-testid="room-computer"
             />
 
             {/* Bookshelf */}
             <button
-              onClick={() => (window.location.href = "/explore")}
+              onClick={() => navigate("/explore")}
               className="room-interactive-btn bookshelf"
               title="Судлах 📚"
+              data-testid="room-bookshelf"
             />
 
             {/* Самбар (Тэмдэглэл нэмэх интерактив товч) */}
@@ -177,9 +179,10 @@ export default function Dashboard({ user, onLogout }) {
 
             {/* Bed (Гарах) */}
             <button
-              onClick={onLogout}
+              onClick={() => setShowLogoutConfirm(true)}
               className="room-interactive-btn bed"
               title="Унтах 😴"
+              data-testid="room-bed"
             />
 
             {/* --- 3. ДЭВТРИЙН ЗАГВАРТАЙ ЖИЖИГ ЦААСНУУД (RESPONSIVE) --- */}
@@ -250,7 +253,6 @@ export default function Dashboard({ user, onLogout }) {
                   <div className="note-modal-actions">
                     <button
                       type="button"
-                      note-btn-cancel
                       className="note-btn-cancel"
                       onClick={() => setIsModalOpen(false)}
                     >
@@ -268,6 +270,19 @@ export default function Dashboard({ user, onLogout }) {
               </form>
             </div>
           </div>
+        )}
+        {/* --- СИСТЕМЭЭС ГАРАХ БАТАЛГААЖУУЛАХ ЦОНХ --- */}
+        {showLogoutConfirm && (
+          <ConfirmDialog
+            title="Системээс гарах уу?"
+            message="Та StudyQuest системээс гарах гэж байна."
+            confirmLabel="Гарах"
+            onConfirm={() => {
+              setShowLogoutConfirm(false);
+              onLogout();
+            }}
+            onCancel={() => setShowLogoutConfirm(false)}
+          />
         )}
       </div>
     </div>

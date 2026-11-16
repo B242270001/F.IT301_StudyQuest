@@ -21,14 +21,31 @@
     {
       "taskId": "TASK-01",
       "name": "А. Төгөлдөр",
+      "studentId": "B242270001",
+      "email": "b242270001@must.edu.mn",
       "role": "Frontend / Auth & Dashboard",
       "routes": ["/login", "/dashboard"],
-      "apiEndpoints": ["POST /api/auth/login", "GET /api/user/profile"],
-      "tests": ["frontend/tests/Login.test.jsx"]
+      "apiEndpoints": [
+        "GET /api/health",
+        "GET /api/users",
+        "GET /api/users/:id",
+        "POST /api/users",
+        "POST /api/auth/login",
+        "GET /api/user/profile"
+      ],
+      "tests": [
+        "frontend/tests/Login.test.jsx",
+        "frontend/tests/ProtectedRoute.test.jsx",
+        "backend/tests/health.test.js",
+        "backend/tests/users.test.js",
+        "backend/tests/auth.test.js"
+      ]
     },
     {
       "taskId": "TASK-02",
       "name": "Мөнхбаяр",
+      "studentId": "B242270058",
+      "email": "B242270058@must.edu.mn",
       "role": "Frontend & Backend / Practice & Question CRUD",
       "routes": ["/practice", "/quiz/:unitId", "/admin/questions"],
       "apiEndpoints": [
@@ -43,6 +60,7 @@
       "taskId": "TASK-03",
       "name": "Тэмүүлэн (Temka)",
       "studentId": "B242270046",
+      "email": "B242270046@must.edu.mn",
       "role": "Frontend / Horizontal Learning Path & Topics CRUD",
       "routes": ["/practice/:courseId", "/topics", "/quiz/result"],
       "apiEndpoints": [
@@ -59,6 +77,8 @@
     {
       "taskId": "TASK-04",
       "name": "Д. Баттөмөр",
+      "studentId": "B242270025",
+      "email": "b242270025@must.edu.mn",
       "role": "Frontend & Backend / Quiz Engine & Course CRUD",
       "routes": ["/quiz/result", "/admin/courses"],
       "apiEndpoints": [
@@ -74,6 +94,7 @@
     {
       "taskId": "TASK-05",
       "name": "Хүслэн О.",
+      "email": "otgoohuslen0918@gmail.com",
       "role": "Frontend / Explore Library with Search",
       "routes": ["/explore", "/explore/lecture/:id"],
       "apiEndpoints": ["GET /api/courses/explore", "GET /api/lectures/:id"],
@@ -82,6 +103,8 @@
     {
       "taskId": "TASK-06",
       "name": "Цогжавхлан Б.",
+      "studentId": "B222270838",
+      "email": "b222270838@must.edu.mn",
       "role": "Frontend & QA / Leaderboard, UI States & E2E Testing",
       "routes": ["/leaderboard", "/ui-states"],
       "apiEndpoints": ["GET /api/leaderboard"],
@@ -92,6 +115,34 @@
     }
   ],
   "scenarios": [
+    {
+      "id": "task01-auth-role",
+      "taskId": "TASK-01",
+      "tags": ["role"],
+      "route": "/login",
+      "description": "Зөв нэр/нууц үгээр нэвтэрч /dashboard нээгдэнэ, room-computer харагдана.",
+      "steps": [
+        { "action": "goto", "url": "/login" },
+        { "action": "fill", "testId": "login-name-input", "value": "temuulen" },
+        { "action": "fill", "testId": "login-password-input", "value": "student123" },
+        { "action": "click", "testId": "login-submit-btn" },
+        { "action": "expectVisible", "testId": "page-dashboard" },
+        { "action": "expectVisible", "testId": "room-computer" }
+      ]
+    },
+    {
+      "id": "task01-auth-validation",
+      "taskId": "TASK-01",
+      "tags": ["validation"],
+      "route": "/login",
+      "description": "Хоосон нэр нууц үг оруулахад validation алдааны мэдээлэл харуулна.",
+      "steps": [
+        { "action": "goto", "url": "/login" },
+        { "action": "click", "testId": "login-submit-btn" },
+        { "action": "expectVisible", "testId": "login-name-error" },
+        { "action": "expectVisible", "testId": "login-password-error" }
+      ]
+    },
     {
       "id": "task03-path-role",
       "taskId": "TASK-03",
@@ -142,6 +193,126 @@
         { "action": "expectText", "text": "HTML5 Суурь" },
         { "action": "click", "testId": "delete-unit-UN01" },
         { "action": "expectNotText", "text": "HTML5 Суурь" }
+      ]
+    }
+  ],
+  "endpoints": [
+    {
+      "lab": 4,
+      "taskId": "TASK-01",
+      "id": "health",
+      "method": "GET",
+      "path": "/api/health",
+      "expectedStatus": 200
+    },
+    {
+      "lab": 4,
+      "taskId": "TASK-01",
+      "id": "users-list",
+      "method": "GET",
+      "path": "/api/users",
+      "expectedStatus": 200
+    },
+    {
+      "lab": 4,
+      "taskId": "TASK-01",
+      "id": "users-detail",
+      "method": "GET",
+      "path": "/api/users/U01",
+      "expectedStatus": 200
+    },
+    {
+      "lab": 4,
+      "taskId": "TASK-01",
+      "id": "users-detail-missing",
+      "method": "GET",
+      "path": "/api/users/NOPE",
+      "expectedStatus": 404
+    },
+    {
+      "lab": 4,
+      "taskId": "TASK-01",
+      "id": "users-create",
+      "method": "POST",
+      "path": "/api/users",
+      "body": {
+        "username": "lab4user",
+        "password": "secret123",
+        "displayName": "Лабын Хэрэглэгч",
+        "role": "STUDENT"
+      },
+      "expectedStatus": 201
+    },
+    {
+      "lab": 4,
+      "taskId": "TASK-01",
+      "id": "users-create-invalid",
+      "method": "POST",
+      "path": "/api/users",
+      "body": {
+        "username": "",
+        "password": "secret123",
+        "displayName": "Лабын Хэрэглэгч"
+      },
+      "expectedStatus": 422
+    },
+    {
+      "lab": 4,
+      "taskId": "TASK-01",
+      "id": "auth-login",
+      "method": "POST",
+      "path": "/api/auth/login",
+      "body": {
+        "username": "temuulen",
+        "password": "student123"
+      },
+      "expectedStatus": 200
+    },
+    {
+      "lab": 4,
+      "taskId": "TASK-01",
+      "id": "auth-login-invalid",
+      "method": "POST",
+      "path": "/api/auth/login",
+      "body": {
+        "username": "",
+        "password": "student123"
+      },
+      "expectedStatus": 422
+    },
+    {
+      "lab": 4,
+      "taskId": "TASK-01",
+      "id": "auth-login-unauthorized",
+      "method": "POST",
+      "path": "/api/auth/login",
+      "body": {
+        "username": "temuulen",
+        "password": "wrong-pass"
+      },
+      "expectedStatus": 401
+    },
+    {
+      "lab": 4,
+      "taskId": "TASK-01",
+      "id": "user-profile-unauthorized",
+      "method": "GET",
+      "path": "/api/user/profile",
+      "expectedStatus": 401
+    },
+    {
+      "lab": 4,
+      "taskId": "TASK-02",
+      "endpoints": [
+        { "method": "GET",  "path": "/api/health",               "expectedStatus": [200] },
+        { "method": "GET",  "path": "/api/courses/practice",       "expectedStatus": [200] },
+        { "method": "GET",  "path": "/api/courses/practice/CR01",    "expectedStatus": [200] },
+        { "method": "GET",  "path": "/api/courses/practice/CR99",    "expectedStatus": [404] },
+        { "method": "POST", "path": "/api/courses/practice",         "expectedStatus": [201, 422] },
+        { "method": "GET",  "path": "/api/questions",                "expectedStatus": [200] },
+        { "method": "GET",  "path": "/api/questions/Q01",            "expectedStatus": [200] },
+        { "method": "GET",  "path": "/api/questions/Q99",            "expectedStatus": [404] },
+        { "method": "POST", "path": "/api/questions",                "expectedStatus": [201, 422] }
       ]
     }
   ]

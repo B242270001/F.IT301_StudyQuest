@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import './PracticeCourses.css';
 
 export default function PracticeCourses({ user }) {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 1. API оролдох, байхгүй бол public/mock/courses.json унших
     fetch('/api/courses/practice')
       .then((res) => {
         if (!res.ok) throw new Error();
@@ -18,7 +18,6 @@ export default function PracticeCourses({ user }) {
         setLoading(false);
       })
       .catch(() => {
-        // Fallback to mock
         fetch('/mock/courses.json')
           .then((res) => res.json())
           .then((data) => {
@@ -30,82 +29,59 @@ export default function PracticeCourses({ user }) {
   }, []);
 
   return (
-    <div className="practice-page" style={{ minHeight: '100vh', background: '#f8fafc' }}>
+    <div className="practice-page" data-testid="page-practice">
       <Navbar user={user} />
-      <div style={{ maxWidth: '1000px', margin: '40px auto', padding: '0 20px' }}>
-        <h1 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '8px', color: '#1e293b' }}>
-          Дадлага хичээл сонгох
-        </h1>
-        <p style={{ color: '#64748b', marginBottom: '24px' }}>
-          Мэдлэгээ баталгаажуулж, интерактив тестийг шийдэж XP цуглуулаарай.
-        </p>
+      <main className="practice-main">
+        <header className="practice-head">
+          <span className="practice-eyebrow">Дадлага</span>
+          <h1>Дадлага хичээл сонгох</h1>
+          <p className="practice-lead">
+            Мэдлэгээ баталгаажуулж, интерактив тестийг шийдэж XP цуглуулаарай.
+          </p>
+        </header>
 
         {loading ? (
-          <p>Ачаалж байна...</p>
+          <div className="practice-state" role="status">
+            <p>Ачаалж байна...</p>
+          </div>
         ) : courses.length === 0 ? (
-          <p>Дадлага хичээл одоогоор алга байна.</p>
+          <div className="practice-state">
+            <p>Дадлага хичээл одоогоор алга байна.</p>
+            <Link className="practice-btn" to="/explore">
+              Хичээлийн сан руу очих
+            </Link>
+          </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+          <div className="practice-grid">
             {courses.map((course) => (
-              <div
+              <article
                 key={course.id}
-                style={{
-                  background: '#ffffff',
-                  borderRadius: '12px',
-                  padding: '24px',
-                  boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05)',
-                  border: '1px solid #e2e8f0',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                }}
+                className={`practice-card${course.isFeatured ? ' featured' : ''}`}
+                data-testid="practice-course-card"
               >
-                <div>
-                  <span
-                    style={{
-                      display: 'inline-block',
-                      padding: '4px 8px',
-                      background: '#eff6ff',
-                      color: '#2563eb',
-                      borderRadius: '6px',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      marginBottom: '12px',
-                    }}
-                  >
-                    {course.category || 'PROGRAMMING'}
-                  </span>
-                  <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#0f172a', marginBottom: '8px' }}>
-                    {course.title}
-                  </h2>
-                  <p style={{ color: '#475569', fontSize: '14px', lineHeight: '1.5', marginBottom: '16px' }}>
-                    {course.description}
-                  </p>
+                <div className="practice-card-top">
+                  <span className="practice-tag">{course.category || 'PROGRAMMING'}</span>
+                  {course.isFeatured && <span className="practice-badge">★ Онцлох</span>}
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', borderTop: '1px solid #f1f5f9', paddingTop: '16px' }}>
-                  <span style={{ fontSize: '13px', color: '#64748b' }}>
+                <h2>{course.title}</h2>
+                <p className="practice-desc">{course.description}</p>
+                <div className="practice-card-foot">
+                  <span className="practice-units">
                     {course.totalUnits ? `${course.totalUnits} нэгж` : 'Бүлэг хичээл'}
                   </span>
                   <Link
+                    className="practice-btn"
                     to={`/practice/${course.id}`}
-                    style={{
-                      background: '#2563eb',
-                      color: '#ffffff',
-                      padding: '8px 16px',
-                      borderRadius: '8px',
-                      textDecoration: 'none',
-                      fontSize: '14px',
-                      fontWeight: '500',
-                    }}
+                    data-testid="practice-continue"
                   >
                     Зам руу очих →
                   </Link>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }

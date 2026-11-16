@@ -651,6 +651,10 @@
 
 /* ── Responsive ── */
 @media (max-width: 1024px) {
+  .tr-topbar {
+    padding: 12px 24px;
+  }
+
   .tr-content {
     padding: 24px;
   }
@@ -665,6 +669,32 @@
 }
 
 @media (max-width: 600px) {
+  /* 375px дээр topbar-ын 64px padding хэвтээ overflow үүсгэж байсан */
+  .tr-topbar {
+    gap: 12px;
+    padding: 10px 16px;
+  }
+
+  .tr-topbar-title {
+    font-size: 16px;
+  }
+
+  .tr-topbar-right {
+    min-width: 0;
+    gap: 10px;
+  }
+
+  .tr-teacher-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tr-btn-logout {
+    flex-shrink: 0;
+    padding: 6px 12px;
+  }
+
   .tr-content {
     padding: 20px 16px;
   }

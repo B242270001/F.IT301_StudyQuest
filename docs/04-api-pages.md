@@ -38,9 +38,12 @@
 
 | № | Method | Path | Эрх | Амжилт | Алдаа | Эзэн |
 |---|---|---|---|---|---|---|
-| 1 | GET | `/api/health` | Бүгд | 200 `{status:"ok"}` | — | TASK-06 |
+| 1 | GET | `/api/health` | Бүгд | 200 `{status:"ok"}` | — | TASK-01 (Lab 4 суурь; TASK-06 Lab 6-д хамгаална) |
 | 2 | POST | `/api/auth/login` | Зочин | 200 | 401, 422 | TASK-01 |
 | 3 | GET | `/api/user/profile` | Student, Teacher | 200 | 401 | TASK-01 |
+| 3a | GET | `/api/users` | Бүгд | 200 | — | TASK-01 (Lab 4 User list) |
+| 3b | GET | `/api/users/:id` | Бүгд | 200 | 404 | TASK-01 (Lab 4 User detail) |
+| 3c | POST | `/api/users` | Зочин | 201 | 422 | TASK-01 (Lab 4 User create) |
 | 4 | GET | `/api/courses/practice` | Student | 200 | 401, 403 | TASK-02 |
 | 5 | GET | `/api/quiz/:unitId` | Student | 200 | 401, 403, 404 | TASK-02 |
 | 6 | POST | `/api/quiz/check` | Student | 200 | 401, 403, 404, 422 | TASK-02 |
@@ -74,6 +77,18 @@
 // 401 { "message": "Нэр эсвэл нууц үг буруу байна" }
 ```
 **GET `/api/user/profile`** → 200 `{ "id":"U01","displayName":"Саруул","role":"STUDENT","totalXp":890,"todayXp":40,"dailyGoalXp":60,"streakDays":5,"rank":4 }`; 401 токенгүй.
+
+**GET `/api/users`** → 200 `[ { "id":"U01","username":"anujin","displayName":"...","role":"STUDENT" } ]` (`password` байхгүй).
+
+**GET `/api/users/:id`** → 200 хэрэглэгч; 404 `{ "message": "Хэрэглэгч олдсонгүй" }`.
+
+**POST `/api/users`**
+```json
+// Request
+{ "username": "lab4user", "password": "secret123", "displayName": "Лабын Хэрэглэгч", "role": "STUDENT" }
+// 201 { "id": "U11", "username": "lab4user", "displayName": "Лабын Хэрэглэгч", "role": "STUDENT" }
+// 422 { "message": "Нэр оруулна уу", "field": "username" }
+```
 
 ### TASK-02 — Practice ба Quiz
 **GET `/api/courses/practice`** → 200 `[ { "id":"C01","title":"Веб систем ба технологи","icon":"web","unitCount":6,"progress":45,"isFeatured":true } ]`
@@ -137,7 +152,7 @@
 ### TASK-06 — Чансаа ба техникийн
 **GET `/api/leaderboard?period=weekly|allTime`** → 200 `[ { "rank":1,"userId":"U02","name":"Бат-Эрдэнэ","xp":1240,"change":0 }, { "rank":4,"userId":"U01","name":"Саруул","xp":890,"change":1,"isMe":true } ]`. `period` өөр утгатай бол 422. Багш жагсаалтад орохгүй.
 
-**GET `/api/health`** → 200 `{ "status": "ok" }`.
+**GET `/api/health`** → 200 `{ "status": "ok" }` (Lab 4-д TASK-01 серверийн суурь болгон хэрэгжүүлнэ).
 
 ## 5. Хүлээн авах шалгуур
 
