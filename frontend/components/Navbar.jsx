@@ -22,11 +22,6 @@ export default function Navbar({ user }) {
       {/* Цэсний товчлууруудыг хооронд нь ойртуулах контейнер */}
       <nav className="nav-menu">
         <NavLink to="/dashboard" className={menuClass}>
-          <img
-            src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/aN0ksSNPo6/ym780a9s_expires_30_days.png"
-            className="room-icon"
-            alt="Room"
-          />
           <span>Миний өрөө</span>
         </NavLink>
         <NavLink to="/practice" className={menuClass}>
