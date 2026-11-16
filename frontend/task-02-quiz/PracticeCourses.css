@@ -1,0 +1,224 @@
+/* PracticeCourses.css — TASK-02 Дадлага · Хичээл сонгох. Өнгө нь Navbar, Leaderboard-той нийцнэ. */
+.practice-page {
+  --pr-bg: #f7f6fc;
+  --pr-card: #ffffff;
+  --pr-line: #eae6f3;
+  --pr-primary: #7c5cfc;
+  --pr-primary-dark: #5038b2;
+  --pr-soft: #eee9ff;
+  --pr-ink: #28233d;
+  --pr-muted: #817b94;
+  --pr-shadow: 0 1px 2px rgba(40, 35, 61, 0.04), 0 6px 20px rgba(124, 92, 252, 0.08);
+  min-height: 100vh;
+  background: var(--pr-bg);
+  color: var(--pr-ink);
+  font-family: Inter, system-ui, sans-serif;
+  line-height: 1.45;
+  letter-spacing: normal;
+  text-align: left; /* global #root-ийн text-align: center-ээс сэргийлнэ */
+  color-scheme: light;
+}
+
+.practice-main,
+.practice-main * {
+  box-sizing: border-box;
+}
+
+.practice-main {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 36px 24px 64px;
+}
+
+.practice-head {
+  margin-bottom: 28px;
+}
+
+.practice-eyebrow {
+  display: inline-block;
+  padding: 4px 12px;
+  margin-bottom: 10px;
+  border-radius: 999px;
+  background: var(--pr-soft);
+  color: var(--pr-primary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.practice-head h1 {
+  margin: 0 0 6px;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: normal;
+  color: var(--pr-ink);
+}
+
+.practice-lead {
+  margin: 0;
+  font-size: 15px;
+  color: var(--pr-muted);
+}
+
+/* ---------- Төлөв: ачаалах / хоосон ---------- */
+.practice-state {
+  padding: 48px 24px;
+  border: 1px dashed var(--pr-line);
+  border-radius: 20px;
+  background: var(--pr-card);
+  text-align: center;
+  color: var(--pr-muted);
+}
+
+.practice-state p {
+  margin: 0 0 16px;
+}
+
+.practice-state p:last-child {
+  margin-bottom: 0;
+}
+
+/* ---------- Хичээлийн card grid ---------- */
+.practice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.practice-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 22px;
+  background: var(--pr-card);
+  border: 1px solid var(--pr-line);
+  border-radius: 20px;
+  box-shadow: var(--pr-shadow);
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+
+.practice-card:hover {
+  border-color: var(--pr-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(40, 35, 61, 0.05), 0 12px 28px rgba(124, 92, 252, 0.14);
+}
+
+/* Онцлох хичээл */
+.practice-card.featured {
+  border: 2px solid var(--pr-primary);
+  padding: 21px;
+  background: linear-gradient(180deg, #faf8ff 0%, var(--pr-card) 60%);
+}
+
+.practice-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.practice-tag {
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: var(--pr-soft);
+  color: var(--pr-primary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.practice-badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--pr-primary-dark);
+}
+
+.practice-card h2 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: normal;
+  color: var(--pr-ink);
+}
+
+.practice-desc {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--pr-muted);
+}
+
+.practice-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--pr-line);
+}
+
+.practice-units {
+  font-size: 13px;
+  color: var(--pr-muted);
+}
+
+.practice-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  background: var(--pr-primary);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.practice-btn:hover {
+  background: var(--pr-primary-dark);
+}
+
+.practice-page :focus-visible {
+  outline: 2px solid var(--pr-primary);
+  outline-offset: 2px;
+}
+
+/* ---------- Mobile: card нэг баганад ---------- */
+@media (max-width: 640px) {
+  .practice-main {
+    padding: 24px 16px 48px;
+  }
+
+  .practice-head h1 {
+    font-size: 23px;
+  }
+
+  .practice-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .practice-card-foot {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .practice-btn {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .practice-card,
+  .practice-btn {
+    transition: none;
+  }
+
+  .practice-card:hover {
+    transform: none;
+  }
+}
