@@ -1,3 +1,10 @@
+// TASK-01 (Lab 5): User store — Lab 4-ийн in-memory массивыг MongoDB/Mongoose-оор солив.
+// Route-ууд өмнөх шигээ энэ модулийн функцуудыг дуудна, зөвхөн бүгд async болсон.
+import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
+import { Note } from "../models/Note.js";
+import { Session } from "../models/Session.js";
+import { User } from "../models/User.js";
+
 const SEED_USERS = [
   {
     id: "U01",
@@ -121,81 +128,100 @@ const SEED_USERS = [
   },
 ];
 
-let users = [];
-let tokens = new Map();
-let nextUserNumber = 11;
+const FIRST_NEW_USER_NUMBER = 11;
 
-function cloneSeed() {
-  return SEED_USERS.map((user) => ({ ...user }));
+export function hashPassword(password) {
+  const salt = randomBytes(16).toString("hex");
+  const hash = scryptSync(password, salt, 32).toString("hex");
+  return `${salt}:${hash}`;
 }
 
-export function resetStore() {
-  users = cloneSeed();
-  tokens = new Map();
-  nextUserNumber = 11;
+export function verifyPassword(password, stored) {
+  if (!stored || !stored.includes(":")) return false;
+  const [salt, hash] = stored.split(":");
+  const expected = Buffer.from(hash, "hex");
+  const actual = scryptSync(password, salt, expected.length);
+  return timingSafeEqual(expected, actual);
+}
+
+function seedToDoc({ id, password, ...rest }) {
+  return { _id: id, ...rest, passwordHash: hashPassword(password) };
+}
+
+// Хоосон database дээр анхны хэрэглэгчдийг нэг удаа үүсгэнэ.
+// Өгөгдөл байгаа бол юу ч хийхгүй — restart хийхэд шинэ record устахгүй.
+export async function seedUsers() {
+  const count = await User.estimatedDocumentCount();
+  if (count > 0) return false;
+  await User.insertMany(SEED_USERS.map(seedToDoc));
+  return true;
+}
+
+// Тестэд зориулсан: бүх collection-ийг цэвэрлээд seed-ийг дахин үүсгэнэ.
+export async function resetStore() {
+  await Promise.all([User.deleteMany({}), Session.deleteMany({}), Note.deleteMany({})]);
+  await User.insertMany(SEED_USERS.map(seedToDoc));
 }
 
 export function toPublicUser(user) {
   if (!user) return null;
-  const { password, ...safe } = user;
-  return safe;
+  return typeof user.toJSON === "function" ? user.toJSON() : user;
 }
 
-export function listUsers() {
+export async function listUsers() {
+  const users = await User.find().sort({ _id: 1 });
   return users.map(toPublicUser);
 }
 
-export function findUserById(id) {
-  return users.find((user) => user.id === id) || null;
+export async function findUserById(id) {
+  return User.findById(String(id));
 }
 
-export function findUserByUsername(username) {
-  const needle = (username || "").trim().toLowerCase();
-  return users.find((user) => user.username.toLowerCase() === needle) || null;
+export async function findUserByUsername(username, { withPassword = false } = {}) {
+  const needle = String(username || "").trim().toLowerCase();
+  if (!needle) return null;
+  const query = User.findOne({ username: needle });
+  return withPassword ? query.select("+passwordHash") : query;
 }
 
-export function createUser({ username, password, displayName, role }) {
-  const id = `U${String(nextUserNumber).padStart(2, "0")}`;
-  nextUserNumber += 1;
-  const user = {
-    id,
+async function nextUserId() {
+  const ids = await User.find({ _id: /^U\d+$/ }, { _id: 1 }).lean();
+  const max = ids.reduce((acc, { _id }) => Math.max(acc, Number(_id.slice(1))), 0);
+  return `U${String(Math.max(max + 1, FIRST_NEW_USER_NUMBER)).padStart(2, "0")}`;
+}
+
+export async function createUser({ username, password, displayName, role }) {
+  const user = await User.create({
+    _id: await nextUserId(),
     username,
-    password,
+    passwordHash: hashPassword(password),
     displayName,
     role,
     major: "",
-    totalXp: 0,
-    weeklyXp: 0,
-    todayXp: 0,
     dailyGoalXp: 60,
-    streakDays: 0,
     avatar: displayName.trim().charAt(0).toUpperCase() || "?",
-    lastActiveAt: new Date().toISOString(),
-  };
-  users.push(user);
+    lastActiveAt: new Date(),
+  });
   return user;
 }
 
-export function createSession(user) {
-  const token = `tok-${user.id}-${tokens.size + 1}`;
-  tokens.set(token, user.id);
+export async function createSession(user) {
+  const token = `tok-${randomBytes(24).toString("hex")}`;
+  await Session.create({ token, user: user._id });
   return token;
 }
 
-export function getUserByToken(token) {
-  const userId = tokens.get(token);
-  if (!userId) return null;
-  return findUserById(userId);
+export async function deleteSession(token) {
+  await Session.deleteOne({ token });
 }
 
-export function computeRank(user) {
+export async function getUserByToken(token) {
+  const session = await Session.findOne({ token }).populate("user");
+  return session?.user || null;
+}
+
+export async function computeRank(user) {
   if (!user || user.role !== "STUDENT") return null;
-  const ranked = users
-    .filter((item) => item.role === "STUDENT")
-    .slice()
-    .sort((a, b) => b.totalXp - a.totalXp);
-  const index = ranked.findIndex((item) => item.id === user.id);
-  return index === -1 ? null : index + 1;
+  const ahead = await User.countDocuments({ role: "STUDENT", totalXp: { $gt: user.totalXp } });
+  return ahead + 1;
 }
-
-resetStore();

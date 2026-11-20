@@ -31,14 +31,22 @@
         "GET /api/users/:id",
         "POST /api/users",
         "POST /api/auth/login",
-        "GET /api/user/profile"
+        "GET /api/user/profile",
+        "POST /api/auth/logout",
+        "GET /api/notes",
+        "POST /api/notes",
+        "PUT /api/notes/:id",
+        "DELETE /api/notes/:id"
       ],
       "tests": [
         "frontend/tests/Login.test.jsx",
         "frontend/tests/ProtectedRoute.test.jsx",
         "backend/tests/health.test.js",
         "backend/tests/users.test.js",
-        "backend/tests/auth.test.js"
+        "backend/tests/auth.test.js",
+        "backend/tests/notes.test.js",
+        "backend/tests/persistence.test.js",
+        "e2e/integration.spec.js"
       ]
     },
     {
@@ -115,6 +123,26 @@
     }
   ],
   "scenarios": [
+    {
+      "id": "task01-notes-integration",
+      "taskId": "TASK-01",
+      "tags": ["integration"],
+      "route": "/dashboard",
+      "description": "Lab 5: Dashboard дээр тэмдэглэл нэмэхэд POST /api/notes хүсэлт гарч MongoDB-д хадгалагдана, reload хийхэд GET /api/notes-ээр хэвээр харагдана.",
+      "steps": [
+        { "action": "goto", "url": "/login" },
+        { "action": "fill", "testId": "login-name-input", "value": "anujin" },
+        { "action": "fill", "testId": "login-password-input", "value": "student123" },
+        { "action": "click", "testId": "login-submit-btn" },
+        { "action": "expectVisible", "testId": "page-dashboard" },
+        { "action": "click", "testId": "add-note-interactive-btn" },
+        { "action": "fill", "testId": "note-textarea", "value": "Lab5 integration note" },
+        { "action": "click", "testId": "save-note-btn" },
+        { "action": "expectRequest", "method": "POST", "path": "/api/notes" },
+        { "action": "expectVisible", "testId": "notes-success" },
+        { "action": "expectText", "text": "Lab5 integration note" }
+      ]
+    },
     {
       "id": "task01-auth-role",
       "taskId": "TASK-01",
@@ -197,6 +225,8 @@
     }
   ],
   "endpoints": [
+    { "lab": 5, "taskId": "TASK-01", "id": "notes-unauthorized", "method": "GET", "path": "/api/notes", "expectedStatus": 401 },
+    { "lab": 5, "taskId": "TASK-01", "id": "persist-users-create", "method": "POST", "path": "/api/users", "body": { "username": "lab5user", "password": "secret123", "displayName": "Лаб5 Хэрэглэгч", "role": "STUDENT" }, "expectedStatus": [201, 422], "persistCheck": { "afterRestart": "GET /api/users", "expectContains": { "username": "lab5user" } } },
     {
       "lab": 4,
       "taskId": "TASK-01",

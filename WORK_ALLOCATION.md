@@ -70,6 +70,18 @@
   3. Зөв нэвтрэлт 200+token, буруу нууц үг 401, токенгүй profile 401.
   4. `npm run test:ci` (backend Supertest + frontend vitest) амжилттай.
 
+#### Lab 5 (MongoDB/Mongoose + integration) — TASK-01
+- **Хэсэг:** MongoDB холболт (`MONGODB_URI`), User model, Session model (token → User), Note model (owner → User); User CRUD-ыг MongoDB дээр persistent болгох; Dashboard-ын тэмдэглэлийг mock/sessionStorage-оос бодит `/api/notes` руу шилжүүлэх.
+- **Entity хамаарал:** `Session.user → User`, `Note.owner → User`
+- **Endpoint (шинэ):** `GET/POST /api/notes` (200/201/401/422), `PUT/DELETE /api/notes/:id` (200/204/404/422), `POST /api/auth/logout` (204). Lab 4-ийн User/Auth endpoint-ууд MongoDB дээр шилжсэн.
+- **Файл:** `backend/src/db.js`, `backend/src/models/{User,Session,Note}.js`, `backend/src/store/users.js`, `backend/src/routes/{auth,users,notes}.js`, `backend/src/validators/note.js`, `backend/src/middleware/{auth,asyncHandler}.js`, `backend/src/server.js`, `backend/.env.example`, `frontend/services/api.js` (`notesApi`), `frontend/task-01-auth/Dashboard.{jsx,css}`
+- **Тест:** `backend/tests/notes.test.js`, `backend/tests/persistence.test.js` (+ шинэчилсэн `users`/`auth` тест, `mongodb-memory-server`), `frontend/tests/ProtectedRoute.test.jsx` (Dashboard ↔ `/api/notes`), `e2e/integration.spec.js` (tag `integration`)
+- **Хүлээн авах шалгуур:**
+  1. `MONGODB_URI` өгөөгүй бол сервер тодорхой алдаатай зогсоно; өгсөн үед хоосон DB-д seed хэрэглэгч нэг удаа үүснэ.
+  2. `POST /api/users`-ээр хэрэглэгч үүсгээд backend restart хийсний дараа `GET /api/users/:id` хэвээр 200 буцаана (нууц үг scrypt hash-аар хадгалагдана).
+  3. Dashboard дээр тэмдэглэл нэмэх/засах/устгахад `/api/notes` хүсэлт гарч, `notes-loading`, `notes-success`, `notes-error` төлөвүүд ялгаатай харагдана; reload хийхэд тэмдэглэл хэвээр.
+  4. `npm run test:ci` амжилттай.
+
 ### TASK-02 · Мөнхбаяр · Reviewer: TASK-03
 - **Хэсэг:** Practice course grid, Quiz page (3 төрлийн асуулт, inline feedback)
 - **Routes:** `/practice`, `/quiz/:unitId`

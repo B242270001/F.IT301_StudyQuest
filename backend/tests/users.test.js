@@ -3,9 +3,12 @@ import { beforeEach, test } from "node:test";
 import request from "supertest";
 import { app } from "../src/app.js";
 import { resetStore } from "../src/store/users.js";
+import { useTestDB } from "./helpers/db.js";
 
-beforeEach(() => {
-  resetStore();
+useTestDB();
+
+beforeEach(async () => {
+  await resetStore();
 });
 
 test("GET /api/users returns 200 list without passwords", async () => {
