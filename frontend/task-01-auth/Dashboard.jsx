@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import ConfirmDialog from "../components/ConfirmDialog";
+import { notesApi } from "../services/api";
 import "./Dashboard.css";
 import virtualRoomDay from "./assets/virtualRoomDay.jpg";
 
@@ -42,20 +43,13 @@ export default function Dashboard({ user, onLogout }) {
     }
   };
 
-  const [notes, setNotes] = useState(() => {
-    if (user?.notes && Array.isArray(user.notes) && user.notes.length > 0) {
-      return user.notes;
-    }
-    const defaultNotesPool = [
-      { id: "n1", content: "Ez 4 GPA 😎" },
-      { id: "n2", content: "Хичээлээ хий2! 🫠" },
-      { id: "n3", content: "Тууштай байдал бол амжилт! 💪" },
-      { id: "n4", content: "Өдөр бүр 1% илүү байя 📈" },
-      { id: "n5", content: "Фокус алдахгүй шүү! ☕" }
-    ];
-    const shuffled = [...defaultNotesPool].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, 2);
-  });
+  // --- Тэмдэглэл (Lab 5): mock/sessionStorage-оос бодит /api/notes (MongoDB) руу шилжүүлэв ---
+  const [notes, setNotes] = useState([]);
+  // notesStatus: "loading" | "ready" | "error"
+  const [notesStatus, setNotesStatus] = useState("loading");
+  const [notesError, setNotesError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [successMsg, setSuccessMsg] = useState("");
 
   const [activeNoteId, setActiveNoteId] = useState(null);
   const [noteContent, setNoteContent] = useState("");
@@ -63,56 +57,107 @@ export default function Dashboard({ user, onLogout }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
-  const saveNotesToUser = (updatedNotes) => {
-    setNotes(updatedNotes);
-    const updatedUser = { ...user, notes: updatedNotes };
-    sessionStorage.setItem('studyquest.currentUser', JSON.stringify(updatedUser));
+  const handleApiError = (err) => {
+    if (err?.status === 401) {
+      // Token хүчингүй (жишээ нь DB цэвэрлэгдсэн) бол дахин нэвтрүүлнэ.
+      onLogout?.();
+      return "Нэвтрэх хугацаа дууссан байна";
+    }
+    return err?.message || "Алдаа гарлаа";
   };
 
-  const handleSaveNote = (e) => {
+  // GET /api/notes — state-ийг зөвхөн хариу ирсний дараа (promise callback-д) шинэчилнэ.
+  const [reloadKey, setReloadKey] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    notesApi
+      .list()
+      .then((list) => {
+        if (cancelled) return;
+        setNotes(list || []);
+        setNotesError("");
+        setNotesStatus("ready");
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setNotesError(handleApiError(err));
+        setNotesStatus("error");
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reloadKey]);
+
+  const loadNotes = () => {
+    setNotesStatus("loading");
+    setNotesError("");
+    setReloadKey((k) => k + 1);
+  };
+
+  useEffect(() => {
+    if (!successMsg) return undefined;
+    const timer = setTimeout(() => setSuccessMsg(""), 2500);
+    return () => clearTimeout(timer);
+  }, [successMsg]);
+
+  const handleSaveNote = async (e) => {
     e.preventDefault();
     setErrorMsg("");
 
-    if (!noteContent.trim()) {
+    const content = noteContent.trim();
+    if (!content) {
       setErrorMsg("Тэмдэглэлийн агуулга хоосон байж болохгүй!");
       return;
     }
-
-    if (activeNoteId) {
-      // Update
-      const updated = notes.map((n) => (n.id === activeNoteId ? { ...n, content: noteContent.trim() } : n));
-      saveNotesToUser(updated);
-    } else {
-      if (notes.length >= 3) {
-        setErrorMsg("Дээд тал нь 3 тэмдэглэл нэмэх боломжтой!");
-        return;
-      }
-      const newNote = {
-        id: `n_${Date.now()}`,
-        content: noteContent.trim()
-      };
-      saveNotesToUser([...notes, newNote]);
+    if (!activeNoteId && notes.length >= 3) {
+      setErrorMsg("Дээд тал нь 3 тэмдэглэл нэмэх боломжтой!");
+      return;
     }
 
-    setIsModalOpen(false);
-    setNoteContent("");
-    setActiveNoteId(null);
+    setSaving(true);
+    try {
+      if (activeNoteId) {
+        const updated = await notesApi.update(activeNoteId, content);
+        setNotes((prev) => prev.map((n) => (n.id === activeNoteId ? updated : n)));
+        setSuccessMsg("Тэмдэглэл шинэчлэгдлээ ✅");
+      } else {
+        const created = await notesApi.create(content);
+        setNotes((prev) => [...prev, created]);
+        setSuccessMsg("Тэмдэглэл хадгалагдлаа ✅");
+      }
+      setIsModalOpen(false);
+      setNoteContent("");
+      setActiveNoteId(null);
+    } catch (err) {
+      setErrorMsg(handleApiError(err));
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleDeleteNote = (id) => {
-    const updated = notes.filter((n) => n.id !== id);
-    saveNotesToUser(updated);
-    if (activeNoteId === id) {
-      setIsModalOpen(false);
-      setActiveNoteId(null);
-      setNoteContent("");
+  const handleDeleteNote = async (id) => {
+    setNotesError("");
+    try {
+      await notesApi.remove(id);
+      setNotes((prev) => prev.filter((n) => n.id !== id));
+      setSuccessMsg("Тэмдэглэл устгагдлаа 🗑️");
+      if (activeNoteId === id) {
+        setIsModalOpen(false);
+        setActiveNoteId(null);
+        setNoteContent("");
+      }
+    } catch (err) {
+      setNotesError(handleApiError(err));
     }
   };
 
   const handleOpenNewNoteModal = () => {
     setErrorMsg("");
+    if (notesStatus !== "ready") return;
     if (notes.length >= 3) {
-      alert("Тэмдэглэлийн дээд хязгаар (3) хүрсэн байна!");
+      setNotesError("Тэмдэглэлийн дээд хязгаар (3) хүрсэн байна!");
       return;
     }
     setActiveNoteId(null);
@@ -215,6 +260,30 @@ export default function Dashboard({ user, onLogout }) {
                 </div>
               );
             })}
+
+            {/* --- Тэмдэглэлийн API төлөв: loading / error / success --- */}
+            <div className="notes-status-bar" aria-live="polite">
+              {notesStatus === "loading" && (
+                <span className="notes-status loading" data-testid="notes-loading">
+                  ⏳ Тэмдэглэлүүдийг ачаалж байна...
+                </span>
+              )}
+              {notesError && (
+                <span className="notes-status error" data-testid="notes-error">
+                  ⚠️ {notesError}
+                  {notesStatus === "error" && (
+                    <button type="button" onClick={loadNotes} data-testid="notes-retry-btn">
+                      Дахин оролдох
+                    </button>
+                  )}
+                </span>
+              )}
+              {successMsg && (
+                <span className="notes-status success" data-testid="notes-success">
+                  {successMsg}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -262,8 +331,9 @@ export default function Dashboard({ user, onLogout }) {
                       type="submit"
                       className="note-btn-save"
                       data-testid="save-note-btn"
+                      disabled={saving}
                     >
-                      Хадгалах
+                      {saving ? "Хадгалж байна..." : "Хадгалах"}
                     </button>
                   </div>
                 </div>

@@ -45,6 +45,20 @@ npm --prefix backend install
 
 ---
 
+### Алхам 1.5: MongoDB тохируулах (Lab 5)
+
+Backend нь өгөгдлөө MongoDB-д хадгална. Connection string-ийг **`MONGODB_URI`** орчны хувьсагчаас авна:
+
+```bash
+cp backend/.env.example backend/.env
+# backend/.env доторх MONGODB_URI-г өөрийн local MongoDB эсвэл Atlas хаягаар солино
+```
+
+`MONGODB_URI` тохируулаагүй бол сервер алдаа хэвлээд зогсоно. Хоосон database дээр анх асахад тестийн хэрэглэгчид автоматаар үүснэ; дараагийн restart-д өгөгдөл устахгүй.
+Backend тестүүд (`npm run test:ci`) өөрийн санах ойн MongoDB-г (`mongodb-memory-server`) ашиглах тул бодит database-д бичихгүй.
+
+---
+
 ### Алхам 2: Серверүүдийг ажиллуулах
 
 > **Анхаар:** Нэвтрэх болон хэрэглэгчийн мэдээллийн API хүсэлтүүдийг алдаагүй ажиллуулахын тулд **хоёр тусдаа терминал** ашиглана.
@@ -126,7 +140,9 @@ npm run lint
 │   ├── src/
 │   │   ├── routes/           # API маршрутууд (/api/auth, /api/users, /api/health)
 │   │   ├── middleware/       # Token authorization middleware
-│   │   ├── store/            # Өгөгдлийн сан (In-memory seed store)
+│   │   ├── models/           # Mongoose model-ууд (User, Session, Note)
+│   │   ├── store/            # MongoDB-тэй ажиллах store функцууд + seed
+│   │   ├── db.js             # MONGODB_URI-аар MongoDB холболт
 │   │   ├── validators/       # Оролтын баталгаажуулалт
 │   │   ├── app.js            # Express app тохиргоо
 │   │   └── server.js         # Сервер асаах цэг (порт: 4000)

@@ -3,9 +3,12 @@ import { beforeEach, test } from "node:test";
 import request from "supertest";
 import { app } from "../src/app.js";
 import { resetStore } from "../src/store/users.js";
+import { useTestDB } from "./helpers/db.js";
 
-beforeEach(() => {
-  resetStore();
+useTestDB();
+
+beforeEach(async () => {
+  await resetStore();
 });
 
 test("POST /api/auth/login returns 200 and a token for valid credentials", async () => {

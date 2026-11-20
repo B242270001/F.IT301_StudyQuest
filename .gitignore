@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Орчны хувьсагч (MONGODB_URI гэх мэт нууц утга)
+.env
+backend/.env

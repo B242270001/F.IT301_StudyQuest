@@ -33,13 +33,59 @@ export const authApi = {
   },
 
   logout() {
+    const token = this.getCurrentUser()?.token;
     sessionStorage.removeItem(SESSION_KEY);
+    if (token) {
+      // Backend дээрх session-ийг (MongoDB) устгана; сүлжээний алдааг үл тооно.
+      fetch("/api/auth/logout", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      }).catch(() => {});
+    }
   },
 
   getCurrentUser() {
     const raw = sessionStorage.getItem(SESSION_KEY);
     return raw ? JSON.parse(raw) : null;
   },
+};
+
+// 1b. Dashboard тэмдэглэл (TASK-01, Lab 5) — MongoDB дээрх /api/notes
+export class ApiError extends Error {
+  constructor(message, status) {
+    super(message);
+    this.status = status;
+  }
+}
+
+async function authFetch(path, { method = "GET", body } = {}) {
+  const token = authApi.getCurrentUser()?.token;
+  const headers = { Authorization: `Bearer ${token || ""}` };
+  if (body !== undefined) headers["Content-Type"] = "application/json";
+
+  let res;
+  try {
+    res = await fetch(path, {
+      method,
+      headers,
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+  } catch {
+    throw new ApiError("Сервертэй холбогдож чадсангүй", 0);
+  }
+  if (res.status === 204) return null;
+  const data = await res.json().catch(() => null);
+  if (!res.ok) {
+    throw new ApiError(data?.message || "Серверийн алдаа гарлаа", res.status);
+  }
+  return data;
+}
+
+export const notesApi = {
+  list: () => authFetch("/api/notes"),
+  create: (content) => authFetch("/api/notes", { method: "POST", body: { content } }),
+  update: (id, content) => authFetch(`/api/notes/${id}`, { method: "PUT", body: { content } }),
+  remove: (id) => authFetch(`/api/notes/${id}`, { method: "DELETE" }),
 };
 
 // 2. Practice & Quiz Service (TASK-02)

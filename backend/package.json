@@ -1,19 +1,22 @@
 {
   "name": "studyquest-backend",
   "private": true,
-  "version": "0.4.0",
+  "version": "0.5.0",
   "type": "module",
   "scripts": {
     "start": "node src/server.js",
     "start:grader": "node src/server.js",
-    "test": "node --test tests/health.test.js tests/users.test.js tests/auth.test.js",
-    "test:ci": "node --test tests/health.test.js tests/users.test.js tests/auth.test.js"
+    "test": "node --test tests/health.test.js tests/users.test.js tests/auth.test.js tests/notes.test.js tests/persistence.test.js",
+    "test:ci": "node --test tests/health.test.js tests/users.test.js tests/auth.test.js tests/notes.test.js tests/persistence.test.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^4.21.2"
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "mongoose": "^8.24.10"
   },
   "devDependencies": {
+    "mongodb-memory-server": "^10.4.3",
     "supertest": "^7.1.4"
   }
 }
