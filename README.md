@@ -78,6 +78,28 @@ npm run dev
 
 ---
 
+### 🐳 Docker-оор ажиллуулах (Lab 6)
+
+Node, MongoDB суулгалгүйгээр бүх системийг (frontend build + backend + MongoDB) нэг командаар асаана:
+
+```bash
+docker compose up --build -d
+```
+
+**`http://localhost:4000`** хаягаар орно. Өгөгдөл `mongo-data` volume-д хадгалагдах тул `docker compose down` хийгээд дахин асаахад хэвээр байна (`down -v` бол бүр мөсөн устгана).
+`JWT_SECRET`-ийг төслийн үндсэн хавтасны `.env` файлд (`JWT_SECRET=...`) өгнө; өгөөгүй бол compose доторх туршилтын утга ашиглагдана.
+
+---
+
+## 🔐 Authentication ба эрхийн хамгаалалт (Lab 6)
+
+- **Горим:** JWT Bearer — `Authorization: Bearer <token>` (`team-spec.json` → `authScenario.mode = "bearer"`)
+- `/register` хуудас эсвэл `POST /api/auth/register` → 201 + token (шинэ хэрэглэгч үргэлж STUDENT)
+- Token-гүй, хуурамч, хугацаа дууссан эсвэл logout хийсэн token → **401**
+- Эрх хүрэхгүй үйлдэл → **403** (жишээ: `DELETE /api/users/:id` зөвхөн TEACHER)
+
+---
+
 ## 🔑 4. Тестийн хэрэглэгчийн эрхүүд
 
 Системд туршилт хийхэд бэлдсэн дараах хэрэглэгчдийн эрхээр нэвтэрч болно:
@@ -99,10 +121,10 @@ npm run dev
 # 1. Frontend Vitest нэгж тестүүдийг ажиллуулах
 npm run test:frontend
 
-# 2. Backend API тестүүдийг ажиллуулах (Supertest)
-npm --prefix backend test
+# 2. Backend API тестүүдийг ажиллуулах (Supertest + санах ойн MongoDB)
+npm run test:backend
 
-# 3. Бүх талын CI тест (Frontend + Backend)
+# 3. Бүх талын CI тест (Frontend vitest → Backend node:test)
 npm run test:ci
 
 # 4. E2E (End-to-End Playwright) тестийг ажиллуулах
@@ -131,6 +153,7 @@ npm run lint
 | 11 | `/teacher` | Багшийн өрөө | Хичээлүүдийн удирдлага (CRUD), суралцагчдын тоо | Багш |
 | 12 | `/teacher/courses/new`| Хичээл нэмэх | Шинэ курс үүсгэх, лекц нэмэх, материал оруулах | Багш |
 | 13 | `/profile/avatar` | Миний дүр | Үс, хувцас, өнгө, нэмэлтээ сонгож дүрээ тохируулах (MongoDB-д хадгална) | Оюутан, Багш |
+| 14 | `/register` | Бүртгүүлэх | Шинэ оюутан бүртгүүлж JWT-ээр шууд нэвтэрнэ | Бүгд |
 
 ---
 

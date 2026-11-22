@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import { authApi } from "../services/api";
 import virtualRoomNight from "./assets/virtualRoomNight.jpg";
 import "./Login.css";
+import "./Register.css";
 
 export default function Login({ onLogin }) {
   const [studentCode, setStudentCode] = useState("");
@@ -44,7 +46,7 @@ export default function Login({ onLogin }) {
       }
       // Амжилттай нэвтэрсэн — user объектыг App-руу дамжуулна
       onLogin(user);
-    } catch (err) {
+    } catch {
       setError("Сүлжээний алдаа гарлаа. Дахин оролдоно уу.");
       setLoading(false);
     }
@@ -164,6 +166,10 @@ export default function Login({ onLogin }) {
             </button>
           </form>
         </div>
+
+        <p className="register-switch">
+          Бүртгэлгүй юу? <Link to="/register" data-testid="go-register-link">Бүртгүүлэх</Link>
+        </p>
 
         <div className="bottom-links">
           <span>StudyQuest</span>

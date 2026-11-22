@@ -5,9 +5,9 @@ import request from "supertest";
 import { app } from "../src/app.js";
 import { User } from "../src/models/User.js";
 import { resetStore, seedUsers } from "../src/store/users.js";
-import { useTestDB } from "./helpers/db.js";
+import { setupTestDB } from "./helpers/db.js";
 
-useTestDB();
+setupTestDB();
 
 let auth;
 

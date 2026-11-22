@@ -20,6 +20,7 @@ export default defineConfig([
   },
   {
     files: ['backend/**/*.js'],
-    languageOptions: { globals: globals.node, sourceType: 'commonjs' },
+    // backend/package.json "type": "module" тул ES module
+    languageOptions: { globals: globals.node, sourceType: 'module' },
   },
 ])

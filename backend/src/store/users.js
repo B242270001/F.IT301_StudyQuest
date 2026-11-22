@@ -1,6 +1,7 @@
 // TASK-01 (Lab 5): User store — Lab 4-ийн in-memory массивыг MongoDB/Mongoose-оор солив.
 // Route-ууд өмнөх шигээ энэ модулийн функцуудыг дуудна, зөвхөн бүгд async болсон.
-import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
+import { randomBytes, randomUUID, scryptSync, timingSafeEqual } from "node:crypto";
+import { signToken, verifyToken } from "../auth/jwt.js";
 import { Note } from "../models/Note.js";
 import { Session } from "../models/Session.js";
 import { User } from "../models/User.js";
@@ -269,19 +270,37 @@ export async function createUser({ username, password, displayName, role, gender
   return user;
 }
 
+// Lab 6: login/register бүрд JWT гаргана. Session.token талбарт JWT-ийн jti хадгалагдана.
 export async function createSession(user) {
-  const token = `tok-${randomBytes(24).toString("hex")}`;
-  await Session.create({ token, user: user._id });
-  return token;
+  const jti = randomUUID();
+  await Session.create({ token: jti, user: user._id });
+  return signToken({ userId: user._id, role: user.role, jti });
 }
 
-export async function deleteSession(token) {
-  await Session.deleteOne({ token });
+export async function deleteSession(jti) {
+  await Session.deleteOne({ token: jti });
+}
+
+// JWT-ийн гарын үсэг, хугацааг шалгаад, session (jti) идэвхтэй эсэхийг MongoDB-ээс шалгана.
+export async function getAuthFromToken(token) {
+  const payload = verifyToken(token);
+  if (!payload?.jti || !payload?.sub) return null;
+  const session = await Session.findOne({ token: payload.jti, user: payload.sub }).populate("user");
+  if (!session?.user) return null;
+  return { user: session.user, payload };
 }
 
 export async function getUserByToken(token) {
-  const session = await Session.findOne({ token }).populate("user");
-  return session?.user || null;
+  return (await getAuthFromToken(token))?.user || null;
+}
+
+// TEACHER хэрэглэгч устгахад тухайн хэрэглэгчийн тэмдэглэл, session-ийг хамт устгана.
+export async function deleteUserCascade(id) {
+  const user = await User.findById(String(id));
+  if (!user) return null;
+  await Promise.all([Note.deleteMany({ owner: user._id }), Session.deleteMany({ user: user._id })]);
+  await user.deleteOne();
+  return user;
 }
 
 export async function computeRank(user) {

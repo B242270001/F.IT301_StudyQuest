@@ -1,6 +1,8 @@
 // Тестийн MongoDB: MONGODB_TEST_URI өгвөл түүнийг, үгүй бол санах ойн MongoDB (mongodb-memory-server) ашиглана.
 // Бодит/хөгжүүлэлтийн database-д (MONGODB_URI) тест хэзээ ч бичихгүй.
 import { after, before } from "node:test";
+
+process.env.NODE_ENV ||= "test";
 import { connectDB, disconnectDB } from "../../src/db.js";
 
 let memoryServer = null;
@@ -29,7 +31,7 @@ export async function reconnectTestDB() {
   await connectDB(uri);
 }
 
-export function useTestDB() {
+export function setupTestDB() {
   before(startTestDB, { timeout: 120000 });
   after(stopTestDB);
 }

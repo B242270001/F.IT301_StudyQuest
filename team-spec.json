@@ -4,6 +4,7 @@
   "roles": ["STUDENT", "TEACHER"],
   "routes": [
     "/login",
+    "/register",
     "/dashboard",
     "/profile/avatar",
     "/practice",
@@ -25,7 +26,7 @@
       "studentId": "B242270001",
       "email": "b242270001@must.edu.mn",
       "role": "Frontend / Auth & Dashboard",
-      "routes": ["/login", "/dashboard", "/profile/avatar"],
+      "routes": ["/login", "/register", "/dashboard", "/profile/avatar"],
       "apiEndpoints": [
         "GET /api/health",
         "GET /api/users",
@@ -33,7 +34,10 @@
         "POST /api/users",
         "POST /api/auth/login",
         "GET /api/user/profile",
+        "POST /api/auth/register",
         "POST /api/auth/logout",
+        "GET /api/auth/me",
+        "DELETE /api/users/:id",
         "GET /api/user/avatar",
         "PUT /api/user/avatar",
         "GET /api/leaderboard",
@@ -52,7 +56,9 @@
         "backend/tests/persistence.test.js",
         "e2e/integration.spec.js",
         "backend/tests/avatar.test.js",
-        "frontend/tests/AvatarEditor.test.jsx"
+        "frontend/tests/AvatarEditor.test.jsx",
+        "backend/tests/authz.test.js",
+        "frontend/tests/Register.test.jsx"
       ]
     },
     {
@@ -128,7 +134,59 @@
       ]
     }
   ],
+  "authScenario": {
+    "taskId": "TASK-01",
+    "mode": "bearer",
+    "description": "JWT (HS256) Authorization: Bearer <token>. Token-ий jti MongoDB Session-д хадгалагдаж logout хийхэд хүчингүй болно.",
+    "register": {
+      "method": "POST",
+      "path": "/api/auth/register",
+      "body": { "username": "lab6user", "password": "secret123", "displayName": "Лаб6 Хэрэглэгч", "gender": "female" },
+      "expectedStatus": 201,
+      "tokenField": "token"
+    },
+    "login": {
+      "method": "POST",
+      "path": "/api/auth/login",
+      "body": { "username": "temuulen", "password": "student123" },
+      "expectedStatus": 200,
+      "tokenField": "token"
+    },
+    "protected": [
+      { "method": "GET", "path": "/api/user/profile", "authorizedStatus": 200, "anonymousStatus": 401 },
+      { "method": "GET", "path": "/api/notes", "authorizedStatus": 200, "anonymousStatus": 401 },
+      { "method": "GET", "path": "/api/user/avatar", "authorizedStatus": 200, "anonymousStatus": 401 }
+    ],
+    "roleProtected": [
+      {
+        "method": "DELETE",
+        "path": "/api/users/U07",
+        "requiredRole": "TEACHER",
+        "anonymousStatus": 401,
+        "forbidden": { "login": { "username": "temuulen", "password": "student123" }, "expectedStatus": 403 },
+        "allowed": { "login": { "username": "bagsh", "password": "teacher123" }, "expectedStatus": 204 }
+      }
+    ],
+    "logout": { "method": "POST", "path": "/api/auth/logout", "expectedStatus": 204, "tokenRevoked": true }
+  },
   "scenarios": [
+    {
+      "id": "task01-register-integration",
+      "taskId": "TASK-01",
+      "tags": ["integration", "auth"],
+      "route": "/register",
+      "description": "Lab 6: /register дээр бүртгүүлэхэд POST /api/auth/register (201, JWT) хүсэлт гарч, шууд /dashboard нээгдэнэ.",
+      "steps": [
+        { "action": "goto", "url": "/register" },
+        { "action": "fill", "testId": "register-username-input", "value": "e2e.{timestamp}" },
+        { "action": "fill", "testId": "register-displayName-input", "value": "E2E Хэрэглэгч" },
+        { "action": "fill", "testId": "register-password-input", "value": "secret123" },
+        { "action": "fill", "testId": "register-confirm-input", "value": "secret123" },
+        { "action": "click", "testId": "register-submit-btn" },
+        { "action": "expectRequest", "method": "POST", "path": "/api/auth/register" },
+        { "action": "expectVisible", "testId": "page-dashboard" }
+      ]
+    },
     {
       "id": "task01-notes-integration",
       "taskId": "TASK-01",
@@ -231,6 +289,10 @@
     }
   ],
   "endpoints": [
+    { "lab": 6, "taskId": "TASK-01", "id": "register-invalid", "method": "POST", "path": "/api/auth/register", "body": { "username": "", "password": "123", "displayName": "" }, "expectedStatus": 422 },
+    { "lab": 6, "taskId": "TASK-01", "id": "me-anonymous", "method": "GET", "path": "/api/auth/me", "expectedStatus": 401 },
+    { "lab": 6, "taskId": "TASK-01", "id": "delete-user-anonymous", "method": "DELETE", "path": "/api/users/U07", "expectedStatus": 401 },
+    { "lab": 6, "taskId": "TASK-01", "id": "create-teacher-anonymous", "method": "POST", "path": "/api/users", "body": { "username": "hacker", "password": "secret123", "displayName": "Хакер", "role": "TEACHER" }, "expectedStatus": 401 },
     { "lab": 5, "taskId": "TASK-01", "id": "notes-unauthorized", "method": "GET", "path": "/api/notes", "expectedStatus": 401 },
     { "lab": 5, "taskId": "TASK-01", "id": "persist-users-create", "method": "POST", "path": "/api/users", "body": { "username": "lab5user", "password": "secret123", "displayName": "Лаб5 Хэрэглэгч", "role": "STUDENT" }, "expectedStatus": [201, 422], "persistCheck": { "afterRestart": "GET /api/users", "expectContains": { "username": "lab5user" } } },
     {

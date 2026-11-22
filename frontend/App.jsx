@@ -7,6 +7,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./task-01-auth/Login";
 import Dashboard from "./task-01-auth/Dashboard";
 import AvatarEditor from "./task-01-auth/AvatarEditor";
+import Register from "./task-01-auth/Register";
 
 // TASK-02: Practice, Quiz, Admin Questions (Мөнхбаяр)
 import PracticeCourses from "./task-02-quiz/PracticeCourses";
@@ -79,6 +80,17 @@ export default function App() {
               <AfterLogin home={afterLoginRedirect} />
             ) : (
               <Login onLogin={handleLogin} />
+            )
+          }
+        />
+        {/* TASK-01 (Lab 6): Бүртгүүлэх → JWT-ээр шууд нэвтэрч /dashboard руу */}
+        <Route
+          path="/register"
+          element={
+            isLoggedIn ? (
+              <Navigate to={afterLoginRedirect} replace />
+            ) : (
+              <Register onLogin={handleLogin} />
             )
           }
         />
