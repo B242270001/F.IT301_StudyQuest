@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { notesApi } from "../services/api";
+import Avatar from "../components/avatar/Avatar";
 import "./Dashboard.css";
 import virtualRoomDay from "./assets/virtualRoomDay.jpg";
 
@@ -195,7 +196,9 @@ export default function Dashboard({ user, onLogout }) {
               </div>
             </div>
 
-            {/* Үндсэн зураг */}
+            {/* Зургийн яг харьцаатай scene: товчлуур, дүр зургаасаа хэзээ ч зөрөхгүй */}
+            <div className="room-scene">
+            {/* Үндсэн зураг (дүргүй өрөө) */}
             <img src={roomImage} className="room-bg-img" alt="Virtual Room" />
 
             {/* Computer Setup */}
@@ -229,6 +232,19 @@ export default function Dashboard({ user, onLogout }) {
               title="Унтах 😴"
               data-testid="room-bed"
             />
+
+            {/* Хэрэглэгчийн өөрийн дүр (MongoDB-ийн avatarConfig) — дарвал тохируулах хуудас */}
+            <button
+              type="button"
+              className="room-avatar"
+              onClick={() => navigate("/profile/avatar")}
+              title="Дүрээ өөрчлөх ✨"
+              data-testid="room-avatar"
+            >
+              <Avatar config={user?.avatarConfig} animated title={`${displayName}-ийн дүр`} />
+              <span className="room-avatar-hint">Дүрээ өөрчлөх</span>
+            </button>
+            </div>
 
             {/* --- 3. ДЭВТРИЙН ЗАГВАРТАЙ ЖИЖИГ ЦААСНУУД (RESPONSIVE) --- */}
             {notes.map((note, index) => {
@@ -347,6 +363,7 @@ export default function Dashboard({ user, onLogout }) {
             title="Системээс гарах уу?"
             message="Та StudyQuest системээс гарах гэж байна."
             confirmLabel="Гарах"
+            icon={null}
             onConfirm={() => {
               setShowLogoutConfirm(false);
               onLogout();

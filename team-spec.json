@@ -5,6 +5,7 @@
   "routes": [
     "/login",
     "/dashboard",
+    "/profile/avatar",
     "/practice",
     "/practice/:courseId",
     "/topics",
@@ -24,7 +25,7 @@
       "studentId": "B242270001",
       "email": "b242270001@must.edu.mn",
       "role": "Frontend / Auth & Dashboard",
-      "routes": ["/login", "/dashboard"],
+      "routes": ["/login", "/dashboard", "/profile/avatar"],
       "apiEndpoints": [
         "GET /api/health",
         "GET /api/users",
@@ -33,6 +34,9 @@
         "POST /api/auth/login",
         "GET /api/user/profile",
         "POST /api/auth/logout",
+        "GET /api/user/avatar",
+        "PUT /api/user/avatar",
+        "GET /api/leaderboard",
         "GET /api/notes",
         "POST /api/notes",
         "PUT /api/notes/:id",
@@ -46,7 +50,9 @@
         "backend/tests/auth.test.js",
         "backend/tests/notes.test.js",
         "backend/tests/persistence.test.js",
-        "e2e/integration.spec.js"
+        "e2e/integration.spec.js",
+        "backend/tests/avatar.test.js",
+        "frontend/tests/AvatarEditor.test.jsx"
       ]
     },
     {

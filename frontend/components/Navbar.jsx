@@ -1,4 +1,5 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import Avatar from "./avatar/Avatar";
 import "./Navbar.css";
 
 // Dashboard, Leaderboard зэрэг хуудсуудын нийтлэг топ цэс.
@@ -6,10 +7,9 @@ import "./Navbar.css";
 const menuClass = ({ isActive }) => `room-btn ${isActive ? "active" : "inactive"}`;
 
 export default function Navbar({ user }) {
-  // user объектоос мэдээлэл авна (mock-оос ирсэн)
+  const navigate = useNavigate();
   const displayName = user?.displayName || "Хэрэглэгч";
   const firstName = displayName.split(" ").pop(); // "Б. Тэмүүлэн" → "Тэмүүлэн"
-  const avatar = user?.avatar || displayName[0];
   const totalXp = user?.totalXp?.toLocaleString("en-US") || "0";
   const streak = user?.streakDays || 0;
 
@@ -42,11 +42,15 @@ export default function Navbar({ user }) {
         <div className="stat-item">
           <span className="stat-text">🔥 {streak} өдөр</span>
         </div>
+        {/* Хэрэглэгчийн дүрийн толгой — дарвал дүр тохируулах хуудас */}
         <button
+          type="button"
           className="user-avatar-btn"
-          onClick={() => alert("Профайл!")}
+          onClick={() => navigate("/profile/avatar")}
+          title="Дүрээ өөрчлөх"
+          data-testid="nav-avatar-btn"
         >
-          <span>{avatar}</span>
+          <Avatar config={user?.avatarConfig} variant="head" title={displayName} />
         </button>
         <span className="username">{firstName}</span>
       </div>

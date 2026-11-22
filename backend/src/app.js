@@ -4,7 +4,9 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { authRouter } from "./routes/auth.js";
+import { avatarRouter } from "./routes/avatar.js";
 import { healthRouter } from "./routes/health.js";
+import { leaderboardRouter } from "./routes/leaderboard.js";
 import { notesRouter } from "./routes/notes.js";
 import { usersRouter } from "./routes/users.js";
 
@@ -21,6 +23,8 @@ export function createApp() {
   app.use("/api", authRouter);
   app.use("/api", usersRouter);
   app.use("/api", notesRouter);
+  app.use("/api", avatarRouter);
+  app.use("/api", leaderboardRouter);
 
   // Frontend build (dist/) байвал нэг порт дээр SPA-г хамт үйлчилнэ.
   // /api-аар эхэлсэн зам энд хүрэхгүй, тодорхойгүй API зам 404 хэвээр буцна.

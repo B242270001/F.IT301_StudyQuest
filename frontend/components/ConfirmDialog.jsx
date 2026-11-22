@@ -3,7 +3,8 @@ import trash from "./assets/trash.svg";
 import "./ConfirmDialog.css";
 
 // Устгахын өмнөх баталгаажуулах цонх (нийтлэг component, TASK-06)
-export default function ConfirmDialog({ title, name, message, confirmLabel = "Устгах", onConfirm, onCancel }) {
+// icon: зураг (default нь хогийн сав); null өгвөл дүрс харуулахгүй (жишээ нь системээс гарах үед)
+export default function ConfirmDialog({ title, name, message, confirmLabel = "Устгах", icon = trash, onConfirm, onCancel }) {
   const cancelRef = useRef(null);
 
   useEffect(() => {
@@ -30,7 +31,7 @@ export default function ConfirmDialog({ title, name, message, confirmLabel = "У
         onClick={(e) => e.stopPropagation()}
       >
         <h2 id="confirm-title">{title}</h2>
-        <img src={trash} alt="" />
+        {icon && <img src={icon} alt="" />}
         {name && <p className="confirm-name">{name}</p>}
         <p id="confirm-message" className="confirm-message">{message}</p>
         <div className="confirm-actions">

@@ -1,0 +1,43 @@
+.avatar-svg {
+  display: block;
+  overflow: visible;
+}
+
+.avatar-full {
+  width: 100%;
+  height: auto;
+}
+
+.avatar-head {
+  width: 100%;
+  height: 100%;
+}
+
+/* Өрөөнд байх үеийн амьсгалах, нүд цавчих хөдөлгөөн */
+.avatar-animated .avatar-body {
+  transform-origin: 60px 230px;
+  animation: avatar-breathe 3.2s ease-in-out infinite;
+}
+
+.avatar-animated .avatar-eye {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: avatar-blink 4.5s infinite;
+}
+
+@keyframes avatar-breathe {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  50% { transform: translateY(-1px) scaleY(1.008); }
+}
+
+@keyframes avatar-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .avatar-animated .avatar-body,
+  .avatar-animated .avatar-eye {
+    animation: none;
+  }
+}

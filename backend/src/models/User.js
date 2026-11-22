@@ -1,5 +1,26 @@
 // TASK-01 (Lab 5): User model — docs/03-data-model.md §1
 import mongoose from "mongoose";
+import { AVATAR_OPTIONS, DEFAULT_AVATAR, HEX_COLOR } from "./avatarOptions.js";
+
+const color = (fallback) => ({ type: String, match: HEX_COLOR, default: fallback });
+const choice = (field) => ({
+  type: String,
+  enum: AVATAR_OPTIONS[field],
+  default: DEFAULT_AVATAR[field],
+});
+
+const avatarConfigSchema = new mongoose.Schema(
+  {
+    body: choice("body"),
+    skinTone: color(DEFAULT_AVATAR.skinTone),
+    hairStyle: choice("hairStyle"),
+    hairColor: color(DEFAULT_AVATAR.hairColor),
+    outfit: choice("outfit"),
+    outfitColor: color(DEFAULT_AVATAR.outfitColor),
+    accessory: choice("accessory"),
+  },
+  { _id: false },
+);
 
 const userSchema = new mongoose.Schema(
   {
@@ -25,6 +46,10 @@ const userSchema = new mongoose.Schema(
     dailyGoalXp: { type: Number, default: 60, min: 0, max: 500 },
     streakDays: { type: Number, default: 0, min: 0 },
     avatar: { type: String, default: "?" },
+    // Дүрийн тохиргоо — SVG давхаргуудыг frontend энэ утгуудаар зурна.
+    avatarConfig: { type: avatarConfigSchema, default: () => ({ ...DEFAULT_AVATAR }) },
+    // Өмнөх долоо хоногийн байр — чансааны "урагшиллаа/ухарлаа" тооцоонд.
+    lastWeekRank: { type: Number, default: null, min: 1 },
     lastActiveAt: { type: Date, default: Date.now },
   },
   { timestamps: true, versionKey: false },

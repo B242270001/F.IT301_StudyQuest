@@ -26,3 +26,6 @@ dist-ssr
 # Орчны хувьсагч (MONGODB_URI гэх мэт нууц утга)
 .env
 backend/.env
+
+# Хуучин өрөөний зургууд (гуравдагч этгээдийн дүртэй тул repo-д оруулахгүй)
+frontend/task-01-auth/assets/archive/

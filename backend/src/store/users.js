@@ -4,6 +4,7 @@ import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 import { Note } from "../models/Note.js";
 import { Session } from "../models/Session.js";
 import { User } from "../models/User.js";
+import { defaultAvatarFor } from "../models/avatarOptions.js";
 
 const SEED_USERS = [
   {
@@ -128,6 +129,18 @@ const SEED_USERS = [
   },
 ];
 
+// Seed хэрэглэгч бүрийн дүр болон өмнөх долоо хоногийн байр (чансааны өөрчлөлтөд).
+const SEED_EXTRAS = {
+  U01: { lastWeekRank: 2, avatarConfig: { body: "female", skinTone: "#eec19a", hairStyle: "long", hairColor: "#2b1d14", outfit: "hoodie", outfitColor: "#7c5cfc", accessory: "none" } },
+  U02: { lastWeekRank: 1, avatarConfig: { body: "female", skinTone: "#f6d7bd", hairStyle: "bun", hairColor: "#5a3825", outfit: "deel", outfitColor: "#3b82f6", accessory: "none" } },
+  U03: { lastWeekRank: 3, avatarConfig: { body: "male", skinTone: "#d9a074", hairStyle: "short", hairColor: "#1f2937", outfit: "tshirt", outfitColor: "#10b981", accessory: "glasses" } },
+  U04: { lastWeekRank: 4, avatarConfig: { body: "female", skinTone: "#eec19a", hairStyle: "ponytail", hairColor: "#a0522d", outfit: "dress", outfitColor: "#ec4899", accessory: "none" } },
+  U05: { lastWeekRank: 8, avatarConfig: { body: "male", skinTone: "#eec19a", hairStyle: "curly", hairColor: "#2b1d14", outfit: "hoodie", outfitColor: "#f59e0b", accessory: "headphones" } },
+  U06: { lastWeekRank: 5, avatarConfig: { body: "female", skinTone: "#b97b52", hairStyle: "curly", hairColor: "#1f2937", outfit: "tshirt", outfitColor: "#ef4444", accessory: "glasses" } },
+  U07: { lastWeekRank: 6, avatarConfig: { body: "male", skinTone: "#d9a074", hairStyle: "buzz", hairColor: "#2b1d14", outfit: "deel", outfitColor: "#10b981", accessory: "cap" } },
+  U10: { lastWeekRank: null, avatarConfig: { body: "male", skinTone: "#eec19a", hairStyle: "short", hairColor: "#5a3825", outfit: "tshirt", outfitColor: "#3b82f6", accessory: "glasses" } },
+};
+
 const FIRST_NEW_USER_NUMBER = 11;
 
 export function hashPassword(password) {
@@ -145,16 +158,64 @@ export function verifyPassword(password, stored) {
 }
 
 function seedToDoc({ id, password, ...rest }) {
-  return { _id: id, ...rest, passwordHash: hashPassword(password) };
+  return { _id: id, ...rest, ...SEED_EXTRAS[id], passwordHash: hashPassword(password) };
+}
+
+function userNumber(id) {
+  return Number(String(id).replace(/\D/g, "")) || 0;
+}
+
+// Lab 5-ын үед үүссэн database-д avatarConfig талбар байхгүй тул нэг удаа нөхөж бичнэ.
+// Зөвхөн талбар нь огт байхгүй record-ыг өөрчилнө — хэрэглэгчийн сонголтыг дарахгүй.
+async function backfillAvatars() {
+  const missing = await User.collection
+    .find({ avatarConfig: { $exists: false } }, { projection: { _id: 1 } })
+    .toArray();
+  for (const { _id } of missing) {
+    const extras = SEED_EXTRAS[_id] || {
+      avatarConfig: defaultAvatarFor("female", userNumber(_id)),
+      lastWeekRank: null,
+    };
+    await User.collection.updateOne({ _id }, { $set: extras });
+  }
+  return missing.length;
 }
 
 // Хоосон database дээр анхны хэрэглэгчдийг нэг удаа үүсгэнэ.
 // Өгөгдөл байгаа бол юу ч хийхгүй — restart хийхэд шинэ record устахгүй.
 export async function seedUsers() {
   const count = await User.estimatedDocumentCount();
-  if (count > 0) return false;
+  if (count > 0) {
+    await backfillAvatars();
+    return false;
+  }
   await User.insertMany(SEED_USERS.map(seedToDoc));
   return true;
+}
+
+export async function updateAvatar(user, avatarConfig) {
+  user.avatarConfig = avatarConfig;
+  await user.save();
+  return user;
+}
+
+// Чансаа: зөвхөн STUDENT, weekly → weeklyXp, allTime → totalXp-аар эрэмбэлнэ.
+export async function getLeaderboard(period = "weekly") {
+  const field = period === "allTime" ? "totalXp" : "weeklyXp";
+  const students = await User.find({ role: "STUDENT" }).sort({ [field]: -1, _id: 1 });
+  return students.map((student, index) => {
+    const rank = index + 1;
+    const lastRank = student.lastWeekRank;
+    return {
+      rank,
+      id: student._id,
+      name: student.displayName,
+      major: student.major,
+      xp: student[field],
+      change: period === "weekly" && lastRank ? lastRank - rank : 0,
+      avatarConfig: student.avatarConfig?.toJSON?.() ?? student.avatarConfig,
+    };
+  });
 }
 
 // Тестэд зориулсан: бүх collection-ийг цэвэрлээд seed-ийг дахин үүсгэнэ.
@@ -190,9 +251,12 @@ async function nextUserId() {
   return `U${String(Math.max(max + 1, FIRST_NEW_USER_NUMBER)).padStart(2, "0")}`;
 }
 
-export async function createUser({ username, password, displayName, role }) {
+export async function createUser({ username, password, displayName, role, gender }) {
+  const _id = await nextUserId();
   const user = await User.create({
-    _id: await nextUserId(),
+    _id,
+    // Хүйсээр анхны дүрийг өгнө; хэрэглэгч дараа нь /profile/avatar дээр өөрчилнө.
+    avatarConfig: defaultAvatarFor(gender, userNumber(_id)),
     username,
     passwordHash: hashPassword(password),
     displayName,
