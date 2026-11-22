@@ -57,7 +57,13 @@ export function validateCreateUser(body = {}) {
     };
   }
 
-  return { value: { username, password, displayName, role } };
+  // Сонголттой: хүйсээр анхны дүрийг (avatar) сонгоно.
+  const gender = asString(body.gender).toLowerCase();
+  if (gender && !["male", "female"].includes(gender)) {
+    return { error: { status: 422, message: "Хүйс male эсвэл female байна", field: "gender" } };
+  }
+
+  return { value: { username, password, displayName, role, gender: gender || undefined } };
 }
 
 export function validateLogin(body = {}) {

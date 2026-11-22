@@ -48,6 +48,15 @@ export const authApi = {
     const raw = sessionStorage.getItem(SESSION_KEY);
     return raw ? JSON.parse(raw) : null;
   },
+
+  // Профайл өөрчлөгдвөл (жишээ нь дүр) session-ийг шинэчилнэ.
+  updateSession(patch) {
+    const current = this.getCurrentUser();
+    if (!current) return null;
+    const next = { ...current, ...patch };
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(next));
+    return next;
+  },
 };
 
 // 1b. Dashboard тэмдэглэл (TASK-01, Lab 5) — MongoDB дээрх /api/notes
@@ -86,6 +95,12 @@ export const notesApi = {
   create: (content) => authFetch("/api/notes", { method: "POST", body: { content } }),
   update: (id, content) => authFetch(`/api/notes/${id}`, { method: "PUT", body: { content } }),
   remove: (id) => authFetch(`/api/notes/${id}`, { method: "DELETE" }),
+};
+
+// 1c. Хэрэглэгчийн дүр (TASK-01) — MongoDB дээрх User.avatarConfig
+export const avatarApi = {
+  get: () => authFetch("/api/user/avatar"),
+  save: (avatarConfig) => authFetch("/api/user/avatar", { method: "PUT", body: avatarConfig }),
 };
 
 // 2. Practice & Quiz Service (TASK-02)
@@ -261,14 +276,14 @@ export const exploreApi = {
 };
 
 // 6. Leaderboard Service (TASK-06)
-export const leaderboardApi = {
-  async getWeekly() {
-    const res = await fetch('/mock/leaderboard-weekly.json');
-    return res.json();
-  },
+// Чансаа — MongoDB-ийн users-ээс (GET /api/leaderboard), хэрэглэгч бүрийн дүртэй
+async function fetchLeaderboard(period) {
+  const res = await fetch(`/api/leaderboard?period=${period}`);
+  if (!res.ok) throw new Error(res.statusText || "leaderboard failed");
+  return res.json();
+}
 
-  async getAllTime() {
-    const res = await fetch('/mock/leaderboard-allTime.json');
-    return res.json();
-  },
+export const leaderboardApi = {
+  getWeekly: () => fetchLeaderboard("weekly"),
+  getAllTime: () => fetchLeaderboard("allTime"),
 };

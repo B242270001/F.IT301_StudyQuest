@@ -146,7 +146,7 @@ describe("TASK-01: Dashboard Role simulation & Note CRUD", () => {
 
     fireEvent.click(screen.getByTestId("room-bed"));
 
-    expect(screen.getByTestId("confirm-dialog")).toBeInTheDocument();
+    expect(screen.getByTestId("confirm-dialog")).toBeInTheDocument(); expect(screen.getByTestId("confirm-dialog").querySelector("img")).toBeNull(); // гарах цонхонд хогийн савны дүрс байхгүй
     fireEvent.click(screen.getByTestId("confirm-delete"));
 
     expect(handleLogout).toHaveBeenCalledTimes(1);

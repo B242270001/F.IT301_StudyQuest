@@ -5,9 +5,10 @@ import Leaderboard from "../task-06-leaderboard/Leaderboard";
 import weekly from "../../public/mock/leaderboard-weekly.json";
 import allTime from "../../public/mock/leaderboard-allTime.json";
 
+// Lab 5+: чансаа MongoDB-ээс GET /api/leaderboard-аар ирнэ (хариуны хэлбэр mock-той ижил + avatarConfig)
 const mockFiles = {
-  "/mock/leaderboard-weekly.json": weekly,
-  "/mock/leaderboard-allTime.json": allTime,
+  "/api/leaderboard?period=weekly": weekly,
+  "/api/leaderboard?period=allTime": allTime,
 };
 
 function serveMock(override) {
@@ -19,7 +20,7 @@ function serveMock(override) {
 function renderPage() {
   return render(
     <MemoryRouter initialEntries={["/leaderboard"]}>
-      <Leaderboard />
+      <Leaderboard user={{ id: "U05", displayName: "Б. Тэмүүлэн" }} />
     </MemoryRouter>,
   );
 }
@@ -33,7 +34,7 @@ afterEach(() => {
 });
 
 describe("Leaderboard", () => {
-  it("loads only the mock files, never the backend /api", async () => {
+  it("loads the ranking from the backend /api/leaderboard", async () => {
     const fetch = serveMock();
     renderPage();
 
@@ -88,5 +89,21 @@ describe("Leaderboard", () => {
     renderPage();
 
     expect(await screen.findByText("Чансаа бүрдээгүй байна.")).toBeTruthy();
+  });
+});
+
+describe("Leaderboard avatars", () => {
+  it("draws each student's own avatar from avatarConfig", async () => {
+    const withAvatar = weekly.map((row) =>
+      row.id === "U01" ? { ...row, avatarConfig: { ...row.avatarConfig, hairStyle: "bun", outfit: "deel" } } : row,
+    );
+    serveMock((url) => (url.includes("weekly") ? { ok: true, json: async () => withAvatar } : undefined));
+    renderPage();
+
+    await screen.findByRole("list", { name: "Шилдэг гурав" });
+    const first = podium()[0].querySelector("svg");
+    expect(first.getAttribute("data-hair")).toBe("bun");
+    expect(first.getAttribute("data-outfit")).toBe("deel");
+    expect(myRow().querySelector("svg")).toBeTruthy();
   });
 });

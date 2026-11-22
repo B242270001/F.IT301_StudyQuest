@@ -119,18 +119,20 @@
 }
 
 .user-avatar-btn {
-  background-color: #7c5cfc;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 100px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 2px solid #7c5cfc;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #eee9ff;
   cursor: pointer;
   box-shadow: 0 0 10px rgba(124, 92, 252, 0.4);
+  flex-shrink: 0;
 }
 
-.user-avatar-btn span {
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: bold;
+.user-avatar-btn:hover {
+  transform: scale(1.06);
 }
 
 .username {

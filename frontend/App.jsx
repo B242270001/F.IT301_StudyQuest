@@ -6,6 +6,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 // TASK-01: Auth, Dashboard (А. Төгөлдөр)
 import Login from "./task-01-auth/Login";
 import Dashboard from "./task-01-auth/Dashboard";
+import AvatarEditor from "./task-01-auth/AvatarEditor";
 
 // TASK-02: Practice, Quiz, Admin Questions (Мөнхбаяр)
 import PracticeCourses from "./task-02-quiz/PracticeCourses";
@@ -86,6 +87,17 @@ export default function App() {
           element={
             isLoggedIn ? (
               <Dashboard user={user} onLogout={handleLogout} />
+            ) : (
+              <RequireLogin />
+            )
+          }
+        />
+        {/* TASK-01: Хэрэглэгчийн дүр тохируулах */}
+        <Route
+          path="/profile/avatar"
+          element={
+            isLoggedIn ? (
+              <AvatarEditor user={user} onUserUpdate={setUser} onLogout={handleLogout} />
             ) : (
               <RequireLogin />
             )

@@ -82,6 +82,20 @@
   3. Dashboard дээр тэмдэглэл нэмэх/засах/устгахад `/api/notes` хүсэлт гарч, `notes-loading`, `notes-success`, `notes-error` төлөвүүд ялгаатай харагдана; reload хийхэд тэмдэглэл хэвээр.
   4. `npm run test:ci` амжилттай.
 
+#### Нэмэлт — Хэрэглэгчийн дүр (avatar) ба MongoDB чансаа — TASK-01
+- **Шалтгаан:** өрөөний хуучин зурагт гуравдагч этгээдийн дүртэй төстэй дүр байсан тул дүргүй өрөөний зураг + өөрсдийн зурсан давхаргатай SVG дүрээр солив.
+- **Хэсэг:** давхаргатай SVG дүр (`Avatar`), `/profile/avatar` тохируулах хуудас, Dashboard өрөөнд дүр байрлуулах, Navbar болон Чансаанд дүр харуулах, `GET /api/leaderboard`-ийг MongoDB-ийн `users`-ээс гаргах.
+- **Чансааны тохиролцоо:** `/leaderboard` хуудас TASK-06-ийнх хэвээр; дүр харуулах болон mock JSON-оос `GET /api/leaderboard` руу шилжүүлэх өөрчлөлтийг TASK-01 хийв (TASK-06-тай тохиролцсон).
+- **Entity:** `User.avatarConfig` `{ body, skinTone, hairStyle, hairColor, outfit, outfitColor, accessory }`, `User.lastWeekRank`
+- **Endpoint (шинэ):** `GET /api/user/avatar` (200/401), `PUT /api/user/avatar` (200/401/422), `GET /api/leaderboard?period=weekly|allTime` (200/422), `POST /api/users`-д сонголттой `gender` (анхны дүрийг сонгоно).
+- **Файл:** `backend/src/models/avatarOptions.js`, `backend/src/models/User.js`, `backend/src/routes/{avatar,leaderboard}.js`, `backend/src/validators/avatar.js`, `backend/src/store/users.js`, `frontend/components/avatar/{Avatar.jsx,Avatar.css,avatarCatalog.js}`, `frontend/task-01-auth/AvatarEditor.{jsx,css}`, `frontend/task-01-auth/Dashboard.{jsx,css}`, `frontend/components/Navbar.{jsx,css}`, `frontend/task-06-leaderboard/Leaderboard.{jsx,css}`
+- **Тест:** `backend/tests/avatar.test.js`, `frontend/tests/AvatarEditor.test.jsx`, `frontend/tests/Leaderboard.test.jsx` (API руу шилжүүлсэн)
+- **Хүлээн авах шалгуур:**
+  1. Хэрэглэгч `/profile/avatar` дээр үс, хувцас, өнгө, нэмэлтээ сонгоход урьдчилан харагдаж, `Хадгалах` дарахад MongoDB-д хадгалагдана; reload/restart хийсний дараа хэвээр.
+  2. Буруу сонголт (жишээ нь `outfit: "spacesuit"`) → 422, өмнөх дүр өөрчлөгдөхгүй.
+  3. Dashboard өрөөнд хэрэглэгчийн дүр бодит хэмжээгээр (ширээ, ортой харьцуулж) зогсож, дарахад тохируулах хуудас нээгдэнэ.
+  4. Чансааны podium дээр бүтэн дүр, жагсаалтад толгойн дүр харагдана; өгөгдөл `GET /api/leaderboard`-аас ирнэ.
+
 ### TASK-02 · Мөнхбаяр · Reviewer: TASK-03
 - **Хэсэг:** Practice course grid, Quiz page (3 төрлийн асуулт, inline feedback)
 - **Routes:** `/practice`, `/quiz/:unitId`

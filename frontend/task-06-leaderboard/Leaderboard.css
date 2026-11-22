@@ -193,10 +193,15 @@
   font-weight: 600;
 }
 
-.lb-place .lb-avatar {
-  width: 68px;
-  height: 68px;
-  font-size: 26.5px;
+.lb-podium-avatar {
+  display: block;
+  width: 56px;
+  height: 112px;
+}
+
+.lb-place:first-child .lb-podium-avatar {
+  width: 64px;
+  height: 128px;
 }
 
 .lb-block {
@@ -274,6 +279,8 @@
   color: #5038b2;
   font-size: 14.82px;
   font-weight: 700;
+  overflow: hidden;
+  background: #eee9ff;
 }
 
 /* Navbar-ын .user-avatar-btn-тэй ижил өнгө, фонт, гэрэлтэлт */

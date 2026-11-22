@@ -7,14 +7,9 @@ import crown from "./assets/leaderboard/crown.svg";
 import trendingUp from "./assets/leaderboard/trending-up.svg";
 import trophy from "./assets/leaderboard/trophy.svg";
 import clock from "./assets/leaderboard/clock.svg";
-import anujin from "./assets/leaderboard/portrait-anujin.svg";
-import saruul from "./assets/leaderboard/portrait-saruul.svg";
-import bilguun from "./assets/leaderboard/portrait-bilguun.svg";
+import UserAvatar from "../components/avatar/Avatar";
 import "./Leaderboard.css";
 
-const currentUser = { id: "U05" };
-const portraits = { U01: anujin, U02: saruul, U03: bilguun };
-const avatarColors = ["#f7eadf", "#eee9ff", "#e3f1ee", "#e7edfa"];
 const tabs = [
   ["weekly", "Энэ долоо хоног"],
   ["allTime", "Бүх цаг"],
@@ -40,19 +35,17 @@ function changeText(change) {
   return "Өнгөрсөн долоо хоногийн байраа хадгаллаа.";
 }
 
-function Avatar({ student }) {
-  // Өөрийн аватар нь Navbar-ынхтай адилхан (нил ягаан, цагаан үсэг)
-  if (student.id === currentUser.id) {
-    return <span className="lb-avatar lb-avatar-me">{student.name.split(" ").pop()[0]}</span>;
-  }
+// Мөр бүрт хэрэглэгчийн өөрийн дүрийн толгой (MongoDB-ийн avatarConfig)
+function Avatar({ student, isMe }) {
   return (
-    <span className="lb-avatar" style={{ background: avatarColors[Number(student.id.slice(1)) % avatarColors.length] }}>
-      {student.name.split(" ").pop()[0]}
+    <span className={`lb-avatar ${isMe ? "lb-avatar-me" : ""}`}>
+      <UserAvatar config={student.avatarConfig} variant="head" title={student.name} />
     </span>
   );
 }
 
 export default function Leaderboard({ user }) {
+  const currentUser = { id: user?.id };
   const [period, setPeriod] = useState("weekly");
   const [data, setData] = useState(null);
   const [error, setError] = useState(false);
@@ -121,7 +114,10 @@ export default function Leaderboard({ user }) {
                   {rows.slice(0, 3).map((row) => (
                     <li key={row.id} className="lb-place">
                       {row.rank === 1 && <img src={crown} alt="" />}
-                      {portraits[row.id] ? <img src={portraits[row.id]} alt="" /> : <Avatar student={row} />}
+                      {/* Podium дээр дүр бүтнээрээ зогсоно */}
+                      <span className="lb-podium-avatar">
+                        <UserAvatar config={row.avatarConfig} title={row.name} />
+                      </span>
                       <p className="lb-place-name">{row.name}</p>
                       <p className="lb-place-xp">{formatXp(row.xp)}</p>
                       <div className="lb-block">{row.rank}</div>
@@ -136,7 +132,7 @@ export default function Leaderboard({ user }) {
                   {rows.slice(3).map((row) => (
                     <li key={row.id} className="lb-row" aria-current={row.id === currentUser.id || undefined}>
                       <span className="lb-rank">{row.rank}</span>
-                      <Avatar student={row} />
+                      <Avatar student={row} isMe={row.id === currentUser.id} />
                       <div className="lb-student">
                         <p className="lb-name">
                           {row.name}
