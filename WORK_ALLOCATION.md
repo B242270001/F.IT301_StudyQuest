@@ -25,7 +25,7 @@
 | TASK-03 | `/practice/:courseId`, `/quiz/result` | `GET /api/units/path/:courseId`, `GET /api/attempts/latest` | Unit, UserProgress |
 | TASK-04 | `/teacher`, `/teacher/courses/new` | `GET /api/teacher/overview`, `POST/PUT/DELETE /api/teacher/courses[/:id]`, `POST /api/teacher/lectures`, `POST /api/uploads/material` | Course (CRUD), Lecture (Create) |
 | TASK-05 | `/explore`, `/topics/:courseId`, `/explore/lecture/:id` | `GET /api/courses/explore`, `GET /api/courses/:courseId/topics`, `GET/PUT/DELETE /api/lectures/:id`, `POST /api/lectures/:id/knowledge-check` | Topic, TopicProgress, Lecture (Read/Update/Delete) |
-| TASK-06 | `/leaderboard` | `GET /api/leaderboard` | Leaderboard view |
+| TASK-06 | `/leaderboard`, `/ui-states` | — (`GET /api/leaderboard`-ийг TASK-01 MongoDB дээр хэрэгжүүлэв) | Leaderboard view |
 
 Нэг route-ийн ижил үйлдэл, ижил API method+path, ижил тест хоёр гишүүнд давхар оноогдоогүй. Lecture entity-ийн Create (TASK-04) болон Read/Update/Delete (TASK-05) нь ялгаатай taskId, ялгаатай шалгуурт хуваагдсан.
 
@@ -188,3 +188,15 @@
   5. 12 route бүр 375px өргөнтэй дэлгэцэд хэвтээ overflow-гүй байна. `smoke` scenario алдаагүй ажиллана.
   6. Хуудас бүрийн `state-*` component нэг бүтэцтэй, loading, empty, error төлөвүүд ижил загвараар харагдана.
   7. Лекцийн дэлгэрэнгүй хуудасны өгөгдөл mock store-той холбогдож, байхгүй `id`-д алдааны төлөв харуулна.
+
+#### Lab 3 (Routing, role UI, E2E) — TASK-06 гүйцэтгэл
+- **Хэсэг:** Чансааны role-based UI (TEACHER → `state-forbidden`), чансааны тогтвортой testId-ууд, бүх route-ийн `smoke` ба 375px/1440px `responsive` Playwright тест, чансааны `role` scenario.
+- **Тэмдэглэл:** Лекцийн дэлгэрэнгүй (`/explore/lecture/:id`) нь одоо `team-spec.json`-д TASK-05-ийнх тул энэ хэсэгт тооцохгүй. Хуучин `feature/TASK-06-lecture-detail` (PR #4, хаагдсан)-ын smoke/responsive тестийг одоогийн route, JWT нэвтрэлттэй нийцүүлж шинээр бичив.
+- **Файл:** `frontend/task-06-leaderboard/Leaderboard.{jsx,css}`, `e2e/task06-helpers.js`, `e2e/smoke.spec.js`, `e2e/responsive.spec.js`, `e2e/leaderboard.spec.js`, `team-spec.json` (`task06-leaderboard-role-*`)
+- **testId:** `leaderboard-tab-{weekly,allTime}`, `leaderboard-loading`, `leaderboard-error`, `leaderboard-retry-btn`, `leaderboard-empty`, `leaderboard-podium`, `leaderboard-list`, `leaderboard-row-me`, `leaderboard-my-progress`, `leaderboard-goto-teacher`, `state-forbidden`
+- **Тест:** `frontend/tests/Leaderboard.test.jsx` (+2: багшид хаалттай, testId), `e2e/leaderboard.spec.js` (`@role`), `e2e/smoke.spec.js` (`@smoke`, 17 route), `e2e/responsive.spec.js` (`@responsive`, 17 route × 2 өргөн)
+- **Хүлээн авах шалгуур:**
+  1. STUDENT: podium, "ЧИ" мөр, ахицын карт харагдана; "Бүх цаг" таб солигдоно.
+  2. TEACHER: `/leaderboard` → `state-forbidden`, чансааны API дуудагдахгүй, "Багшийн өрөө рүү" товч `/teacher` нээнэ. Нэвтрээгүй → `/login`.
+  3. `team-spec.json`-ийн route бүр шууд URL-ээр өөрийн page testId-тай, runtime алдаагүй нээгдэнэ (`smoke`).
+  4. Route бүр 375px ба 1440px өргөнд хэвтээ overflow-гүй (`responsive`).

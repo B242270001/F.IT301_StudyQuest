@@ -127,10 +127,13 @@
       "email": "b222270838@must.edu.mn",
       "role": "Frontend & QA / Leaderboard, UI States & E2E Testing",
       "routes": ["/leaderboard", "/ui-states"],
-      "apiEndpoints": ["GET /api/leaderboard"],
+      "apiEndpoints": [],
       "tests": [
         "frontend/tests/Leaderboard.test.jsx",
-        "frontend/tests/GlobalUIStates.test.jsx"
+        "frontend/tests/GlobalUIStates.test.jsx",
+        "e2e/leaderboard.spec.js",
+        "e2e/smoke.spec.js",
+        "e2e/responsive.spec.js"
       ]
     }
   ],
@@ -285,6 +288,41 @@
         { "action": "expectText", "text": "HTML5 Суурь" },
         { "action": "click", "testId": "delete-unit-UN01" },
         { "action": "expectNotText", "text": "HTML5 Суурь" }
+      ]
+    },
+    {
+      "id": "task06-leaderboard-role-teacher",
+      "taskId": "TASK-06",
+      "tags": ["role"],
+      "route": "/leaderboard",
+      "description": "Lab 3: TEACHER эрхээр /leaderboard нээхэд чансааны оронд state-forbidden харагдана (багш чансаанд ордоггүй).",
+      "steps": [
+        { "action": "goto", "url": "/login" },
+        { "action": "fill", "testId": "login-name-input", "value": "bagsh" },
+        { "action": "fill", "testId": "login-password-input", "value": "teacher123" },
+        { "action": "click", "testId": "login-submit-btn" },
+        { "action": "expectVisible", "testId": "page-teacher-room" },
+        { "action": "goto", "url": "/leaderboard" },
+        { "action": "expectVisible", "testId": "state-forbidden" },
+        { "action": "expectHidden", "testId": "leaderboard-podium" }
+      ]
+    },
+    {
+      "id": "task06-leaderboard-role-student",
+      "taskId": "TASK-06",
+      "tags": ["role"],
+      "route": "/leaderboard",
+      "description": "Lab 3: STUDENT эрхээр /leaderboard дээр podium, өөрийн \"ЧИ\" мөр болон ахицын карт харагдана.",
+      "steps": [
+        { "action": "goto", "url": "/login" },
+        { "action": "fill", "testId": "login-name-input", "value": "temuulen" },
+        { "action": "fill", "testId": "login-password-input", "value": "student123" },
+        { "action": "click", "testId": "login-submit-btn" },
+        { "action": "expectVisible", "testId": "page-dashboard" },
+        { "action": "goto", "url": "/leaderboard" },
+        { "action": "expectVisible", "testId": "leaderboard-podium" },
+        { "action": "expectVisible", "testId": "leaderboard-row-me" },
+        { "action": "expectVisible", "testId": "leaderboard-my-progress" }
       ]
     }
   ],

@@ -90,6 +90,32 @@ describe("Leaderboard", () => {
 
     expect(await screen.findByText("Чансаа бүрдээгүй байна.")).toBeTruthy();
   });
+
+  // TASK-06 (Lab 3): role-based UI — багшид чансаа харагдахгүй
+  it("shows state-forbidden to a teacher and never loads the ranking", async () => {
+    const fetch = serveMock();
+    render(
+      <MemoryRouter initialEntries={["/leaderboard"]}>
+        <Leaderboard user={{ id: "U10", role: "TEACHER", displayName: "Багш Дорж" }} />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByTestId("state-forbidden").textContent).toContain("зөвхөн оюутнуудад");
+    expect(screen.getByTestId("leaderboard-goto-teacher").getAttribute("href")).toBe("/teacher");
+    expect(screen.queryByTestId("leaderboard-podium")).toBeNull();
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("marks my own row and progress with stable testIds for E2E", async () => {
+    serveMock();
+    renderPage();
+
+    expect(await screen.findByTestId("leaderboard-podium")).toBeTruthy();
+    expect(screen.getByTestId("leaderboard-row-me").textContent).toContain("ЧИ");
+    expect(screen.getByTestId("leaderboard-my-progress").textContent).toContain("5");
+    fireEvent.click(screen.getByTestId("leaderboard-tab-allTime"));
+    expect(screen.getByTestId("leaderboard-tab-allTime").getAttribute("aria-selected")).toBe("true");
+  });
 });
 
 describe("Leaderboard avatars", () => {
