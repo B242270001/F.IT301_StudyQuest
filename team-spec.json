@@ -127,13 +127,20 @@
       "email": "b222270838@must.edu.mn",
       "role": "Frontend & QA / Leaderboard, UI States & E2E Testing",
       "routes": ["/leaderboard", "/ui-states"],
-      "apiEndpoints": [],
+      "apiEndpoints": [
+        "GET /api/achievements",
+        "GET /api/achievements/:id",
+        "POST /api/achievements",
+        "PUT /api/achievements/:id",
+        "DELETE /api/achievements/:id"
+      ],
       "tests": [
         "frontend/tests/Leaderboard.test.jsx",
         "frontend/tests/GlobalUIStates.test.jsx",
         "e2e/leaderboard.spec.js",
         "e2e/smoke.spec.js",
-        "e2e/responsive.spec.js"
+        "e2e/responsive.spec.js",
+        "backend/tests/achievements.test.js"
       ]
     }
   ],
@@ -327,6 +334,14 @@
     }
   ],
   "endpoints": [
+    { "lab": 4, "taskId": "TASK-06", "id": "achievements-list", "method": "GET", "path": "/api/achievements", "expectedStatus": 200 },
+    { "lab": 4, "taskId": "TASK-06", "id": "achievements-detail", "method": "GET", "path": "/api/achievements/A01", "expectedStatus": 200 },
+    { "lab": 4, "taskId": "TASK-06", "id": "achievements-detail-missing", "method": "GET", "path": "/api/achievements/A99", "expectedStatus": 404 },
+    { "lab": 4, "taskId": "TASK-06", "id": "achievements-filter-invalid", "method": "GET", "path": "/api/achievements?type=GOLD", "expectedStatus": 422 },
+    { "lab": 4, "taskId": "TASK-06", "id": "achievements-create", "method": "POST", "path": "/api/achievements", "body": { "code": "lab4-badge", "title": "Лаб4 тэмдэг", "description": "Lab 4 grader-ийн тэмдэг", "icon": "🎯", "type": "XP_TOTAL", "threshold": 500, "xpReward": 20 }, "expectedStatus": [201, 422] },
+    { "lab": 4, "taskId": "TASK-06", "id": "achievements-create-invalid", "method": "POST", "path": "/api/achievements", "body": { "code": "empty-title", "title": "", "type": "STREAK", "threshold": 7 }, "expectedStatus": 422 },
+    { "lab": 4, "taskId": "TASK-06", "id": "achievements-create-invalid-threshold", "method": "POST", "path": "/api/achievements", "body": { "code": "bad-threshold", "title": "Буруу босго", "type": "WEEKLY_RANK", "threshold": 0 }, "expectedStatus": 422 },
+    { "lab": 4, "taskId": "TASK-06", "id": "achievements-update-missing", "method": "PUT", "path": "/api/achievements/A99", "body": { "title": "Байхгүй" }, "expectedStatus": 404 },
     { "lab": 6, "taskId": "TASK-01", "id": "register-invalid", "method": "POST", "path": "/api/auth/register", "body": { "username": "", "password": "123", "displayName": "" }, "expectedStatus": 422 },
     { "lab": 6, "taskId": "TASK-01", "id": "me-anonymous", "method": "GET", "path": "/api/auth/me", "expectedStatus": 401 },
     { "lab": 6, "taskId": "TASK-01", "id": "delete-user-anonymous", "method": "DELETE", "path": "/api/users/U07", "expectedStatus": 401 },

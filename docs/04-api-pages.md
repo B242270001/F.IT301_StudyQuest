@@ -62,7 +62,12 @@
 | 19 | PUT | `/api/lectures/:id` | Teacher | 200 | 401, 403, 404, 422 | TASK-05 |
 | 20 | DELETE | `/api/lectures/:id` | Teacher | 204 | 401, 403, 404 | TASK-05 |
 | 21 | POST | `/api/lectures/:id/knowledge-check` | Student | 200 | 401, 403, 404, 422 | TASK-05 |
-| 22 | GET | `/api/leaderboard` | Student, Teacher | 200 | 401, 422 | TASK-06 |
+| 22 | GET | `/api/leaderboard` | Student, Teacher | 200 | 422 | TASK-01 (хуудас нь TASK-06) |
+| 23 | GET | `/api/achievements` | Бүгд | 200 | 422 (`type`) | TASK-06 |
+| 24 | GET | `/api/achievements/:id` | Бүгд | 200 | 404 | TASK-06 |
+| 25 | POST | `/api/achievements` | Бүгд (Lab 6-д Teacher) | 201 | 422 | TASK-06 |
+| 26 | PUT | `/api/achievements/:id` | Бүгд (Lab 6-д Teacher) | 200 | 404, 422 | TASK-06 |
+| 27 | DELETE | `/api/achievements/:id` | Бүгд (Lab 6-д Teacher) | 204 | 404 | TASK-06 |
 
 ## 4. Endpoint-ийн дэлгэрэнгүй
 
@@ -153,6 +158,18 @@
 **GET `/api/leaderboard?period=weekly|allTime`** → 200 `[ { "rank":1,"userId":"U02","name":"Бат-Эрдэнэ","xp":1240,"change":0 }, { "rank":4,"userId":"U01","name":"Саруул","xp":890,"change":1,"isMe":true } ]`. `period` өөр утгатай бол 422. Багш жагсаалтад орохгүй.
 
 **GET `/api/health`** → 200 `{ "status": "ok" }` (Lab 4-д TASK-01 серверийн суурь болгон хэрэгжүүлнэ).
+
+#### Achievement (тэмдэг) API — TASK-06 (Lab 4)
+Achievement: `{ "id":"A01","code":"first-steps","title":"Анхны алхам","description":"Анхны 100 XP-гээ цуглуул","icon":"🌱","type":"XP_TOTAL","threshold":100,"xpReward":10,"createdAt":"…","updatedAt":"…" }`
+
+- `type` ∈ `XP_TOTAL` (нийт XP), `STREAK` (дараалсан өдөр), `WEEKLY_RANK` (долоо хоногийн байр ≤ threshold).
+- Validation (422 `{ "message","field" }`): `code` 3–40, `^[a-z0-9]+(-[a-z0-9]+)*$`, давхардахгүй; `title` 2–60; `description` ≤ 200; `icon` 1–4 тэмдэгт (default `🏅`); `threshold` бүхэл тоо — XP_TOTAL 1–1 000 000, STREAK 1–365, WEEKLY_RANK 1–50; `xpReward` 0–1000 (default 0).
+
+**GET `/api/achievements?type=STREAK`** → 200 `[Achievement]`; буруу `type` → 422.
+**GET `/api/achievements/:id`** → 200 `Achievement`; 404 `{ "message":"Тэмдэг олдсонгүй" }`.
+**POST `/api/achievements`** → 201 `Achievement` (шинэ `id`); 422 талбарын алдаа эсвэл давхардсан `code`; 400 буруу JSON.
+**PUT `/api/achievements/:id`** → 200; ирээгүй талбар хэвээр үлдэж, эцсийн утгаараа шалгагдана; 404; 422.
+**DELETE `/api/achievements/:id`** → 204 body-гүй; 404.
 
 ## 5. Хүлээн авах шалгуур
 

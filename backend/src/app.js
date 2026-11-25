@@ -3,6 +3,7 @@ import express from "express";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { achievementsRouter } from "./routes/achievements.js";
 import { authRouter } from "./routes/auth.js";
 import { avatarRouter } from "./routes/avatar.js";
 import { healthRouter } from "./routes/health.js";
@@ -25,6 +26,7 @@ export function createApp() {
   app.use("/api", notesRouter);
   app.use("/api", avatarRouter);
   app.use("/api", leaderboardRouter);
+  app.use("/api", achievementsRouter); // TASK-06
 
   // Frontend build (dist/) байвал нэг порт дээр SPA-г хамт үйлчилнэ.
   // /api-аар эхэлсэн зам энд хүрэхгүй, тодорхойгүй API зам 404 хэвээр буцна.

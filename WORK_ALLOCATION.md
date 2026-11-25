@@ -25,7 +25,7 @@
 | TASK-03 | `/practice/:courseId`, `/quiz/result` | `GET /api/units/path/:courseId`, `GET /api/attempts/latest` | Unit, UserProgress |
 | TASK-04 | `/teacher`, `/teacher/courses/new` | `GET /api/teacher/overview`, `POST/PUT/DELETE /api/teacher/courses[/:id]`, `POST /api/teacher/lectures`, `POST /api/uploads/material` | Course (CRUD), Lecture (Create) |
 | TASK-05 | `/explore`, `/topics/:courseId`, `/explore/lecture/:id` | `GET /api/courses/explore`, `GET /api/courses/:courseId/topics`, `GET/PUT/DELETE /api/lectures/:id`, `POST /api/lectures/:id/knowledge-check` | Topic, TopicProgress, Lecture (Read/Update/Delete) |
-| TASK-06 | `/leaderboard`, `/ui-states` | — (`GET /api/leaderboard`-ийг TASK-01 MongoDB дээр хэрэгжүүлэв) | Leaderboard view |
+| TASK-06 | `/leaderboard`, `/ui-states` | `GET/POST /api/achievements`, `GET/PUT/DELETE /api/achievements/:id` (`GET /api/leaderboard`-ийг TASK-01 MongoDB дээр хэрэгжүүлэв) | Leaderboard view, Achievement |
 
 Нэг route-ийн ижил үйлдэл, ижил API method+path, ижил тест хоёр гишүүнд давхар оноогдоогүй. Lecture entity-ийн Create (TASK-04) болон Read/Update/Delete (TASK-05) нь ялгаатай taskId, ялгаатай шалгуурт хуваагдсан.
 
@@ -200,3 +200,13 @@
   2. TEACHER: `/leaderboard` → `state-forbidden`, чансааны API дуудагдахгүй, "Багшийн өрөө рүү" товч `/teacher` нээнэ. Нэвтрээгүй → `/login`.
   3. `team-spec.json`-ийн route бүр шууд URL-ээр өөрийн page testId-тай, runtime алдаагүй нээгдэнэ (`smoke`).
   4. Route бүр 375px ба 1440px өргөнд хэвтээ overflow-гүй (`responsive`).
+
+#### Lab 4 (Express REST) — TASK-06
+- **Хэсэг:** Шинэ entity **Achievement** (сурлагын тэмдэг) — бусад гишүүнд оноогдоогүй, чансаатай холбоотой gamification хэсэг. Санах ойн store, бүтэн REST CRUD, сервер талын validation.
+- **Endpoint:** `GET /api/achievements` (200, буруу `type` 422), `GET /api/achievements/:id` (200/404), `POST /api/achievements` (201/422), `PUT /api/achievements/:id` (200/404/422), `DELETE /api/achievements/:id` (204/404)
+- **Файл:** `backend/src/routes/achievements.js`, `backend/src/store/achievements.js`, `backend/src/validators/achievement.js`, `backend/src/app.js` (router холболт, 1 мөр), `backend/package.json` (`test:ci`-д тест нэмэв), `docs/04-api-pages.md`, `team-spec.json` (`lab: 4`, `taskId: TASK-06`)
+- **Тест:** `backend/tests/achievements.test.js` (Supertest, 22 тохиолдол: амжилттай ба буруу оролт бүр)
+- **Хүлээн авах шалгуур:**
+  1. `team-spec.json`-ийн `lab: 4` / `TASK-06` endpoint бүр заасан status буцаана.
+  2. Хоосон `title`, буруу `code`/`type`, хүрээнээс гарсан `threshold`/`xpReward`, давхардсан `code` → 422 `{ message, field }`, record үүсэхгүй/өөрчлөгдөхгүй.
+  3. `npm run test:ci` амжилттай.
