@@ -17,7 +17,8 @@
     "/explore",
     "/explore/lecture/:id",
     "/leaderboard",
-    "/ui-states"
+    "/ui-states",
+    "/achievements"
   ],
   "teamMembers": [
     {
@@ -126,13 +127,15 @@
       "studentId": "B222270838",
       "email": "b222270838@must.edu.mn",
       "role": "Frontend & QA / Leaderboard, UI States & E2E Testing",
-      "routes": ["/leaderboard", "/ui-states"],
+      "routes": ["/leaderboard", "/ui-states", "/achievements"],
       "apiEndpoints": [
         "GET /api/achievements",
         "GET /api/achievements/:id",
         "POST /api/achievements",
         "PUT /api/achievements/:id",
-        "DELETE /api/achievements/:id"
+        "DELETE /api/achievements/:id",
+        "GET /api/achievements/user/:userId",
+        "POST /api/achievements/:id/award"
       ],
       "tests": [
         "frontend/tests/Leaderboard.test.jsx",
@@ -140,7 +143,10 @@
         "e2e/leaderboard.spec.js",
         "e2e/smoke.spec.js",
         "e2e/responsive.spec.js",
-        "backend/tests/achievements.test.js"
+        "backend/tests/achievements.test.js",
+        "backend/tests/achievementAwards.test.js",
+        "frontend/tests/Achievements.test.jsx",
+        "e2e/achievements.spec.js"
       ]
     }
   ],
@@ -331,9 +337,57 @@
         { "action": "expectVisible", "testId": "leaderboard-row-me" },
         { "action": "expectVisible", "testId": "leaderboard-my-progress" }
       ]
+    },
+    {
+      "id": "task06-achievements-integration",
+      "taskId": "TASK-06",
+      "tags": ["integration"],
+      "route": "/achievements",
+      "description": "Lab 5: Багш /achievements дээр тэмдэг нэмэхэд POST /api/achievements хүсэлт гарч MongoDB-д хадгалагдана, амжилтын мэдэгдэл ба шинэ тэмдэг жагсаалтад харагдана (код автоматаар үүсэх тул дахин ажиллуулж болно).",
+      "steps": [
+        { "action": "goto", "url": "/login" },
+        { "action": "fill", "testId": "login-name-input", "value": "bagsh" },
+        { "action": "fill", "testId": "login-password-input", "value": "teacher123" },
+        { "action": "click", "testId": "login-submit-btn" },
+        { "action": "expectVisible", "testId": "page-teacher-room" },
+        { "action": "goto", "url": "/achievements" },
+        { "action": "expectVisible", "testId": "achievements-list" },
+        { "action": "fill", "testId": "achievement-title-input", "value": "Лаб5 integration тэмдэг" },
+        { "action": "fill", "testId": "achievement-threshold-input", "value": "1500" },
+        { "action": "click", "testId": "achievement-save-btn" },
+        { "action": "expectRequest", "method": "POST", "path": "/api/achievements" },
+        { "action": "expectVisible", "testId": "achievements-success" },
+        { "action": "expectText", "text": "Лаб5 integration тэмдэг" }
+      ]
+    },
+    {
+      "id": "task06-achievements-validation",
+      "taskId": "TASK-06",
+      "tags": ["validation"],
+      "route": "/achievements",
+      "description": "Lab 5: Хоосон нэр, буруу босготой тэмдэг хадгалахад талбарын алдаа харагдаж, POST хүсэлт явахгүй.",
+      "steps": [
+        { "action": "goto", "url": "/login" },
+        { "action": "fill", "testId": "login-name-input", "value": "bagsh" },
+        { "action": "fill", "testId": "login-password-input", "value": "teacher123" },
+        { "action": "click", "testId": "login-submit-btn" },
+        { "action": "expectVisible", "testId": "page-teacher-room" },
+        { "action": "goto", "url": "/achievements" },
+        { "action": "expectVisible", "testId": "achievements-list" },
+        { "action": "fill", "testId": "achievement-threshold-input", "value": "0" },
+        { "action": "click", "testId": "achievement-save-btn" },
+        { "action": "expectVisible", "testId": "achievement-error-title" },
+        { "action": "expectVisible", "testId": "achievement-error-threshold" }
+      ]
     }
   ],
   "endpoints": [
+    { "lab": 5, "taskId": "TASK-06", "id": "achievements-persist-create", "method": "POST", "path": "/api/achievements", "body": { "code": "lab5-persist", "title": "Лаб5 тэмдэг", "description": "Restart хийсний дараа хэвээр", "icon": "💾", "type": "STREAK", "threshold": 10, "xpReward": 30 }, "expectedStatus": [201, 422], "persistCheck": { "afterRestart": "GET /api/achievements", "expectContains": { "code": "lab5-persist" } } },
+    { "lab": 5, "taskId": "TASK-06", "id": "achievements-award", "method": "POST", "path": "/api/achievements/A01/award", "body": { "userId": "U05" }, "expectedStatus": [201, 409] },
+    { "lab": 5, "taskId": "TASK-06", "id": "achievements-award-invalid", "method": "POST", "path": "/api/achievements/A01/award", "body": { "userId": "" }, "expectedStatus": 422 },
+    { "lab": 5, "taskId": "TASK-06", "id": "achievements-award-missing", "method": "POST", "path": "/api/achievements/A99/award", "body": { "userId": "U05" }, "expectedStatus": 404 },
+    { "lab": 5, "taskId": "TASK-06", "id": "achievements-user-list", "method": "GET", "path": "/api/achievements/user/U05", "expectedStatus": 200 },
+    { "lab": 5, "taskId": "TASK-06", "id": "achievements-user-missing", "method": "GET", "path": "/api/achievements/user/NOPE", "expectedStatus": 404 },
     { "lab": 4, "taskId": "TASK-06", "id": "achievements-list", "method": "GET", "path": "/api/achievements", "expectedStatus": 200 },
     { "lab": 4, "taskId": "TASK-06", "id": "achievements-detail", "method": "GET", "path": "/api/achievements/A01", "expectedStatus": 200 },
     { "lab": 4, "taskId": "TASK-06", "id": "achievements-detail-missing", "method": "GET", "path": "/api/achievements/A99", "expectedStatus": 404 },

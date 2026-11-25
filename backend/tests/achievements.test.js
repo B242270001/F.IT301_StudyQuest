@@ -1,9 +1,14 @@
 // TASK-06 (Lab 4): /api/achievements — REST endpoint ба validation (Supertest)
+// Lab 5-аас эхлэн MongoDB (mongodb-memory-server) дээр ажиллана.
 import assert from "node:assert/strict";
 import { beforeEach, test } from "node:test";
 import request from "supertest";
 import { app } from "../src/app.js";
 import { resetAchievements } from "../src/store/achievements.js";
+import { resetStore } from "../src/store/users.js";
+import { setupTestDB } from "./helpers/db.js";
+
+setupTestDB();
 
 const valid = {
   code: "streak-30",
@@ -16,6 +21,7 @@ const valid = {
 };
 
 beforeEach(async () => {
+  await resetStore();
   await resetAchievements();
 });
 

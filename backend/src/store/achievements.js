@@ -1,5 +1,9 @@
-// TASK-06 (Lab 4): Achievement (тэмдэг) — санах ойн (in-memory) store.
-// Lab 5 дээр MongoDB/Mongoose руу шилжүүлнэ; функцүүд Promise буцаадаг тул route өөрчлөгдөхгүй.
+// TASK-06 (Lab 5): Achievement (тэмдэг) — MongoDB/Mongoose store.
+// Lab 4-ийн санах ойн store-ийг сольсон; функцийн гэрээ (Promise) хэвээр тул route өөрчлөгдөөгүй.
+// Өгөгдөл зөвхөн MongoDB-д хадгалагдана (in-memory cache байхгүй) → backend restart хийсэн ч хэвээр.
+import { Achievement } from "../models/Achievement.js";
+import { User } from "../models/User.js";
+import { UserAchievement } from "../models/UserAchievement.js";
 
 export const SEED_ACHIEVEMENTS = [
   {
@@ -44,53 +48,101 @@ export const SEED_ACHIEVEMENTS = [
   },
 ];
 
-let achievements = [];
+const seedToDoc = ({ id, ...rest }) => ({ _id: id, ...rest });
+const toJSON = (doc) => (doc ? doc.toJSON() : null);
 
-const clone = (item) => ({ ...item });
-
-function nextId() {
-  const max = achievements.reduce((acc, { id }) => Math.max(acc, Number(id.slice(1)) || 0), 0);
-  return `A${String(max + 1).padStart(2, "0")}`;
-}
-
-// Тестэд зориулсан: seed өгөгдлөөр дахин эхлүүлнэ.
-export async function resetAchievements() {
-  const now = new Date().toISOString();
-  achievements = SEED_ACHIEVEMENTS.map((item) => ({ ...item, createdAt: now, updatedAt: now }));
-}
-
-export async function listAchievements({ type } = {}) {
-  return achievements.filter((item) => !type || item.type === type).map(clone);
-}
-
-export async function findAchievement(id) {
-  const item = achievements.find((a) => a.id === id);
-  return item ? clone(item) : null;
-}
-
-export async function isCodeTaken(code, exceptId = null) {
-  return achievements.some((a) => a.code === code && a.id !== exceptId);
-}
-
-export async function createAchievement(data) {
-  const now = new Date().toISOString();
-  const item = { id: nextId(), ...data, createdAt: now, updatedAt: now };
-  achievements.push(item);
-  return clone(item);
-}
-
-export async function updateAchievement(id, data) {
-  const item = achievements.find((a) => a.id === id);
-  if (!item) return null;
-  Object.assign(item, data, { updatedAt: new Date().toISOString() });
-  return clone(item);
-}
-
-export async function deleteAchievement(id) {
-  const index = achievements.findIndex((a) => a.id === id);
-  if (index === -1) return false;
-  achievements.splice(index, 1);
+// Server асахад: collection хоосон бол seed-ийг нэг удаа үүсгэнэ. Одоо байгаа өгөгдлийг устгахгүй.
+export async function seedAchievements() {
+  if ((await Achievement.estimatedDocumentCount()) > 0) return false;
+  await Achievement.insertMany(SEED_ACHIEVEMENTS.map(seedToDoc));
   return true;
 }
 
-await resetAchievements();
+// Тестэд зориулсан: тэмдэг болон олголтыг цэвэрлээд seed-ийг дахин үүсгэнэ.
+export async function resetAchievements() {
+  await Promise.all([Achievement.deleteMany({}), UserAchievement.deleteMany({})]);
+  await Achievement.insertMany(SEED_ACHIEVEMENTS.map(seedToDoc));
+}
+
+async function nextId() {
+  const ids = await Achievement.find({ _id: /^A\d+$/ }, { _id: 1 }).lean();
+  const max = ids.reduce((acc, { _id }) => Math.max(acc, Number(_id.slice(1))), 0);
+  return `A${String(max + 1).padStart(2, "0")}`;
+}
+
+export async function listAchievements({ type } = {}) {
+  const docs = await Achievement.find(type ? { type } : {}).sort({ _id: 1 });
+  return docs.map(toJSON);
+}
+
+// Дэлгэрэнгүйд хэдэн хэрэглэгч энэ тэмдгийг авсныг (UserAchievement хамаарал) хамт буцаана.
+export async function findAchievement(id) {
+  const doc = await Achievement.findById(id);
+  if (!doc) return null;
+  const holderCount = await UserAchievement.countDocuments({ achievement: doc._id });
+  return { ...doc.toJSON(), holderCount };
+}
+
+export async function isCodeTaken(code, exceptId = null) {
+  const filter = exceptId ? { code, _id: { $ne: exceptId } } : { code };
+  return Boolean(await Achievement.exists(filter));
+}
+
+export async function createAchievement(data) {
+  return toJSON(await Achievement.create({ _id: await nextId(), ...data }));
+}
+
+export async function updateAchievement(id, data) {
+  const doc = await Achievement.findByIdAndUpdate(id, data, { new: true, runValidators: true });
+  return toJSON(doc);
+}
+
+// Тэмдгийг устгахад түүнийг олгосон бүртгэлүүд хамт устна (өнчин UserAchievement үлдэхгүй).
+export async function deleteAchievement(id) {
+  const result = await Achievement.deleteOne({ _id: id });
+  if (result.deletedCount === 0) return false;
+  await UserAchievement.deleteMany({ achievement: id });
+  return true;
+}
+
+/* ---------- UserAchievement (хамаарал) ---------- */
+
+const userSummary = (user) => ({ id: user._id, displayName: user.displayName, role: user.role });
+
+function awardToJSON(award) {
+  const json = award.toJSON();
+  return {
+    id: json.id,
+    awardedAt: json.awardedAt,
+    awardedBy: json.awardedBy,
+    user: award.user?._id ? userSummary(award.user) : json.user,
+    achievement: award.achievement?._id ? award.achievement.toJSON() : json.achievement,
+  };
+}
+
+// Тэмдэг олгох. Алдааны төрлийг route HTTP status болгоно.
+export async function awardAchievement(achievementId, userId, awardedBy = null) {
+  const achievement = await Achievement.findById(achievementId);
+  if (!achievement) return { error: "ACHIEVEMENT_NOT_FOUND" };
+  const user = await User.findById(userId);
+  if (!user) return { error: "USER_NOT_FOUND" };
+  if (await UserAchievement.exists({ user: user._id, achievement: achievement._id })) {
+    return { error: "ALREADY_AWARDED" };
+  }
+  const award = await UserAchievement.create({
+    user: user._id,
+    achievement: achievement._id,
+    awardedBy,
+  });
+  await award.populate(["user", "achievement"]);
+  return { value: awardToJSON(award) };
+}
+
+// Хэрэглэгчийн авсан тэмдгүүд (populate-оор Achievement-ийг дэлгэрэнгүй буцаана). Байхгүй хэрэглэгч → null.
+export async function listUserAchievements(userId) {
+  if (!(await User.exists({ _id: userId }))) return null;
+  const awards = await UserAchievement.find({ user: userId })
+    .sort({ awardedAt: 1 })
+    .populate("achievement");
+  return awards.filter((a) => a.achievement).map(awardToJSON);
+}

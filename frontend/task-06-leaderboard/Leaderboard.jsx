@@ -58,6 +58,9 @@ export default function Leaderboard({ user }) {
             <Link to="/teacher" className="lb-link" data-testid="leaderboard-goto-teacher">
               Багшийн өрөө рүү →
             </Link>
+            <Link to="/achievements" className="lb-link" data-testid="leaderboard-goto-achievements">
+              Тэмдэг удирдах →
+            </Link>
           </section>
         </main>
       </div>

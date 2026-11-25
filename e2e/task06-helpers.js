@@ -23,6 +23,8 @@ export const ROUTES = [
   { path: "/explore", as: "student", testId: "page-explore" },
   { path: "/explore/lecture/L01", as: "student", testId: "page-lecture" },
   { path: "/leaderboard", as: "student", testId: "page-leaderboard" },
+  { path: "/achievements", as: "student", testId: "page-achievements" },
+  { path: "/achievements", as: "teacher", testId: "page-achievements" },
   { path: "/ui-states", as: null, testId: "page-ui-states" },
   { path: "/teacher", as: "teacher", testId: "page-teacher-room" },
   { path: "/teacher/courses/new", as: "teacher", testId: "page-teacher-course-form" },
@@ -59,6 +61,9 @@ export async function loginThroughForm(page, who) {
   await page.getByTestId("login-submit-btn").click();
   await expect(page).not.toHaveURL(/\/login$/);
 }
+
+// Тестийн нэр: "/achievements as teacher" — нэг route-ийг хоёр role-оор шалгаж болно.
+export const routeName = (route) => (route.as ? `${route.path} as ${route.as}` : route.path);
 
 // Хуудсыг нээж, өгөгдөл ачаалж дуустал хүлээнэ.
 export async function openRoute(page, route) {

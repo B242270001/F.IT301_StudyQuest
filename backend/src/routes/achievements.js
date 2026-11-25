@@ -1,12 +1,15 @@
 // TASK-06 (Lab 4): Achievement (тэмдэг) REST API — list, detail, create, update, delete.
+// TASK-06 (Lab 5): MongoDB store + UserAchievement хамаарал (тэмдэг олгох, хэрэглэгчийн тэмдгүүд).
 import { Router } from "express";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import {
+  awardAchievement,
   createAchievement,
   deleteAchievement,
   findAchievement,
   isCodeTaken,
   listAchievements,
+  listUserAchievements,
   updateAchievement,
 } from "../store/achievements.js";
 import { validateAchievement, validateTypeFilter } from "../validators/achievement.js";
@@ -31,7 +34,17 @@ achievementsRouter.get(
   }),
 );
 
-// GET /api/achievements/:id → 200 | 404
+// GET /api/achievements/user/:userId → 200 [{ id, awardedAt, achievement }] | 404 (хэрэглэгч байхгүй)
+achievementsRouter.get(
+  "/achievements/user/:userId",
+  asyncHandler(async (req, res) => {
+    const awards = await listUserAchievements(req.params.userId);
+    if (!awards) return res.status(404).json({ message: "Хэрэглэгч олдсонгүй" });
+    res.status(200).json(awards);
+  }),
+);
+
+// GET /api/achievements/:id → 200 (+ holderCount) | 404
 achievementsRouter.get(
   "/achievements/:id",
   asyncHandler(async (req, res) => {
@@ -72,5 +85,28 @@ achievementsRouter.delete(
   asyncHandler(async (req, res) => {
     if (!(await deleteAchievement(req.params.id))) return notFound(res);
     res.status(204).end();
+  }),
+);
+
+// POST /api/achievements/:id/award { userId } → 201 | 404 (тэмдэг) | 422 (userId) | 409 (аль хэдийн авсан)
+const AWARD_ERRORS = {
+  ACHIEVEMENT_NOT_FOUND: [404, "Тэмдэг олдсонгүй", undefined],
+  USER_NOT_FOUND: [422, "Ийм хэрэглэгч олдсонгүй", "userId"],
+  ALREADY_AWARDED: [409, "Энэ хэрэглэгч уг тэмдгийг аль хэдийн авсан", "userId"],
+};
+
+achievementsRouter.post(
+  "/achievements/:id/award",
+  asyncHandler(async (req, res) => {
+    const userId = typeof req.body?.userId === "string" ? req.body.userId.trim() : "";
+    if (!userId) {
+      return res.status(422).json({ message: "Тэмдэг олгох хэрэглэгчийг сонгоно уу", field: "userId" });
+    }
+    const { error, value } = await awardAchievement(req.params.id, userId, req.user?._id ?? null);
+    if (error) {
+      const [status, message, field] = AWARD_ERRORS[error];
+      return res.status(status).json({ message, field });
+    }
+    res.status(201).json(value);
   }),
 );

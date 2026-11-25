@@ -210,3 +210,16 @@
   1. `team-spec.json`-ийн `lab: 4` / `TASK-06` endpoint бүр заасан status буцаана.
   2. Хоосон `title`, буруу `code`/`type`, хүрээнээс гарсан `threshold`/`xpReward`, давхардсан `code` → 422 `{ message, field }`, record үүсэхгүй/өөрчлөгдөхгүй.
   3. `npm run test:ci` амжилттай.
+
+#### Lab 5 (MongoDB/Mongoose + integration) — TASK-06
+- **Хэсэг:** Achievement-ийг санах ойгоос MongoDB руу шилжүүлж persistent болгох; хоёр шинэ model ба `User`-тэй хамаарал; `/achievements` хуудсыг бодит API-тай end-to-end холбох.
+- **Entity хамаарал:** `UserAchievement.user → User` (TASK-01-ийн model), `UserAchievement.achievement → Achievement`, `UserAchievement.awardedBy → User`. Тэмдэг устгахад олголтууд хамт устна.
+- **Endpoint (шинэ):** `POST /api/achievements/:id/award` (201/404/409/422), `GET /api/achievements/user/:userId` (200/404). `GET /api/achievements/:id` нь `holderCount` буцаана. Lab 4-ийн 5 endpoint MongoDB дээр шилжсэн.
+- **Frontend:** `/achievements` (`page-achievements`) — `achievements-loading` / `achievements-error` (+ `achievements-retry-btn`) / `achievements-empty` / `achievements-list`, амжилт `achievements-success`. STUDENT: бүх тэмдэг + өөрийн авсан (`data-earned`). TEACHER: нэмэх/засах/устгах маягт (frontend validation + серверийн 422-г талбарт харуулна), устгахын өмнө `ConfirmDialog`. Navbar-т "Тэмдэг" цэс.
+- **Файл:** `backend/src/models/{Achievement,UserAchievement}.js`, `backend/src/store/achievements.js` (Mongoose), `backend/src/routes/achievements.js`, `backend/src/server.js` (`seedAchievements`, 3 мөр), `frontend/task-06-leaderboard/{Achievements.jsx,Achievements.css,achievementValidation.js}`, `frontend/services/api.js` (`achievementsApi`), `frontend/App.jsx` (`/achievements` route), `frontend/components/Navbar.jsx` (цэс), `docs/04-api-pages.md`, `team-spec.json`
+- **Тест:** `backend/tests/achievementAwards.test.js` (хамаарал, 409/422/404, cascade, restart persistence), `backend/tests/achievements.test.js` (MongoDB дээр), `frontend/tests/Achievements.test.jsx` (loading/success/error, validation, create/edit/delete), `e2e/achievements.spec.js` (`@integration`, `@validation`)
+- **Хүлээн авах шалгуур:**
+  1. `POST /api/achievements`-ээр үүсгээд backend restart хийсний дараа `GET /api/achievements`-д хэвээр байна.
+  2. Багш `/achievements` дээр тэмдэг нэмэхэд `POST /api/achievements` хүсэлт гарч `achievements-success` харагдана; reload хийхэд тэмдэг хэвээр.
+  3. Loading, success, error төлөвүүд ялгаатай харагдана; алдааны үед "Дахин оролдох" ажиллана.
+  4. `npm run test:ci` амжилттай.

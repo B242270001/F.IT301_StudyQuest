@@ -19,6 +19,7 @@
 | 10 | `/leaderboard` | Чансаа | `page-leaderboard` | Student, Teacher | TASK-06 | `GET /api/leaderboard` |
 | 11 | `/teacher` | Удирдах өрөө | `page-teacher-room` | Teacher | TASK-04 | `GET /api/teacher/overview`, `PUT/DELETE /api/teacher/courses/:id` |
 | 12 | `/teacher/courses/new` | Хичээл нэмэх | `page-teacher-course-form` | Teacher | TASK-04 | `POST /api/teacher/courses`, `POST /api/teacher/lectures`, `POST /api/uploads/material` |
+| 13 | `/achievements` | Тэмдэгүүд | `page-achievements` | Student, Teacher (удирдлага) | TASK-06 | `GET /api/achievements`, `GET /api/achievements/user/:userId`, `POST/PUT/DELETE /api/achievements[/:id]` |
 
 **Route-ийн зохион байгуулалт:**
 - `/` нь нэвтэрсэн бол `/dashboard`, үгүй бол `/login` руу redirect хийнэ (spec-ийн route биш).
@@ -68,6 +69,8 @@
 | 25 | POST | `/api/achievements` | Бүгд (Lab 6-д Teacher) | 201 | 422 | TASK-06 |
 | 26 | PUT | `/api/achievements/:id` | Бүгд (Lab 6-д Teacher) | 200 | 404, 422 | TASK-06 |
 | 27 | DELETE | `/api/achievements/:id` | Бүгд (Lab 6-д Teacher) | 204 | 404 | TASK-06 |
+| 28 | GET | `/api/achievements/user/:userId` | Бүгд | 200 | 404 | TASK-06 (Lab 5) |
+| 29 | POST | `/api/achievements/:id/award` | Бүгд (Lab 6-д Teacher) | 201 | 404, 409, 422 | TASK-06 (Lab 5) |
 
 ## 4. Endpoint-ийн дэлгэрэнгүй
 
@@ -169,7 +172,14 @@ Achievement: `{ "id":"A01","code":"first-steps","title":"Анхны алхам",
 **GET `/api/achievements/:id`** → 200 `Achievement`; 404 `{ "message":"Тэмдэг олдсонгүй" }`.
 **POST `/api/achievements`** → 201 `Achievement` (шинэ `id`); 422 талбарын алдаа эсвэл давхардсан `code`; 400 буруу JSON.
 **PUT `/api/achievements/:id`** → 200; ирээгүй талбар хэвээр үлдэж, эцсийн утгаараа шалгагдана; 404; 422.
-**DELETE `/api/achievements/:id`** → 204 body-гүй; 404.
+**DELETE `/api/achievements/:id`** → 204 body-гүй; 404. Тэмдгийг авсан `UserAchievement` бүртгэлүүд хамт устна.
+
+#### Achievement — MongoDB ба хамаарал (Lab 5)
+Model: `Achievement` (`_id` = `"A01"`), `UserAchievement { user → User, achievement → Achievement, awardedBy → User, awardedAt }`, (`user`, `achievement`) unique.
+`GET /api/achievements/:id` нь `holderCount` (тэмдэг авсан хэрэглэгчийн тоо)-г нэмж буцаана.
+
+**POST `/api/achievements/:id/award`** `{ "userId":"U05" }` → 201 `{ "id","awardedAt","awardedBy","user":{ "id","displayName","role" },"achievement":Achievement }`; хоосон `userId` эсвэл байхгүй хэрэглэгч → 422 (`field:"userId"`); байхгүй тэмдэг → 404; аль хэдийн авсан → 409.
+**GET `/api/achievements/user/:userId`** → 200 `[ { "id","awardedAt","achievement":Achievement } ]` (populate); байхгүй хэрэглэгч → 404.
 
 ## 5. Хүлээн авах шалгуур
 

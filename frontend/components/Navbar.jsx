@@ -33,6 +33,9 @@ export default function Navbar({ user }) {
         <NavLink to="/leaderboard" className={menuClass}>
           <span>Чансаа</span>
         </NavLink>
+        <NavLink to="/achievements" className={menuClass} data-testid="nav-achievements">
+          <span>Тэмдэг</span>
+        </NavLink>
       </nav>
 
       <div className="nav-stats">
