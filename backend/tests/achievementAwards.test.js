@@ -11,13 +11,23 @@ import { reconnectTestDB, setupTestDB } from "./helpers/db.js";
 
 setupTestDB();
 
+let teacherToken;
+// Lab 6: бичих үйлдэл TEACHER token шаардана (тестүүд багшаар нэвтэрч ажиллана).
+const asTeacher = () => ({ Authorization: `Bearer ${teacherToken}` });
+
+async function loginTeacher() {
+  const res = await request(app).post("/api/auth/login").send({ username: "bagsh", password: "teacher123" });
+  teacherToken = res.body.token;
+}
+
 beforeEach(async () => {
   await resetStore();
   await resetAchievements();
+  await loginTeacher();
 });
 
 const award = (achievementId, userId) =>
-  request(app).post(`/api/achievements/${achievementId}/award`).send({ userId });
+  request(app).post(`/api/achievements/${achievementId}/award`).set(asTeacher()).send({ userId });
 
 /* ---------- Тэмдэг олгох ---------- */
 
@@ -88,7 +98,7 @@ test("GET /api/achievements/:id reports how many users hold the badge", async ()
 
 test("deleting a badge also removes its awards (no orphan UserAchievement)", async () => {
   await award("A04", "U05");
-  const removed = await request(app).delete("/api/achievements/A04");
+  const removed = await request(app).delete("/api/achievements/A04").set(asTeacher());
   assert.equal(removed.status, 204);
 
   assert.equal(await UserAchievement.countDocuments({ achievement: "A04" }), 0);
@@ -99,7 +109,7 @@ test("deleting a badge also removes its awards (no orphan UserAchievement)", asy
 /* ---------- Persistence (backend restart) ---------- */
 
 test("a created badge and its award survive a backend restart (MongoDB reconnect)", async () => {
-  const created = await request(app).post("/api/achievements").send({
+  const created = await request(app).post("/api/achievements").set(asTeacher()).send({
     code: "restart-proof",
     title: "Restart тэсвэртэй",
     type: "STREAK",

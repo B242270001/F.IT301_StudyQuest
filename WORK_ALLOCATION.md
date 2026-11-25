@@ -41,7 +41,7 @@
 | `frontend/src/components/states/*`, `Toast`, `ConfirmDialog` | TASK-06 | Нийтлэг төлөвүүд |
 | `frontend/src/styles/*` (token, responsive layout) | TASK-06 | [design.md](docs/design.md)-ийн token |
 | `e2e/*`, `playwright.config.js` | TASK-06 (`crud.spec.js` → TASK-04, `role.spec.js` → TASK-01) | Scenario бүр нэг эзэнтэй |
-| `docker-compose.yml`, `Dockerfile` (Lab 6) | TASK-06 | Lab 6-д TASK-01 гүйцэтгэв (TASK-06-тай тохиролцсон) |
+| `docker-compose.yml`, `Dockerfile` (Lab 6) | TASK-06 | Lab 6-д TASK-01 гүйцэтгэв (TASK-06-тай тохиролцсон); Docker readiness шалгалт `scripts/docker-check.sh` — TASK-06 |
 | `backend/` Express суурь, `start:grader` (Lab 4) | TASK-01 | Сервер, `GET /api/health`. Бусад гишүүн өөрийн router-оо `app.js`-д холбоно |
 | `backend/src/middleware/auth.js` (Lab 4) | TASK-01 | Бусад модуль өөрийн endpoint-д холбож тестлэнэ |
 
@@ -223,3 +223,19 @@
   2. Багш `/achievements` дээр тэмдэг нэмэхэд `POST /api/achievements` хүсэлт гарч `achievements-success` харагдана; reload хийхэд тэмдэг хэвээр.
   3. Loading, success, error төлөвүүд ялгаатай харагдана; алдааны үед "Дахин оролдох" ажиллана.
   4. `npm run test:ci` амжилттай.
+
+#### Lab 6 (Authentication, authorization, test, Docker) — TASK-06
+- **Хэсэг:** Achievement API-д TASK-01-ийн JWT middleware (`requireAuth`, `requireRole`)-ийг холбож бичих үйлдлийг багшаар хязгаарлах; нэвтэрсэн хэрэглэгчийн өөрийн хүрээний endpoint; `/achievements` хуудсыг бүрэн бодит API (явц, тэмдэг авах, олгох, 401/403 төлөв); Docker readiness шалгалтын скрипт; E2E.
+- **Эрх:** `POST/PUT/DELETE /api/achievements[/:id]`, `POST /api/achievements/:id/award` → нэвтрээгүй 401, STUDENT 403, TEACHER 201/200/204. Унших endpoint-ууд нээлттэй.
+- **Endpoint (шинэ):** `GET /api/me/achievements` (200/401 — тэмдэг бүрийн `earned` ба `progress`), `POST /api/me/achievements/claim` (200/401 — босгод хүрсэн тэмдгээ өөртөө авах, давтахад хоосон).
+- **Гэрээний өөрчлөлт:** `team-spec.json`-ийн `endpoints`-д TASK-01-ийн жишгээр зөвхөн нэвтрээгүй үед ажиглагдах үр дүн (401) үлдэж, Lab 4/5-ын бичих endpoint-уудын амжилттай урсгал `authScenario.protected`/`roleProtected`-д шилжив. `code`-гүй `POST` нь сервер дээр код үүсгэнэ (давтан ажиллуулахад 201). Lab 4/5 үеийн гэрээ тухайн commit-д хэвээр.
+- **Frontend:** STUDENT — `/api/me/achievements`-ийн явцын мөр (`achievement-progress-{id}`), `achievements-claim-btn` → `achievements-success`/`achievements-info`. TEACHER — карт бүр дээр суралцагч сонгож олгох (`achievement-award-select-{id}`, `achievement-award-btn-{id}`). 401 → `achievements-login-link`, 403/409 → серверийн мессеж.
+- **Docker:** `scripts/docker-check.sh` (`npm run docker:check`) — тусдаа compose project-оор app + MongoDB-г шинээр build хийж асаагаад health 200, 401/403/201, `restart` болон `down → up`-ийн дараах persistence-ийг шалгаж, дараа нь цэвэрлэнэ.
+- **Бусдын файлд хийсэн жижиг засвар:** `e2e/validation.spec.js` — Playwright-д байхгүй `toHaveTextContent` → `toHaveText` (e2e/* нь TASK-06-ийн эзэмшил).
+- **Файл:** `backend/src/routes/achievements.js`, `backend/src/store/achievements.js`, `backend/src/validators/achievement.js`, `frontend/task-06-leaderboard/{Achievements.jsx,Achievements.css}`, `frontend/services/api.js`, `scripts/docker-check.sh`, `package.json` (`docker:check`), `README.md`, `docs/04-api-pages.md`, `team-spec.json`
+- **Тест:** `backend/tests/achievementsAuthz.test.js` (401/403/амжилт, хуурамч/logout token, own scope, claim), `backend/tests/achievements.test.js` ба `achievementAwards.test.js` (багшийн token-оор), `frontend/tests/Achievements.test.jsx` (явц, claim, олгох, 401/403), `e2e/achievements.spec.js` (`@auth @integration`)
+- **Хүлээн авах шалгуур:**
+  1. Нэвтрээгүй хүсэлт 401, STUDENT-ээр багшийн үйлдэл 403, TEACHER амжилттай (`authScenario`).
+  2. Оюутан `/achievements` дээр өөрийн явцыг харж, "Тэмдэг авах" дарахад `POST /api/me/achievements/claim` гарч тэмдэг "Авсан ✓" болно.
+  3. Root `npm run test:ci` (frontend + backend) амжилттай.
+  4. `npm run docker:check` бүх шалгалтыг давна.

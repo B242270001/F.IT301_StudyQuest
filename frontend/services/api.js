@@ -350,4 +350,7 @@ export const achievementsApi = {
     achievementRequest(`${achievementPath(id)}/award`, { method: "POST", body: { userId } }),
   listForUser: (userId) =>
     achievementRequest(`/api/achievements/user/${encodeURIComponent(userId)}`),
+  // Lab 6: нэвтэрсэн хэрэглэгчийн өөрийн хүрээ (JWT шаардана)
+  mine: () => achievementRequest("/api/me/achievements"),
+  claim: () => achievementRequest("/api/me/achievements/claim", { method: "POST" }),
 };

@@ -1,4 +1,4 @@
-// TASK-06 (Lab 5): /achievements хуудас — бодит API-ийн хариуг fetch mock-оор дуурайна.
+// TASK-06 (Lab 5/6): /achievements хуудас — бодит API-ийн хариуг fetch mock-оор дуурайна.
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
@@ -11,6 +11,21 @@ const BADGES = [
 ];
 
 const student = { id: "U05", role: "STUDENT", displayName: "Б. Тэмүүлэн" };
+
+// Lab 6: GET /api/me/achievements — тэмдэг бүр earned + progress-той
+const progress = (current, target) => ({ current, target, percent: Math.min(100, Math.floor((current / target) * 100)), reached: current >= target });
+const MINE = [
+  { ...BADGES[0], earned: false, awardedAt: null, progress: progress(2480, 100) },
+  { ...BADGES[1], earned: true, awardedAt: "2026-11-25T00:00:00Z", progress: progress(7, 7) },
+];
+const RANKING = [
+  { rank: 1, id: "U01", name: "Д. Анужин", xp: 3240 },
+  { rank: 4, id: "U05", name: "Б. Тэмүүлэн", xp: 2480 },
+];
+const TEACHER_ROUTES = {
+  "GET /api/achievements": () => json(200, BADGES),
+  "GET /api/leaderboard?period=allTime": () => json(200, RANKING),
+};
 const teacher = { id: "U10", role: "TEACHER", displayName: "Багш Дорж" };
 
 const json = (status, body) => ({ ok: status < 400, status, json: async () => body });
@@ -43,30 +58,49 @@ afterEach(() => {
 });
 
 describe("Achievements (student)", () => {
-  it("shows loading, then the badges from GET /api/achievements with my earned ones", async () => {
-    const fetch = serve({
-      "GET /api/achievements": () => json(200, BADGES),
-      "GET /api/achievements/user/U05": () => json(200, [{ id: "x1", achievement: BADGES[1] }]),
-    });
+  it("shows loading, then my badges and progress from GET /api/me/achievements", async () => {
+    const fetch = serve({ "GET /api/me/achievements": () => json(200, MINE) });
     renderPage(student);
 
     expect(screen.getByTestId("achievements-loading")).toBeTruthy();
     expect(await screen.findByTestId("achievements-list")).toBeTruthy();
     expect(screen.getByTestId("achievement-card-A01").getAttribute("data-earned")).toBe("false");
+    expect(screen.getByTestId("achievement-card-A01").textContent).toContain("Авах боломжтой");
     expect(screen.getByTestId("achievement-card-A02").getAttribute("data-earned")).toBe("true");
     expect(screen.getByTestId("achievements-earned-count").textContent).toBe("1 / 2 тэмдэг авсан");
+    expect(screen.getByTestId("achievement-progress-A01").textContent).toContain("2,480 / 100 XP");
+    expect(screen.getByRole("progressbar", { name: "Долоо хоногийн цуврал биелэлт" }).getAttribute("aria-valuenow")).toBe("100");
+    expect(screen.getByTestId("achievements-claim-btn").textContent).toBe("Тэмдэг авах (1)");
     expect(screen.queryByTestId("achievement-form")).toBeNull();
-    expect(calls(fetch, "GET").map(([url]) => url).sort()).toEqual([
-      "/api/achievements",
-      "/api/achievements/user/U05",
-    ]);
+    expect(calls(fetch, "GET").map(([url]) => url)).toEqual(["/api/me/achievements"]);
+  });
+
+  it("claims reached badges with POST /api/me/achievements/claim", async () => {
+    const after = MINE.map((a) => ({ ...a, earned: true }));
+    const fetch = serve({
+      "GET /api/me/achievements": () => json(200, MINE),
+      "POST /api/me/achievements/claim": () => json(200, { awarded: [{ id: "A01", title: "Анхны алхам", icon: "🌱", xpReward: 10 }], achievements: after }),
+    });
+    renderPage(student);
+    fireEvent.click(await screen.findByTestId("achievements-claim-btn"));
+
+    expect((await screen.findByTestId("achievements-success")).textContent).toBe("1 шинэ тэмдэг авлаа: 🌱 Анхны алхам");
+    expect(screen.getByTestId("achievements-earned-count").textContent).toBe("2 / 2 тэмдэг авсан");
+    expect(calls(fetch, "POST").map(([url]) => url)).toEqual(["/api/me/achievements/claim"]);
+  });
+
+  it("asks to log in again when the token is rejected (401)", async () => {
+    serve({ "GET /api/me/achievements": () => json(401, { message: "Нэвтрээгүй байна" }) });
+    renderPage(student);
+
+    expect((await screen.findByTestId("achievements-error")).textContent).toContain("Дахин нэвтэрнэ үү");
+    expect(screen.getByTestId("achievements-login-link").getAttribute("href")).toBe("/login");
   });
 
   it("shows an error state and recovers on retry", async () => {
     let fail = true;
     serve({
-      "GET /api/achievements": () => (fail ? json(500, { message: "Серверийн алдаа гарлаа" }) : json(200, BADGES)),
-      "GET /api/achievements/user/U05": () => json(200, []),
+      "GET /api/me/achievements": () => (fail ? json(500, { message: "Серверийн алдаа гарлаа" }) : json(200, MINE)),
     });
     renderPage(student);
 
@@ -77,10 +111,7 @@ describe("Achievements (student)", () => {
   });
 
   it("shows an empty state when there are no badges", async () => {
-    serve({
-      "GET /api/achievements": () => json(200, []),
-      "GET /api/achievements/user/U05": () => json(200, []),
-    });
+    serve({ "GET /api/me/achievements": () => json(200, []) });
     renderPage(student);
     expect(await screen.findByTestId("achievements-empty")).toBeTruthy();
   });
@@ -88,7 +119,7 @@ describe("Achievements (student)", () => {
 
 describe("Achievements (teacher)", () => {
   it("blocks an invalid form on the client and sends no POST", async () => {
-    const fetch = serve({ "GET /api/achievements": () => json(200, BADGES) });
+    const fetch = serve(TEACHER_ROUTES);
     renderPage(teacher);
     await screen.findByTestId("achievements-list");
 
@@ -106,10 +137,7 @@ describe("Achievements (teacher)", () => {
 
   it("creates a badge with POST /api/achievements and shows it in the list", async () => {
     const created = { ...BADGES[0], id: "A05", code: "streak-30", title: "Сарын цуврал", type: "STREAK", threshold: 30, icon: "📅", xpReward: 200 };
-    const fetch = serve({
-      "GET /api/achievements": () => json(200, BADGES),
-      "POST /api/achievements": () => json(201, created),
-    });
+    const fetch = serve({ ...TEACHER_ROUTES, "POST /api/achievements": () => json(201, created) });
     renderPage(teacher);
     await screen.findByTestId("achievements-list");
 
@@ -132,7 +160,7 @@ describe("Achievements (teacher)", () => {
 
   it("shows the server's 422 field error next to that field", async () => {
     serve({
-      "GET /api/achievements": () => json(200, BADGES),
+      ...TEACHER_ROUTES,
       "POST /api/achievements": () => json(422, { message: "Ийм кодтой тэмдэг аль хэдийн байна", field: "code" }),
     });
     renderPage(teacher);
@@ -149,7 +177,7 @@ describe("Achievements (teacher)", () => {
 
   it("edits a badge with PUT and deletes one after confirmation", async () => {
     const fetch = serve({
-      "GET /api/achievements": () => json(200, BADGES),
+      ...TEACHER_ROUTES,
       "PUT /api/achievements/A01": () => json(200, { ...BADGES[0], title: "Анхны 100 XP" }),
       "DELETE /api/achievements/A02": () => ({ ok: true, status: 204, json: async () => null }),
     });
@@ -167,6 +195,44 @@ describe("Achievements (teacher)", () => {
     fireEvent.click(screen.getByTestId("confirm-delete"));
     await waitFor(() => expect(screen.queryByTestId("achievement-card-A02")).toBeNull());
     expect(calls(fetch, "DELETE").map(([url]) => url)).toEqual(["/api/achievements/A02"]);
+  });
+
+  it("awards a badge to a student and reports a 409 duplicate", async () => {
+    let duplicate = false;
+    const fetch = serve({
+      ...TEACHER_ROUTES,
+      "POST /api/achievements/A01/award": () =>
+        duplicate
+          ? json(409, { message: "Энэ хэрэглэгч уг тэмдгийг аль хэдийн авсан", field: "userId" })
+          : json(201, { id: "w1", user: { id: "U05", displayName: "Б. Тэмүүлэн" }, achievement: BADGES[0] }),
+    });
+    renderPage(teacher);
+    await screen.findByTestId("achievements-list");
+
+    const award = () => {
+      fireEvent.change(screen.getByTestId("achievement-award-select-A01"), { target: { value: "U05" } });
+      fireEvent.click(screen.getByTestId("achievement-award-btn-A01"));
+    };
+    expect(screen.getByTestId("achievement-award-btn-A01").disabled).toBe(true);
+    award();
+    expect((await screen.findByTestId("achievements-success")).textContent).toBe("🌱 Анхны алхам → Б. Тэмүүлэн олгогдлоо");
+    const [[, init]] = calls(fetch, "POST");
+    expect(JSON.parse(init.body)).toEqual({ userId: "U05" });
+
+    duplicate = true;
+    award();
+    expect((await screen.findByTestId("achievements-action-error")).textContent).toContain("аль хэдийн авсан");
+  });
+
+  it("shows the server's 403 message when the teacher role was revoked", async () => {
+    serve({ ...TEACHER_ROUTES, "POST /api/achievements": () => json(403, { message: "Энэ үйлдлийг хийх эрх танд байхгүй" }) });
+    renderPage(teacher);
+    await screen.findByTestId("achievements-list");
+
+    fireEvent.change(screen.getByTestId("achievement-title-input"), { target: { value: "Эрхгүй" } });
+    fireEvent.change(screen.getByTestId("achievement-threshold-input"), { target: { value: "10" } });
+    fireEvent.click(screen.getByTestId("achievement-save-btn"));
+    expect((await screen.findByTestId("achievements-save-error")).textContent).toBe("Энэ үйлдлийг хийх эрх танд байхгүй");
   });
 });
 

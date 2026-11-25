@@ -135,7 +135,9 @@
         "PUT /api/achievements/:id",
         "DELETE /api/achievements/:id",
         "GET /api/achievements/user/:userId",
-        "POST /api/achievements/:id/award"
+        "POST /api/achievements/:id/award",
+        "GET /api/me/achievements",
+        "POST /api/me/achievements/claim"
       ],
       "tests": [
         "frontend/tests/Leaderboard.test.jsx",
@@ -145,6 +147,7 @@
         "e2e/responsive.spec.js",
         "backend/tests/achievements.test.js",
         "backend/tests/achievementAwards.test.js",
+        "backend/tests/achievementsAuthz.test.js",
         "frontend/tests/Achievements.test.jsx",
         "e2e/achievements.spec.js"
       ]
@@ -171,7 +174,9 @@
     "protected": [
       { "method": "GET", "path": "/api/user/profile", "authorizedStatus": 200, "anonymousStatus": 401 },
       { "method": "GET", "path": "/api/notes", "authorizedStatus": 200, "anonymousStatus": 401 },
-      { "method": "GET", "path": "/api/user/avatar", "authorizedStatus": 200, "anonymousStatus": 401 }
+      { "method": "GET", "path": "/api/user/avatar", "authorizedStatus": 200, "anonymousStatus": 401 },
+      { "taskId": "TASK-06", "method": "GET", "path": "/api/me/achievements", "authorizedStatus": 200, "anonymousStatus": 401 },
+      { "taskId": "TASK-06", "method": "POST", "path": "/api/me/achievements/claim", "authorizedStatus": 200, "anonymousStatus": 401 }
     ],
     "roleProtected": [
       {
@@ -181,6 +186,26 @@
         "anonymousStatus": 401,
         "forbidden": { "login": { "username": "temuulen", "password": "student123" }, "expectedStatus": 403 },
         "allowed": { "login": { "username": "bagsh", "password": "teacher123" }, "expectedStatus": 204 }
+      },
+      {
+        "taskId": "TASK-06",
+        "method": "PUT",
+        "path": "/api/achievements/A02",
+        "body": { "xpReward": 50 },
+        "requiredRole": "TEACHER",
+        "anonymousStatus": 401,
+        "forbidden": { "login": { "username": "temuulen", "password": "student123" }, "expectedStatus": 403 },
+        "allowed": { "login": { "username": "bagsh", "password": "teacher123" }, "expectedStatus": 200 }
+      },
+      {
+        "taskId": "TASK-06",
+        "method": "POST",
+        "path": "/api/achievements",
+        "body": { "title": "Лаб6 тэмдэг", "type": "XP_TOTAL", "threshold": 1000, "xpReward": 25 },
+        "requiredRole": "TEACHER",
+        "anonymousStatus": 401,
+        "forbidden": { "login": { "username": "temuulen", "password": "student123" }, "expectedStatus": 403 },
+        "allowed": { "login": { "username": "bagsh", "password": "teacher123" }, "expectedStatus": 201 }
       }
     ],
     "logout": { "method": "POST", "path": "/api/auth/logout", "expectedStatus": 204, "tokenRevoked": true }
@@ -379,23 +404,40 @@
         { "action": "expectVisible", "testId": "achievement-error-title" },
         { "action": "expectVisible", "testId": "achievement-error-threshold" }
       ]
+    },
+    {
+      "id": "task06-achievements-claim",
+      "taskId": "TASK-06",
+      "tags": ["integration", "auth"],
+      "route": "/achievements",
+      "description": "Lab 6: Оюутан JWT-ээр GET /api/me/achievements-аас өөрийн явцыг харж, \"Тэмдэг авах\" дарахад POST /api/me/achievements/claim гарч хүрсэн тэмдгүүд (A01, A02) \"Авсан ✓\" болно.",
+      "steps": [
+        { "action": "goto", "url": "/login" },
+        { "action": "fill", "testId": "login-name-input", "value": "temuulen" },
+        { "action": "fill", "testId": "login-password-input", "value": "student123" },
+        { "action": "click", "testId": "login-submit-btn" },
+        { "action": "expectVisible", "testId": "page-dashboard" },
+        { "action": "goto", "url": "/achievements" },
+        { "action": "expectVisible", "testId": "achievement-progress-A01" },
+        { "action": "click", "testId": "achievements-claim-btn" },
+        { "action": "expectRequest", "method": "POST", "path": "/api/me/achievements/claim" },
+        { "action": "expectText", "text": "Авсан ✓" }
+      ]
     }
   ],
   "endpoints": [
-    { "lab": 5, "taskId": "TASK-06", "id": "achievements-persist-create", "method": "POST", "path": "/api/achievements", "body": { "code": "lab5-persist", "title": "Лаб5 тэмдэг", "description": "Restart хийсний дараа хэвээр", "icon": "💾", "type": "STREAK", "threshold": 10, "xpReward": 30 }, "expectedStatus": [201, 422], "persistCheck": { "afterRestart": "GET /api/achievements", "expectContains": { "code": "lab5-persist" } } },
-    { "lab": 5, "taskId": "TASK-06", "id": "achievements-award", "method": "POST", "path": "/api/achievements/A01/award", "body": { "userId": "U05" }, "expectedStatus": [201, 409] },
-    { "lab": 5, "taskId": "TASK-06", "id": "achievements-award-invalid", "method": "POST", "path": "/api/achievements/A01/award", "body": { "userId": "" }, "expectedStatus": 422 },
-    { "lab": 5, "taskId": "TASK-06", "id": "achievements-award-missing", "method": "POST", "path": "/api/achievements/A99/award", "body": { "userId": "U05" }, "expectedStatus": 404 },
+    { "lab": 6, "taskId": "TASK-06", "id": "achievements-create-anonymous", "method": "POST", "path": "/api/achievements", "body": { "code": "anon-badge", "title": "Нэвтрээгүй", "type": "XP_TOTAL", "threshold": 10 }, "expectedStatus": 401 },
+    { "lab": 6, "taskId": "TASK-06", "id": "achievements-update-anonymous", "method": "PUT", "path": "/api/achievements/A01", "body": { "title": "Хакердсан" }, "expectedStatus": 401 },
+    { "lab": 6, "taskId": "TASK-06", "id": "achievements-delete-anonymous", "method": "DELETE", "path": "/api/achievements/A01", "expectedStatus": 401 },
+    { "lab": 6, "taskId": "TASK-06", "id": "achievements-award-anonymous", "method": "POST", "path": "/api/achievements/A01/award", "body": { "userId": "U05" }, "expectedStatus": 401 },
+    { "lab": 6, "taskId": "TASK-06", "id": "my-achievements-anonymous", "method": "GET", "path": "/api/me/achievements", "expectedStatus": 401 },
+    { "lab": 6, "taskId": "TASK-06", "id": "my-achievements-claim-anonymous", "method": "POST", "path": "/api/me/achievements/claim", "expectedStatus": 401 },
     { "lab": 5, "taskId": "TASK-06", "id": "achievements-user-list", "method": "GET", "path": "/api/achievements/user/U05", "expectedStatus": 200 },
     { "lab": 5, "taskId": "TASK-06", "id": "achievements-user-missing", "method": "GET", "path": "/api/achievements/user/NOPE", "expectedStatus": 404 },
     { "lab": 4, "taskId": "TASK-06", "id": "achievements-list", "method": "GET", "path": "/api/achievements", "expectedStatus": 200 },
     { "lab": 4, "taskId": "TASK-06", "id": "achievements-detail", "method": "GET", "path": "/api/achievements/A01", "expectedStatus": 200 },
     { "lab": 4, "taskId": "TASK-06", "id": "achievements-detail-missing", "method": "GET", "path": "/api/achievements/A99", "expectedStatus": 404 },
     { "lab": 4, "taskId": "TASK-06", "id": "achievements-filter-invalid", "method": "GET", "path": "/api/achievements?type=GOLD", "expectedStatus": 422 },
-    { "lab": 4, "taskId": "TASK-06", "id": "achievements-create", "method": "POST", "path": "/api/achievements", "body": { "code": "lab4-badge", "title": "Лаб4 тэмдэг", "description": "Lab 4 grader-ийн тэмдэг", "icon": "🎯", "type": "XP_TOTAL", "threshold": 500, "xpReward": 20 }, "expectedStatus": [201, 422] },
-    { "lab": 4, "taskId": "TASK-06", "id": "achievements-create-invalid", "method": "POST", "path": "/api/achievements", "body": { "code": "empty-title", "title": "", "type": "STREAK", "threshold": 7 }, "expectedStatus": 422 },
-    { "lab": 4, "taskId": "TASK-06", "id": "achievements-create-invalid-threshold", "method": "POST", "path": "/api/achievements", "body": { "code": "bad-threshold", "title": "Буруу босго", "type": "WEEKLY_RANK", "threshold": 0 }, "expectedStatus": 422 },
-    { "lab": 4, "taskId": "TASK-06", "id": "achievements-update-missing", "method": "PUT", "path": "/api/achievements/A99", "body": { "title": "Байхгүй" }, "expectedStatus": 404 },
     { "lab": 6, "taskId": "TASK-01", "id": "register-invalid", "method": "POST", "path": "/api/auth/register", "body": { "username": "", "password": "123", "displayName": "" }, "expectedStatus": 422 },
     { "lab": 6, "taskId": "TASK-01", "id": "me-anonymous", "method": "GET", "path": "/api/auth/me", "expectedStatus": 401 },
     { "lab": 6, "taskId": "TASK-01", "id": "delete-user-anonymous", "method": "DELETE", "path": "/api/users/U07", "expectedStatus": 401 },

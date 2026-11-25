@@ -10,6 +10,15 @@ import { setupTestDB } from "./helpers/db.js";
 
 setupTestDB();
 
+let teacherToken;
+// Lab 6: бичих үйлдэл TEACHER token шаардана (тестүүд багшаар нэвтэрч ажиллана).
+const asTeacher = () => ({ Authorization: `Bearer ${teacherToken}` });
+
+async function loginTeacher() {
+  const res = await request(app).post("/api/auth/login").send({ username: "bagsh", password: "teacher123" });
+  teacherToken = res.body.token;
+}
+
 const valid = {
   code: "streak-30",
   title: "Сарын цуврал",
@@ -23,6 +32,7 @@ const valid = {
 beforeEach(async () => {
   await resetStore();
   await resetAchievements();
+  await loginTeacher();
 });
 
 /* ---------- GET list / detail ---------- */
@@ -59,7 +69,7 @@ test("GET /api/achievements/:id returns 200 for an existing badge and 404 otherw
 /* ---------- POST create ---------- */
 
 test("POST /api/achievements creates a badge with 201 and a new id, then GET reads it", async () => {
-  const created = await request(app).post("/api/achievements").send(valid);
+  const created = await request(app).post("/api/achievements").set(asTeacher()).send(valid);
   assert.equal(created.status, 201);
   assert.equal(created.body.id, "A05");
   assert.equal(created.body.title, "Сарын цуврал");
@@ -73,6 +83,7 @@ test("POST /api/achievements creates a badge with 201 and a new id, then GET rea
 test("POST /api/achievements trims text, lower-cases the code and applies defaults", async () => {
   const res = await request(app)
     .post("/api/achievements")
+    .set(asTeacher())
     .send({ code: "  Night-Owl ", title: "  Шөнийн шувуу  ", type: "xp_total", threshold: "500" });
   assert.equal(res.status, 201);
   assert.equal(res.body.code, "night-owl");
@@ -85,7 +96,6 @@ test("POST /api/achievements trims text, lower-cases the code and applies defaul
 
 const invalidCases = [
   ["empty title", { title: "  " }, "title"],
-  ["missing code", { code: undefined }, "code"],
   ["code with spaces", { code: "bad code" }, "code"],
   ["unknown type", { type: "GOLD" }, "type"],
   ["zero threshold", { threshold: 0 }, "threshold"],
@@ -99,7 +109,7 @@ const invalidCases = [
 
 for (const [name, patch, field] of invalidCases) {
   test(`POST /api/achievements returns 422 for ${name} and creates nothing`, async () => {
-    const res = await request(app).post("/api/achievements").send({ ...valid, ...patch });
+    const res = await request(app).post("/api/achievements").set(asTeacher()).send({ ...valid, ...patch });
     assert.equal(res.status, 422);
     assert.equal(res.body.field, field);
     assert.ok(res.body.message);
@@ -109,8 +119,18 @@ for (const [name, patch, field] of invalidCases) {
   });
 }
 
+test("POST /api/achievements generates a unique code when none is given (Lab 6)", async () => {
+  const body = { title: "Кодгүй тэмдэг", type: "STREAK", threshold: 3 };
+  const first = await request(app).post("/api/achievements").set(asTeacher()).send(body);
+  const second = await request(app).post("/api/achievements").set(asTeacher()).send(body);
+  assert.equal(first.status, 201);
+  assert.equal(second.status, 201);
+  assert.match(first.body.code, /^badge-[a-z0-9]+-[a-z0-9]+$/);
+  assert.notEqual(first.body.code, second.body.code);
+});
+
 test("POST /api/achievements returns 422 for a duplicate code", async () => {
-  const res = await request(app).post("/api/achievements").send({ ...valid, code: "top-3" });
+  const res = await request(app).post("/api/achievements").set(asTeacher()).send({ ...valid, code: "top-3" });
   assert.equal(res.status, 422);
   assert.equal(res.body.field, "code");
 });
@@ -118,6 +138,7 @@ test("POST /api/achievements returns 422 for a duplicate code", async () => {
 test("POST /api/achievements returns 400 for malformed JSON", async () => {
   const res = await request(app)
     .post("/api/achievements")
+    .set(asTeacher())
     .set("Content-Type", "application/json")
     .send('{"title": ');
   assert.equal(res.status, 400);
@@ -126,7 +147,7 @@ test("POST /api/achievements returns 400 for malformed JSON", async () => {
 /* ---------- PUT update / DELETE ---------- */
 
 test("PUT /api/achievements/:id updates only the given fields (200)", async () => {
-  const res = await request(app).put("/api/achievements/A02").send({ title: "Долоон өдрийн гал", xpReward: 75 });
+  const res = await request(app).put("/api/achievements/A02").set(asTeacher()).send({ title: "Долоон өдрийн гал", xpReward: 75 });
   assert.equal(res.status, 200);
   assert.equal(res.body.title, "Долоон өдрийн гал");
   assert.equal(res.body.xpReward, 75);
@@ -137,7 +158,7 @@ test("PUT /api/achievements/:id updates only the given fields (200)", async () =
 });
 
 test("PUT /api/achievements/:id returns 422 for invalid data and keeps the old values", async () => {
-  const res = await request(app).put("/api/achievements/A02").send({ title: "" });
+  const res = await request(app).put("/api/achievements/A02").set(asTeacher()).send({ title: "" });
   assert.equal(res.status, 422);
   assert.equal(res.body.field, "title");
 
@@ -146,22 +167,22 @@ test("PUT /api/achievements/:id returns 422 for invalid data and keeps the old v
 });
 
 test("PUT /api/achievements/:id returns 404 for a missing badge and 422 for another badge's code", async () => {
-  const missing = await request(app).put("/api/achievements/A99").send({ title: "Шинэ" });
+  const missing = await request(app).put("/api/achievements/A99").set(asTeacher()).send({ title: "Шинэ" });
   assert.equal(missing.status, 404);
 
-  const dup = await request(app).put("/api/achievements/A02").send({ code: "first-steps" });
+  const dup = await request(app).put("/api/achievements/A02").set(asTeacher()).send({ code: "first-steps" });
   assert.equal(dup.status, 422);
   assert.equal(dup.body.field, "code");
 });
 
 test("DELETE /api/achievements/:id returns 204 without a body, then 404", async () => {
-  const removed = await request(app).delete("/api/achievements/A04");
+  const removed = await request(app).delete("/api/achievements/A04").set(asTeacher());
   assert.equal(removed.status, 204);
   assert.equal(removed.text, "");
 
   const detail = await request(app).get("/api/achievements/A04");
   assert.equal(detail.status, 404);
 
-  const again = await request(app).delete("/api/achievements/A04");
+  const again = await request(app).delete("/api/achievements/A04").set(asTeacher());
   assert.equal(again.status, 404);
 });

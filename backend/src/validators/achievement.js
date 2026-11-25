@@ -14,6 +14,10 @@ export const XP_REWARD_MAX = 1000;
 
 const fail = (field, message) => ({ error: { status: 422, field, message } });
 
+// Lab 6: код өгөөгүй бол давтагдахгүй код үүсгэнэ (frontend-ийн generateCode-той ижил хэлбэр).
+export const generateCode = () =>
+  `badge-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+
 const text = (value) => (typeof value === "string" ? value.trim() : "");
 
 // JSON-оос ирсэн "50" зэрэг тоон мөрийг ч хүлээн авна; бусад нь NaN.
@@ -32,8 +36,7 @@ export function validateAchievement(body = {}) {
     return fail("body", "JSON объект илгээнэ үү");
   }
 
-  const code = text(body.code).toLowerCase();
-  if (!code) return fail("code", "Тэмдгийн код оруулна уу");
+  const code = text(body.code).toLowerCase() || generateCode();
   if (code.length < 3 || code.length > 40 || !CODE_PATTERN.test(code)) {
     return fail("code", "Код 3–40 тэмдэгт, зөвхөн латин жижиг үсэг, тоо, зураас (-) байна");
   }

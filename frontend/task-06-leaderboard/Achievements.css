@@ -101,6 +101,85 @@
   color: #b42318;
 }
 
+.ach-banner-info {
+  background: #eef2ff;
+  color: #3f3a8a;
+}
+
+.ach-banner a {
+  color: inherit;
+  font-weight: 700;
+}
+
+/* ---------- Lab 6: явц, авах товч, олгох ---------- */
+.ach-heading-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.ach-heading-actions .ach-btn-primary {
+  align-self: center;
+}
+
+.ach-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ach-progress-bar {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 100px;
+  background: #ece8f7;
+}
+
+.ach-progress-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #7c5cfc;
+}
+
+.ach-badge.is-earned .ach-progress-bar span {
+  background: #22a06b;
+}
+
+.ach-progress-text {
+  color: #6f6886;
+  font-size: 12px;
+}
+
+.ach-status.ready {
+  color: #7c5cfc;
+}
+
+.ach-award {
+  display: flex;
+  gap: 8px;
+  min-width: 0;
+}
+
+.ach-award select {
+  flex: 1;
+  min-width: 0;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid #ddd7ec;
+  border-radius: 12px;
+  background: #fff;
+  color: #28233d;
+  font-size: 13px;
+}
+
+.ach-state .ach-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
 /* ---------- Маягт ---------- */
 .ach-form {
   display: flex;
@@ -348,5 +427,13 @@
 
   .ach-btn-primary {
     align-self: stretch;
+  }
+
+  .ach-heading-actions {
+    width: 100%;
+  }
+
+  .ach-heading-actions .ach-btn-primary {
+    flex: 1;
   }
 }

@@ -4,6 +4,7 @@
 import { Achievement } from "../models/Achievement.js";
 import { User } from "../models/User.js";
 import { UserAchievement } from "../models/UserAchievement.js";
+import { getLeaderboard } from "./users.js";
 
 export const SEED_ACHIEVEMENTS = [
   {
@@ -145,4 +146,57 @@ export async function listUserAchievements(userId) {
     .sort({ awardedAt: 1 })
     .populate("achievement");
   return awards.filter((a) => a.achievement).map(awardToJSON);
+}
+
+/* ---------- Lab 6: нэвтэрсэн хэрэглэгчийн өөрийн хүрээ (own scope) ---------- */
+
+// Тэмдэг бүрийн биелэлт: XP_TOTAL → totalXp, STREAK → streakDays, WEEKLY_RANK → долоо хоногийн байр.
+function progressFor(achievement, user, weeklyRank) {
+  const target = achievement.threshold;
+  if (achievement.type === "WEEKLY_RANK") {
+    const reached = weeklyRank !== null && weeklyRank <= target;
+    const percent = reached ? 100 : weeklyRank ? Math.floor((target / weeklyRank) * 100) : 0;
+    return { current: weeklyRank, target, percent, reached };
+  }
+  const current = achievement.type === "STREAK" ? user.streakDays || 0 : user.totalXp || 0;
+  return { current, target, percent: Math.min(100, Math.floor((current / target) * 100)), reached: current >= target };
+}
+
+async function weeklyRankOf(user) {
+  if (user.role !== "STUDENT") return null;
+  const row = (await getLeaderboard("weekly")).find((r) => r.id === user._id);
+  return row ? row.rank : null;
+}
+
+// GET /api/me/achievements: бүх тэмдэг + миний авсан эсэх + биелэлтийн явц.
+export async function getMyAchievements(user) {
+  const [achievements, awards, weeklyRank] = await Promise.all([
+    Achievement.find().sort({ _id: 1 }),
+    UserAchievement.find({ user: user._id }),
+    weeklyRankOf(user),
+  ]);
+  const awardedAt = new Map(awards.map((a) => [a.achievement, a.awardedAt]));
+  return achievements.map((doc) => ({
+    ...doc.toJSON(),
+    earned: awardedAt.has(doc._id),
+    awardedAt: awardedAt.get(doc._id) ?? null,
+    progress: progressFor(doc, user, weeklyRank),
+  }));
+}
+
+// POST /api/me/achievements/claim: босгод хүрсэн боловч аваагүй тэмдгүүдийг өөртөө олгоно.
+// Зөвхөн token-ий эзэнд ажиллана — бусдын нэрийн өмнөөс авах боломжгүй.
+export async function claimMyAchievements(user) {
+  const before = await getMyAchievements(user);
+  const toAward = before.filter((a) => a.progress.reached && !a.earned);
+  const awarded = [];
+  for (const achievement of toAward) {
+    try {
+      await UserAchievement.create({ user: user._id, achievement: achievement.id, awardedBy: null });
+      awarded.push(achievement);
+    } catch (err) {
+      if (err?.code !== 11000) throw err; // зэрэг дарсан үед давхардлыг алгасна
+    }
+  }
+  return { awarded: awarded.map(({ id, title, icon, xpReward }) => ({ id, title, icon, xpReward })), achievements: await getMyAchievements(user) };
 }

@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import ConfirmDialog from "../components/ConfirmDialog";
-import { achievementsApi } from "../services/api";
+import { achievementsApi, leaderboardApi } from "../services/api";
 import {
   ACHIEVEMENT_TYPES,
   EMPTY_ACHIEVEMENT,
@@ -15,6 +16,25 @@ import "./Achievements.css";
 
 // TASK-06 (Lab 5): Тэмдэгүүдийн хуудас — бүх өгөгдөл MongoDB-ээс /api/achievements-аар.
 // STUDENT: бүх тэмдэг + өөрийн авсан тэмдгүүд. TEACHER: тэмдэг нэмэх, засах, устгах.
+// TASK-06 (Lab 6): STUDENT нь /api/me/achievements (JWT)-ээс явц харж, хүрсэн тэмдгээ авна;
+//                  TEACHER тэмдэг олгоно. 401/403 алдааг ойлгомжтой харуулна.
+
+// API алдааг мэдэгдэл болгоно; 401 бол дахин нэвтрэх холбоостой.
+function errorNotice(err) {
+  if (err?.status === 401) {
+    return { type: "error", text: "Нэвтрэх хугацаа дууссан байна. Дахин нэвтэрнэ үү.", login: true };
+  }
+  return { type: "error", text: err?.message || "Алдаа гарлаа" };
+}
+
+function progressText({ type, progress }) {
+  const { current, target } = progress;
+  if (type === "WEEKLY_RANK") {
+    return current === null ? "Чансаанд ороогүй" : `Одоо ${current}-р байр · зорилго ${target}-р байр`;
+  }
+  const unit = type === "STREAK" ? "өдөр" : "XP";
+  return `${current.toLocaleString("en-US")} / ${target.toLocaleString("en-US")} ${unit}`;
+}
 
 function Field({ id, label, error, hint, children }) {
   return (
@@ -166,7 +186,54 @@ function AchievementForm({ editing, onSaved, onCancel }) {
   );
 }
 
-function AchievementCard({ achievement, earned, isTeacher, onEdit, onDelete }) {
+function AwardControl({ achievement, students, onAwarded, onError }) {
+  const [userId, setUserId] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const award = async () => {
+    setBusy(true);
+    try {
+      const result = await achievementsApi.award(achievement.id, userId);
+      onAwarded(result);
+      setUserId("");
+    } catch (err) {
+      onError(err);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="ach-award">
+      <select
+        aria-label={`${achievement.title} тэмдэг олгох суралцагч`}
+        value={userId}
+        onChange={(e) => setUserId(e.target.value)}
+        data-testid={`achievement-award-select-${achievement.id}`}
+      >
+        <option value="">Суралцагч сонгох…</option>
+        {students.map((s) => (
+          <option key={s.id} value={s.id}>
+            {s.name}
+          </option>
+        ))}
+      </select>
+      <button
+        type="button"
+        className="ach-btn ach-btn-ghost"
+        disabled={!userId || busy}
+        onClick={award}
+        data-testid={`achievement-award-btn-${achievement.id}`}
+      >
+        Олгох
+      </button>
+    </div>
+  );
+}
+
+function AchievementCard({ achievement, earned, isTeacher, students, onEdit, onDelete, onAwarded, onError }) {
+  const progress = !isTeacher ? achievement.progress : null;
+  const ready = progress?.reached && !earned;
   return (
     <li
       className={`ach-badge ${earned ? "is-earned" : ""}`}
@@ -181,9 +248,28 @@ function AchievementCard({ achievement, earned, isTeacher, onEdit, onDelete }) {
         {achievement.description && <p className="ach-desc">{achievement.description}</p>}
         <p className="ach-goal">{describeGoal(achievement)}</p>
       </div>
+      {progress && (
+        <div className="ach-progress" data-testid={`achievement-progress-${achievement.id}`}>
+          <div
+            className="ach-progress-bar"
+            role="progressbar"
+            aria-label={`${achievement.title} биелэлт`}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={progress.percent}
+          >
+            <span style={{ width: `${progress.percent}%` }} />
+          </div>
+          <span className="ach-progress-text">{progressText(achievement)}</span>
+        </div>
+      )}
       <div className="ach-badge-foot">
         <span className="ach-chip">+{achievement.xpReward} XP</span>
-        {!isTeacher && <span className={`ach-status ${earned ? "ok" : ""}`}>{earned ? "Авсан ✓" : "Түгжээтэй"}</span>}
+        {!isTeacher && (
+          <span className={`ach-status ${earned ? "ok" : ready ? "ready" : ""}`}>
+            {earned ? "Авсан ✓" : ready ? "Авах боломжтой" : "Түгжээтэй"}
+          </span>
+        )}
         {isTeacher && (
           <span className="ach-actions">
             <button
@@ -205,6 +291,9 @@ function AchievementCard({ achievement, earned, isTeacher, onEdit, onDelete }) {
           </span>
         )}
       </div>
+      {isTeacher && students.length > 0 && (
+        <AwardControl achievement={achievement} students={students} onAwarded={onAwarded} onError={onError} />
+      )}
     </li>
   );
 }
@@ -212,8 +301,9 @@ function AchievementCard({ achievement, earned, isTeacher, onEdit, onDelete }) {
 export default function Achievements({ user }) {
   const isTeacher = user?.role === "TEACHER";
   const [items, setItems] = useState(null);
-  const [earnedIds, setEarnedIds] = useState(() => new Set());
-  const [loadError, setLoadError] = useState("");
+  const [students, setStudents] = useState([]);
+  const [loadError, setLoadError] = useState(null);
+  const [claiming, setClaiming] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const [editing, setEditing] = useState(null);
   const [deleting, setDeleting] = useState(null);
@@ -221,23 +311,26 @@ export default function Achievements({ user }) {
 
   useEffect(() => {
     let active = true;
-    Promise.all([
-      achievementsApi.list(),
-      isTeacher || !user?.id ? Promise.resolve([]) : achievementsApi.listForUser(user.id),
-    ])
-      .then(([list, mine]) => {
+    // STUDENT: нэг хүсэлтээр бүх тэмдэг + авсан эсэх + явц. TEACHER: жагсаалт + олгох суралцагчид.
+    const load = isTeacher
+      ? Promise.all([achievementsApi.list(), leaderboardApi.getAllTime().catch(() => [])]).then(
+          ([list, ranking]) => ({ list, people: ranking.map(({ id, name }) => ({ id, name })) }),
+        )
+      : achievementsApi.mine().then((list) => ({ list, people: [] }));
+    load
+      .then(({ list, people }) => {
         if (!active) return;
         setItems(list);
-        setEarnedIds(new Set(mine.map((award) => award.achievement.id)));
+        setStudents(people);
       })
-      .catch((err) => active && setLoadError(err.message || "Тэмдгүүдийг ачаалж чадсангүй"));
+      .catch((err) => active && setLoadError(errorNotice(err)));
     return () => {
       active = false;
     };
-  }, [attempt, isTeacher, user?.id]);
+  }, [attempt, isTeacher]);
 
   const retry = () => {
-    setLoadError("");
+    setLoadError(null);
     setItems(null);
     setAttempt((n) => n + 1);
   };
@@ -257,11 +350,39 @@ export default function Achievements({ user }) {
       if (editing?.id === target.id) setEditing(null);
       setNotice({ type: "success", text: `"${target.title}" устгагдлаа` });
     } catch (err) {
-      setNotice({ type: "error", text: err.message });
+      setNotice(errorNotice(err));
     }
   };
 
-  const earnedCount = items ? items.filter((a) => earnedIds.has(a.id)).length : 0;
+  const claim = async () => {
+    setClaiming(true);
+    setNotice(null);
+    try {
+      const { awarded, achievements } = await achievementsApi.claim();
+      setItems(achievements);
+      setNotice(
+        awarded.length > 0
+          ? { type: "success", text: `${awarded.length} шинэ тэмдэг авлаа: ${awarded.map((a) => `${a.icon} ${a.title}`).join(", ")}` }
+          : { type: "info", text: "Шинэ тэмдэг алга. Дадлагаа үргэлжлүүлээрэй!" },
+      );
+    } catch (err) {
+      setNotice(errorNotice(err));
+    } finally {
+      setClaiming(false);
+    }
+  };
+
+  const handleAwarded = useCallback((award) => {
+    setNotice({
+      type: "success",
+      text: `${award.achievement.icon} ${award.achievement.title} → ${award.user.displayName} олгогдлоо`,
+    });
+  }, []);
+
+  const handleError = useCallback((err) => setNotice(errorNotice(err)), []);
+
+  const earnedCount = items ? items.filter((a) => a.earned).length : 0;
+  const readyCount = items ? items.filter((a) => a.progress?.reached && !a.earned).length : 0;
 
   return (
     <div className="ach-page" data-testid="page-achievements">
@@ -278,19 +399,44 @@ export default function Achievements({ user }) {
             </p>
           </div>
           {!isTeacher && items && items.length > 0 && (
-            <span className="ach-chip ach-summary" data-testid="achievements-earned-count">
-              {earnedCount} / {items.length} тэмдэг авсан
-            </span>
+            <div className="ach-heading-actions">
+              <span className="ach-chip ach-summary" data-testid="achievements-earned-count">
+                {earnedCount} / {items.length} тэмдэг авсан
+              </span>
+              <button
+                type="button"
+                className="ach-btn ach-btn-primary"
+                onClick={claim}
+                disabled={claiming}
+                data-testid="achievements-claim-btn"
+              >
+                {claiming ? "Шалгаж байна…" : readyCount > 0 ? `Тэмдэг авах (${readyCount})` : "Тэмдэг шалгах"}
+              </button>
+            </div>
           )}
         </div>
 
         {notice && (
           <p
-            className={`ach-banner ${notice.type === "success" ? "ach-banner-success" : "ach-banner-error"}`}
-            role={notice.type === "success" ? "status" : "alert"}
-            data-testid={notice.type === "success" ? "achievements-success" : "achievements-action-error"}
+            className={`ach-banner ach-banner-${notice.type}`}
+            role={notice.type === "error" ? "alert" : "status"}
+            data-testid={
+              notice.type === "success"
+                ? "achievements-success"
+                : notice.type === "info"
+                  ? "achievements-info"
+                  : "achievements-action-error"
+            }
           >
             {notice.text}
+            {notice.login && (
+              <>
+                {" "}
+                <Link to="/login" data-testid="achievements-login-link">
+                  Нэвтрэх
+                </Link>
+              </>
+            )}
           </p>
         )}
 
@@ -306,7 +452,12 @@ export default function Achievements({ user }) {
         <section className="ach-card ach-list-card" aria-label="Тэмдгийн жагсаалт">
           {loadError ? (
             <div className="ach-state" role="alert" data-testid="achievements-error">
-              <p>{loadError}</p>
+              <p>{loadError.text}</p>
+              {loadError.login && (
+                <Link to="/login" className="ach-btn ach-btn-ghost" data-testid="achievements-login-link">
+                  Дахин нэвтрэх
+                </Link>
+              )}
               <button type="button" className="ach-btn ach-btn-primary" onClick={retry} data-testid="achievements-retry-btn">
                 Дахин оролдох
               </button>
@@ -325,8 +476,11 @@ export default function Achievements({ user }) {
                 <AchievementCard
                   key={a.id}
                   achievement={a}
-                  earned={earnedIds.has(a.id)}
+                  earned={Boolean(a.earned)}
                   isTeacher={isTeacher}
+                  students={students}
+                  onAwarded={handleAwarded}
+                  onError={handleError}
                   onEdit={(item) => {
                     setNotice(null);
                     setEditing(item);

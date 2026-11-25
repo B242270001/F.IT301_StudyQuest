@@ -1,12 +1,17 @@
 // TASK-06 (Lab 4): Achievement (тэмдэг) REST API — list, detail, create, update, delete.
 // TASK-06 (Lab 5): MongoDB store + UserAchievement хамаарал (тэмдэг олгох, хэрэглэгчийн тэмдгүүд).
+// TASK-06 (Lab 6): Бичих үйлдэл зөвхөн TEACHER (нэвтрээгүй 401, STUDENT 403);
+//                  /api/me/achievements — нэвтэрсэн хэрэглэгчийн өөрийн хүрээ (TASK-01-ийн JWT middleware).
 import { Router } from "express";
 import { asyncHandler } from "../middleware/asyncHandler.js";
+import { requireAuth, requireRole } from "../middleware/auth.js";
 import {
   awardAchievement,
+  claimMyAchievements,
   createAchievement,
   deleteAchievement,
   findAchievement,
+  getMyAchievements,
   isCodeTaken,
   listAchievements,
   listUserAchievements,
@@ -15,6 +20,9 @@ import {
 import { validateAchievement, validateTypeFilter } from "../validators/achievement.js";
 
 export const achievementsRouter = Router();
+
+// Тэмдэг үүсгэх, засах, устгах, олгох эрх зөвхөн багшид.
+const teacherOnly = [requireAuth, requireRole("TEACHER")];
 
 const sendError = (res, error) =>
   res.status(error.status).json({ message: error.message, field: error.field });
@@ -57,6 +65,7 @@ achievementsRouter.get(
 // POST /api/achievements → 201 + id | 422 (талбарын алдаа, давхардсан код)
 achievementsRouter.post(
   "/achievements",
+  ...teacherOnly,
   asyncHandler(async (req, res) => {
     const { error, value } = validateAchievement(req.body);
     if (error) return sendError(res, error);
@@ -68,6 +77,7 @@ achievementsRouter.post(
 // PUT /api/achievements/:id → 200 | 404 | 422. Ирээгүй талбар одоогийн утгаараа үлдэнэ.
 achievementsRouter.put(
   "/achievements/:id",
+  ...teacherOnly,
   asyncHandler(async (req, res) => {
     const current = await findAchievement(req.params.id);
     if (!current) return notFound(res);
@@ -82,6 +92,7 @@ achievementsRouter.put(
 // DELETE /api/achievements/:id → 204 (body-гүй) | 404
 achievementsRouter.delete(
   "/achievements/:id",
+  ...teacherOnly,
   asyncHandler(async (req, res) => {
     if (!(await deleteAchievement(req.params.id))) return notFound(res);
     res.status(204).end();
@@ -97,6 +108,7 @@ const AWARD_ERRORS = {
 
 achievementsRouter.post(
   "/achievements/:id/award",
+  ...teacherOnly,
   asyncHandler(async (req, res) => {
     const userId = typeof req.body?.userId === "string" ? req.body.userId.trim() : "";
     if (!userId) {
@@ -108,5 +120,23 @@ achievementsRouter.post(
       return res.status(status).json({ message, field });
     }
     res.status(201).json(value);
+  }),
+);
+
+// GET /api/me/achievements → 200 [Achievement + earned + awardedAt + progress] | 401
+achievementsRouter.get(
+  "/me/achievements",
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    res.status(200).json(await getMyAchievements(req.user));
+  }),
+);
+
+// POST /api/me/achievements/claim → 200 { awarded, achievements } | 401. Давтан дуудахад awarded = [].
+achievementsRouter.post(
+  "/me/achievements/claim",
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    res.status(200).json(await claimMyAchievements(req.user));
   }),
 );
