@@ -73,25 +73,26 @@
   font-size: 16px;
 }
 
-.room-preview-box {
-  background-color: #1f1839;
+/* Dashboard-ын .room-preview-box-тай нэр давхцаж хэв маяг нь холилдож байсан тул тусдаа нэртэй болгов */
+.auth-room-box {
   width: 100%;
-  max-height: 400px;
-  min-height: 180px;
+  max-width: 560px;
   margin: 16px 0;
-  border-radius: 60px;
-  position: relative; /* Товчлуурууд дотор нь байрлахад зайлшгүй шаардлагатай */
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
-.room-bg-img {
+.auth-room-img {
+  display: block;
   width: 100%;
-  height: 100%;
-  object-fit: contain; /* Хайрцгийн хэмжээнд тааруулж зургийг дүүргэнэ */
-  border-radius: 12px;
+  height: auto; /* Зургийн өөрийн харьцаа (1216x864) — хажуугийн хар зурвасгүй */
+  max-height: 400px;
+  object-fit: contain;
+}
+
+/* Цагаан баруун тал: OS dark mode-д ч input, radio цайвар загвартай харагдана.
+   Форм дэлгэцээс өндөр бол (жишээ нь бүртгэл) товч таслагдахгүй, гүйлгэж болно. */
+.login-right-section {
+  color-scheme: light;
+  overflow-y: auto;
 }
 
 .footer-quote {

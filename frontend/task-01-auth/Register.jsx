@@ -70,7 +70,7 @@ export default function Register({ onLogin }) {
   };
 
   return (
-    <div className="login-container" data-testid="page-register">
+    <div className="login-container register-page" data-testid="page-register">
       <div className="login-left-section">
         <div className="brand-header">
           <span className="brand-logo-icon">✨</span>
@@ -81,8 +81,8 @@ export default function Register({ onLogin }) {
           <h1 className="hero-title">Өрөөгөө нээгээрэй.</h1>
           <p className="hero-desc">Бүртгүүлээд өөрийн дүрээ тохируулж, XP цуглуулж эхэл.</p>
         </div>
-        <div className="room-preview-box">
-          <img src={virtualRoomNight} className="room-bg-img" alt="Virtual Room Night" />
+        <div className="auth-room-box">
+          <img src={virtualRoomNight} className="auth-room-img" alt="Virtual Room Night" />
         </div>
       </div>
 

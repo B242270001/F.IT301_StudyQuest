@@ -24,9 +24,10 @@
 }
 
 .register-gender legend {
-  margin-bottom: 6px;
-  font-size: 13px;
-  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #28233d; /* бусад талбарын шошготой ижил */
 }
 
 .register-gender label {
@@ -59,4 +60,43 @@
 .register-switch a {
   color: #7c5cfc;
   font-weight: 700;
+}
+
+/* Бүртгэлийн форм login-оос урт тул нягтруулж ихэнх дэлгэцэнд гүйлгэхгүй багтаана */
+.register-page .login-right-section {
+  justify-content: flex-start;
+  gap: 18px;
+  padding-top: 28px;
+  padding-bottom: 28px;
+}
+
+.register-page .welcome-header h2 {
+  margin-bottom: 0;
+  font-size: 28px;
+}
+
+.register-page .form-wrapper,
+.register-page .login-form {
+  gap: 12px;
+}
+
+.register-page .input-group {
+  gap: 6px;
+}
+
+.register-page .input-field-wrapper input {
+  padding: 11px 0;
+}
+
+.register-page .register-gender {
+  margin: 2px 0 4px;
+}
+
+.register-page .register-gender label {
+  color: #28233d;
+  background: #ffffff;
+}
+
+.register-page .register-gender label.selected {
+  background: #f3efff;
 }

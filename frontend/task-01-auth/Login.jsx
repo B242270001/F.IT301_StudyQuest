@@ -69,10 +69,10 @@ export default function Login({ onLogin }) {
           </p>
         </div>
 
-        <div className="room-preview-box">
+        <div className="auth-room-box">
           <img
             src={virtualRoomNight}
-            className="room-bg-img"
+            className="auth-room-img"
             alt="Virtual Room Night"
           />
         </div>
