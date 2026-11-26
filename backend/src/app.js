@@ -41,6 +41,7 @@ export function createApp() {
     return next(err);
   });
   // Mongoose validation / unique index зөрчлийг 422 болгоно, бусад нь 500.
+  // eslint-disable-next-line no-unused-vars -- Express алдааны handler 4 аргументтай байх ёстой
   app.use((err, _req, res, _next) => {
     if (err?.name === "ValidationError") {
       const field = Object.keys(err.errors || {})[0];

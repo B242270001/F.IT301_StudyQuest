@@ -1,0 +1,62 @@
+/* TASK-01 (Lab 6): Бүртгэлийн хуудас — Login.css-ийн загварыг дахин ашиглана */
+.register-field-error {
+  display: block;
+  margin-top: 4px;
+  color: #ef4444;
+  font-size: 12px;
+}
+
+.register-error {
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #ef4444;
+  font-size: 14px;
+}
+
+.register-gender {
+  display: flex;
+  gap: 10px;
+  border: none;
+  padding: 0;
+  margin: 4px 0 12px;
+}
+
+.register-gender legend {
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.register-gender label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 2px solid #ddd6fe;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.register-gender label.selected {
+  border-color: #7c5cfc;
+  background: #f3efff;
+}
+
+.register-gender input {
+  accent-color: #7c5cfc;
+}
+
+.register-switch {
+  margin-top: 14px;
+  font-size: 13px;
+  text-align: center;
+}
+
+.register-switch a {
+  color: #7c5cfc;
+  font-weight: 700;
+}

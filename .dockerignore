@@ -1,0 +1,15 @@
+**/node_modules
+dist
+.git
+.github
+.vscode
+.idea
+**/.env
+**/*.log
+test-results
+playwright-report
+e2e
+docs
+backend/tests
+frontend/tests
+frontend/task-01-auth/assets/archive

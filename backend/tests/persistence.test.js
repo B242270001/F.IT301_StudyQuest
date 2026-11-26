@@ -6,9 +6,9 @@ import request from "supertest";
 import { app } from "../src/app.js";
 import { User } from "../src/models/User.js";
 import { resetStore, seedUsers } from "../src/store/users.js";
-import { reconnectTestDB, useTestDB } from "./helpers/db.js";
+import { reconnectTestDB, setupTestDB } from "./helpers/db.js";
 
-useTestDB();
+setupTestDB();
 
 before(async () => {
   await resetStore();

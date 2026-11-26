@@ -41,3 +41,30 @@ test.describe("TASK-01: Dashboard notes integration @integration", () => {
     await expect(page.getByText(content)).toBeVisible();
   });
 });
+
+// TASK-01 (Lab 6): бүртгүүлэх → JWT → protected хуудас
+test.describe("TASK-01: Register integration @integration @auth", () => {
+  test("registers through POST /api/auth/register and lands on the dashboard", async ({ page }) => {
+    const username = `e2e.${Date.now()}`;
+
+    await page.goto("/register");
+    await page.getByTestId("register-username-input").fill(username);
+    await page.getByTestId("register-displayName-input").fill("E2E Хэрэглэгч");
+    await page.getByTestId("register-password-input").fill("secret123");
+    await page.getByTestId("register-confirm-input").fill("secret123");
+
+    const [response] = await Promise.all([
+      page.waitForResponse((res) => res.url().includes("/api/auth/register")),
+      page.getByTestId("register-submit-btn").click(),
+    ]);
+    expect(response.status()).toBe(201);
+    expect((await response.json()).token.split(".")).toHaveLength(3);
+
+    await expect(page.getByTestId("page-dashboard")).toBeVisible();
+  });
+
+  test("anonymous user cannot open the dashboard", async ({ page }) => {
+    await page.goto("/dashboard");
+    await expect(page).toHaveURL(/\/login/);
+  });
+});

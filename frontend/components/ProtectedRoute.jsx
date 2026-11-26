@@ -1,5 +1,3 @@
-import React from "react";
-import { Navigate, useLocation } from "react-router-dom";
 
 /**
  * ProtectedRoute — TASK-01 (А. Төгөлдөр)
@@ -9,7 +7,6 @@ import { Navigate, useLocation } from "react-router-dom";
  * - Шаардлагатай role таарахгүй бол: state-forbidden карт харуулна
  */
 export default function ProtectedRoute({ user, requiredRole, children }) {
-  const location = useLocation();
 
   if (!user) {
     return (

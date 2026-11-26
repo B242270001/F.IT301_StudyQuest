@@ -93,7 +93,8 @@ describe('Task 3: HorizontalLearningPath & QuizResult', () => {
       expect(screen.getByTestId('result-xp')).toHaveTextContent('+45 XP');
     });
 
-    expect(screen.getByText('Рекурсив функц')).toBeInTheDocument();
-    expect(screen.getByText('Хоёртын хайлт')).toBeInTheDocument();
+    // Сул сэдвүүд нэг зөвлөмжийн өгүүлбэрт нийлж харагддаг тул хэсэгчлэн хайна
+    expect(screen.getByText(/Рекурсив функц/)).toBeInTheDocument();
+    expect(screen.getByText(/Хоёртын хайлт/)).toBeInTheDocument();
   });
 });

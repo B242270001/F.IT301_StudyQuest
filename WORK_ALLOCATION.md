@@ -41,7 +41,7 @@
 | `frontend/src/components/states/*`, `Toast`, `ConfirmDialog` | TASK-06 | Нийтлэг төлөвүүд |
 | `frontend/src/styles/*` (token, responsive layout) | TASK-06 | [design.md](docs/design.md)-ийн token |
 | `e2e/*`, `playwright.config.js` | TASK-06 (`crud.spec.js` → TASK-04, `role.spec.js` → TASK-01) | Scenario бүр нэг эзэнтэй |
-| `docker-compose.yml`, `backend/Dockerfile` (Lab 6) | TASK-06 | |
+| `docker-compose.yml`, `Dockerfile` (Lab 6) | TASK-06 | Lab 6-д TASK-01 гүйцэтгэв (TASK-06-тай тохиролцсон) |
 | `backend/` Express суурь, `start:grader` (Lab 4) | TASK-01 | Сервер, `GET /api/health`. Бусад гишүүн өөрийн router-оо `app.js`-д холбоно |
 | `backend/src/middleware/auth.js` (Lab 4) | TASK-01 | Бусад модуль өөрийн endpoint-д холбож тестлэнэ |
 
@@ -95,6 +95,24 @@
   2. Буруу сонголт (жишээ нь `outfit: "spacesuit"`) → 422, өмнөх дүр өөрчлөгдөхгүй.
   3. Dashboard өрөөнд хэрэглэгчийн дүр бодит хэмжээгээр (ширээ, ортой харьцуулж) зогсож, дарахад тохируулах хуудас нээгдэнэ.
   4. Чансааны podium дээр бүтэн дүр, жагсаалтад толгойн дүр харагдана; өгөгдөл `GET /api/leaderboard`-аас ирнэ.
+
+#### Lab 6 (Authentication, authorization, test, Docker) — TASK-01
+- **Хэсэг:** Бүртгүүлэх/нэвтрэх, JWT (Bearer) middleware, role-based authorization, `/register` хуудас, frontend+backend `test:ci`, Dockerfile + docker-compose (app + MongoDB).
+- **Auth горим:** `team-spec.json` → `authScenario.mode = "bearer"`. JWT `{ sub, role, jti }`, `JWT_SECRET` орчны хувьсагчаас; jti нь MongoDB `Session`-д хадгалагдаж logout хийхэд хүчингүй болно. Эрхийг token-оос биш DB дээрх одоогийн role-оос шалгана.
+- **Endpoint (шинэ/өөрчлөгдсөн):**
+  - `POST /api/auth/register` → 201 + JWT (үргэлж STUDENT), 422 (validation), 409 (давхардсан нэр)
+  - `POST /api/auth/login` → JWT, `POST /api/auth/logout` → 204 (token хүчингүй), `GET /api/auth/me` → 200/401
+  - `DELETE /api/users/:id` → **зөвхөн TEACHER**: нэвтрээгүй 401, STUDENT 403, өөрийгөө 422, байхгүй 404, амжилттай 204 (тэмдэглэл, session-ийг хамт устгана)
+  - `POST /api/users` `role: TEACHER` → нэвтрээгүй 401, STUDENT 403 (эрх дээшлүүлэхээс сэргийлнэ)
+- **Docker:** `Dockerfile` (multi-stage: frontend build → backend runtime), `docker-compose.yml` (`app` + `mongo:7`, `mongo-data` volume), `.dockerignore`. Docker-ийн үндсэн хариуцагч TASK-06 бөгөөд энэ лабд TASK-01 гүйцэтгэв.
+- **Файл:** `backend/src/auth/jwt.js`, `backend/src/middleware/auth.js` (`requireAuth`, `requireRole`), `backend/src/routes/{auth,users}.js`, `backend/src/store/users.js`, `backend/src/server.js`, `frontend/task-01-auth/{Register.jsx,Register.css,registerValidation.js,Login.jsx}`, `frontend/services/api.js`, `frontend/App.jsx`, `Dockerfile`, `docker-compose.yml`, `.dockerignore`, `package.json` (`test:ci`), `eslint.config.js`
+- **Тест:** `backend/tests/authz.test.js`, `frontend/tests/Register.test.jsx`, `e2e/integration.spec.js` (`@integration @auth`)
+- **Бусдын файлд хийсэн жижиг засвар:** `frontend/tests/LearningPath.test.jsx` (TASK-03) — сул сэдвүүд нэг өгүүлбэрт харагддаг болсон тул текстийг хэсэгчлэн хайдаг болгов (root `test:ci` ногоон байхын тулд).
+- **Хүлээн авах шалгуур:**
+  1. Token-гүй хүсэлт → 401; хуурамч/хугацаа дууссан/logout хийсэн token → 401; STUDENT-ээр TEACHER-ийн үйлдэл → 403; TEACHER → 204.
+  2. `/register` дээр бүртгүүлэхэд `POST /api/auth/register` гарч шууд `/dashboard` нээгдэнэ; буруу оролтод талбарын алдаа, давхардсан нэрэнд серверийн алдаа харагдана.
+  3. Root `npm run test:ci` frontend (vitest) болон backend (node:test + Supertest) хоёуланг амжилттай ажиллуулна.
+  4. `docker compose up --build` нь MongoDB болон app-ийг асааж `http://localhost:4000`-д ажиллана; `down` хийгээд дахин асаахад өгөгдөл хэвээр.
 
 ### TASK-02 · Мөнхбаяр · Reviewer: TASK-03
 - **Хэсэг:** Practice course grid, Quiz page (3 төрлийн асуулт, inline feedback)

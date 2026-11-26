@@ -7,6 +7,21 @@
 
 const SESSION_KEY = "studyquest.currentUser";
 
+// JWT авсны дараа бүтэн профайлыг (XP, дүр гэх мэт) татаж session-д хадгална.
+async function startSession(data, username) {
+  const profileRes = await fetch("/api/user/profile", {
+    headers: { Authorization: `Bearer ${data.token}` },
+  });
+  const profile = profileRes.ok ? await profileRes.json() : { ...data.user, username };
+  const session = {
+    ...profile,
+    username: profile.username || username,
+    token: data.token,
+  };
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+  return session;
+}
+
 // 1. Auth & User Service (TASK-01)
 export const authApi = {
   async login(username, password) {
@@ -19,17 +34,26 @@ export const authApi = {
     if (!res.ok) throw new Error("login failed");
 
     const data = await res.json();
-    const profileRes = await fetch("/api/user/profile", {
-      headers: { Authorization: `Bearer ${data.token}` },
-    });
-    const profile = profileRes.ok ? await profileRes.json() : { ...data.user, username };
-    const session = {
-      ...profile,
-      username: profile.username || username,
-      token: data.token,
-    };
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
-    return session;
+    return startSession(data, username);
+  },
+
+  // Lab 6: POST /api/auth/register → 201 + JWT. Алдаа гарвал ApiError (status, field)-ийг шиднэ.
+  async register({ username, displayName, password, gender }) {
+    let res;
+    try {
+      res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, displayName, password, gender }),
+      });
+    } catch {
+      throw new ApiError("Сервертэй холбогдож чадсангүй", 0);
+    }
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      throw new ApiError(data?.message || "Бүртгүүлж чадсангүй", res.status, data?.field);
+    }
+    return startSession(data, username);
   },
 
   logout() {
@@ -61,9 +85,10 @@ export const authApi = {
 
 // 1b. Dashboard тэмдэглэл (TASK-01, Lab 5) — MongoDB дээрх /api/notes
 export class ApiError extends Error {
-  constructor(message, status) {
+  constructor(message, status, field) {
     super(message);
     this.status = status;
+    this.field = field;
   }
 }
 
@@ -150,7 +175,7 @@ export const pathApi = {
   async getLatestAttempt(userId = 'U05') {
     const sessionAttempt = sessionStorage.getItem('studyquest.lastAttempt');
     if (sessionAttempt) {
-      try { return JSON.parse(sessionAttempt); } catch (e) {}
+      try { return JSON.parse(sessionAttempt); } catch { /* эвдэрсэн JSON бол доорх эх үүсвэрээс уншина */ }
     }
     const res = await fetch('/mock/quiz-attempts.json');
     const data = await res.json();
