@@ -25,7 +25,7 @@
 | TASK-03 | `/practice/:courseId`, `/quiz/result` | `GET /api/units/path/:courseId`, `GET /api/attempts/latest` | Unit, UserProgress |
 | TASK-04 | `/teacher`, `/teacher/courses/new` | `GET /api/teacher/overview`, `POST/PUT/DELETE /api/teacher/courses[/:id]`, `POST /api/teacher/lectures`, `POST /api/uploads/material` | Course (CRUD), Lecture (Create) |
 | TASK-05 | `/explore`, `/topics/:courseId`, `/explore/lecture/:id` | `GET /api/courses/explore`, `GET /api/courses/:courseId/topics`, `GET/PUT/DELETE /api/lectures/:id`, `POST /api/lectures/:id/knowledge-check` | Topic, TopicProgress, Lecture (Read/Update/Delete) |
-| TASK-06 | `/leaderboard` | `GET /api/leaderboard` | Leaderboard view |
+| TASK-06 | `/leaderboard`, `/ui-states` | `GET/POST /api/achievements`, `GET/PUT/DELETE /api/achievements/:id` (`GET /api/leaderboard`-ийг TASK-01 MongoDB дээр хэрэгжүүлэв) | Leaderboard view, Achievement |
 
 Нэг route-ийн ижил үйлдэл, ижил API method+path, ижил тест хоёр гишүүнд давхар оноогдоогүй. Lecture entity-ийн Create (TASK-04) болон Read/Update/Delete (TASK-05) нь ялгаатай taskId, ялгаатай шалгуурт хуваагдсан.
 
@@ -41,7 +41,7 @@
 | `frontend/src/components/states/*`, `Toast`, `ConfirmDialog` | TASK-06 | Нийтлэг төлөвүүд |
 | `frontend/src/styles/*` (token, responsive layout) | TASK-06 | [design.md](docs/design.md)-ийн token |
 | `e2e/*`, `playwright.config.js` | TASK-06 (`crud.spec.js` → TASK-04, `role.spec.js` → TASK-01) | Scenario бүр нэг эзэнтэй |
-| `docker-compose.yml`, `Dockerfile` (Lab 6) | TASK-06 | Lab 6-д TASK-01 гүйцэтгэв (TASK-06-тай тохиролцсон) |
+| `docker-compose.yml`, `Dockerfile` (Lab 6) | TASK-06 | Lab 6-д TASK-01 гүйцэтгэв (TASK-06-тай тохиролцсон); Docker readiness шалгалт `scripts/docker-check.sh` — TASK-06 |
 | `backend/` Express суурь, `start:grader` (Lab 4) | TASK-01 | Сервер, `GET /api/health`. Бусад гишүүн өөрийн router-оо `app.js`-д холбоно |
 | `backend/src/middleware/auth.js` (Lab 4) | TASK-01 | Бусад модуль өөрийн endpoint-д холбож тестлэнэ |
 
@@ -188,3 +188,54 @@
   5. 12 route бүр 375px өргөнтэй дэлгэцэд хэвтээ overflow-гүй байна. `smoke` scenario алдаагүй ажиллана.
   6. Хуудас бүрийн `state-*` component нэг бүтэцтэй, loading, empty, error төлөвүүд ижил загвараар харагдана.
   7. Лекцийн дэлгэрэнгүй хуудасны өгөгдөл mock store-той холбогдож, байхгүй `id`-д алдааны төлөв харуулна.
+
+#### Lab 3 (Routing, role UI, E2E) — TASK-06 гүйцэтгэл
+- **Хэсэг:** Чансааны role-based UI (TEACHER → `state-forbidden`), чансааны тогтвортой testId-ууд, бүх route-ийн `smoke` ба 375px/1440px `responsive` Playwright тест, чансааны `role` scenario.
+- **Тэмдэглэл:** Лекцийн дэлгэрэнгүй (`/explore/lecture/:id`) нь одоо `team-spec.json`-д TASK-05-ийнх тул энэ хэсэгт тооцохгүй. Хуучин `feature/TASK-06-lecture-detail` (PR #4, хаагдсан)-ын smoke/responsive тестийг одоогийн route, JWT нэвтрэлттэй нийцүүлж шинээр бичив.
+- **Файл:** `frontend/task-06-leaderboard/Leaderboard.{jsx,css}`, `e2e/task06-helpers.js`, `e2e/smoke.spec.js`, `e2e/responsive.spec.js`, `e2e/leaderboard.spec.js`, `team-spec.json` (`task06-leaderboard-role-*`)
+- **testId:** `leaderboard-tab-{weekly,allTime}`, `leaderboard-loading`, `leaderboard-error`, `leaderboard-retry-btn`, `leaderboard-empty`, `leaderboard-podium`, `leaderboard-list`, `leaderboard-row-me`, `leaderboard-my-progress`, `leaderboard-goto-teacher`, `state-forbidden`
+- **Тест:** `frontend/tests/Leaderboard.test.jsx` (+2: багшид хаалттай, testId), `e2e/leaderboard.spec.js` (`@role`), `e2e/smoke.spec.js` (`@smoke`, 17 route), `e2e/responsive.spec.js` (`@responsive`, 17 route × 2 өргөн)
+- **Хүлээн авах шалгуур:**
+  1. STUDENT: podium, "ЧИ" мөр, ахицын карт харагдана; "Бүх цаг" таб солигдоно.
+  2. TEACHER: `/leaderboard` → `state-forbidden`, чансааны API дуудагдахгүй, "Багшийн өрөө рүү" товч `/teacher` нээнэ. Нэвтрээгүй → `/login`.
+  3. `team-spec.json`-ийн route бүр шууд URL-ээр өөрийн page testId-тай, runtime алдаагүй нээгдэнэ (`smoke`).
+  4. Route бүр 375px ба 1440px өргөнд хэвтээ overflow-гүй (`responsive`).
+
+#### Lab 4 (Express REST) — TASK-06
+- **Хэсэг:** Шинэ entity **Achievement** (сурлагын тэмдэг) — бусад гишүүнд оноогдоогүй, чансаатай холбоотой gamification хэсэг. Санах ойн store, бүтэн REST CRUD, сервер талын validation.
+- **Endpoint:** `GET /api/achievements` (200, буруу `type` 422), `GET /api/achievements/:id` (200/404), `POST /api/achievements` (201/422), `PUT /api/achievements/:id` (200/404/422), `DELETE /api/achievements/:id` (204/404)
+- **Файл:** `backend/src/routes/achievements.js`, `backend/src/store/achievements.js`, `backend/src/validators/achievement.js`, `backend/src/app.js` (router холболт, 1 мөр), `backend/package.json` (`test:ci`-д тест нэмэв), `docs/04-api-pages.md`, `team-spec.json` (`lab: 4`, `taskId: TASK-06`)
+- **Тест:** `backend/tests/achievements.test.js` (Supertest, 22 тохиолдол: амжилттай ба буруу оролт бүр)
+- **Хүлээн авах шалгуур:**
+  1. `team-spec.json`-ийн `lab: 4` / `TASK-06` endpoint бүр заасан status буцаана.
+  2. Хоосон `title`, буруу `code`/`type`, хүрээнээс гарсан `threshold`/`xpReward`, давхардсан `code` → 422 `{ message, field }`, record үүсэхгүй/өөрчлөгдөхгүй.
+  3. `npm run test:ci` амжилттай.
+
+#### Lab 5 (MongoDB/Mongoose + integration) — TASK-06
+- **Хэсэг:** Achievement-ийг санах ойгоос MongoDB руу шилжүүлж persistent болгох; хоёр шинэ model ба `User`-тэй хамаарал; `/achievements` хуудсыг бодит API-тай end-to-end холбох.
+- **Entity хамаарал:** `UserAchievement.user → User` (TASK-01-ийн model), `UserAchievement.achievement → Achievement`, `UserAchievement.awardedBy → User`. Тэмдэг устгахад олголтууд хамт устна.
+- **Endpoint (шинэ):** `POST /api/achievements/:id/award` (201/404/409/422), `GET /api/achievements/user/:userId` (200/404). `GET /api/achievements/:id` нь `holderCount` буцаана. Lab 4-ийн 5 endpoint MongoDB дээр шилжсэн.
+- **Frontend:** `/achievements` (`page-achievements`) — `achievements-loading` / `achievements-error` (+ `achievements-retry-btn`) / `achievements-empty` / `achievements-list`, амжилт `achievements-success`. STUDENT: бүх тэмдэг + өөрийн авсан (`data-earned`). TEACHER: нэмэх/засах/устгах маягт (frontend validation + серверийн 422-г талбарт харуулна), устгахын өмнө `ConfirmDialog`. Navbar-т "Тэмдэг" цэс.
+- **Файл:** `backend/src/models/{Achievement,UserAchievement}.js`, `backend/src/store/achievements.js` (Mongoose), `backend/src/routes/achievements.js`, `backend/src/server.js` (`seedAchievements`, 3 мөр), `frontend/task-06-leaderboard/{Achievements.jsx,Achievements.css,achievementValidation.js}`, `frontend/services/api.js` (`achievementsApi`), `frontend/App.jsx` (`/achievements` route), `frontend/components/Navbar.jsx` (цэс), `docs/04-api-pages.md`, `team-spec.json`
+- **Тест:** `backend/tests/achievementAwards.test.js` (хамаарал, 409/422/404, cascade, restart persistence), `backend/tests/achievements.test.js` (MongoDB дээр), `frontend/tests/Achievements.test.jsx` (loading/success/error, validation, create/edit/delete), `e2e/achievements.spec.js` (`@integration`, `@validation`)
+- **Хүлээн авах шалгуур:**
+  1. `POST /api/achievements`-ээр үүсгээд backend restart хийсний дараа `GET /api/achievements`-д хэвээр байна.
+  2. Багш `/achievements` дээр тэмдэг нэмэхэд `POST /api/achievements` хүсэлт гарч `achievements-success` харагдана; reload хийхэд тэмдэг хэвээр.
+  3. Loading, success, error төлөвүүд ялгаатай харагдана; алдааны үед "Дахин оролдох" ажиллана.
+  4. `npm run test:ci` амжилттай.
+
+#### Lab 6 (Authentication, authorization, test, Docker) — TASK-06
+- **Хэсэг:** Achievement API-д TASK-01-ийн JWT middleware (`requireAuth`, `requireRole`)-ийг холбож бичих үйлдлийг багшаар хязгаарлах; нэвтэрсэн хэрэглэгчийн өөрийн хүрээний endpoint; `/achievements` хуудсыг бүрэн бодит API (явц, тэмдэг авах, олгох, 401/403 төлөв); Docker readiness шалгалтын скрипт; E2E.
+- **Эрх:** `POST/PUT/DELETE /api/achievements[/:id]`, `POST /api/achievements/:id/award` → нэвтрээгүй 401, STUDENT 403, TEACHER 201/200/204. Унших endpoint-ууд нээлттэй.
+- **Endpoint (шинэ):** `GET /api/me/achievements` (200/401 — тэмдэг бүрийн `earned` ба `progress`), `POST /api/me/achievements/claim` (200/401 — босгод хүрсэн тэмдгээ өөртөө авах, давтахад хоосон).
+- **Гэрээний өөрчлөлт:** `team-spec.json`-ийн `endpoints`-д TASK-01-ийн жишгээр зөвхөн нэвтрээгүй үед ажиглагдах үр дүн (401) үлдэж, Lab 4/5-ын бичих endpoint-уудын амжилттай урсгал `authScenario.protected`/`roleProtected`-д шилжив. `code`-гүй `POST` нь сервер дээр код үүсгэнэ (давтан ажиллуулахад 201). Lab 4/5 үеийн гэрээ тухайн commit-д хэвээр.
+- **Frontend:** STUDENT — `/api/me/achievements`-ийн явцын мөр (`achievement-progress-{id}`), `achievements-claim-btn` → `achievements-success`/`achievements-info`. TEACHER — карт бүр дээр суралцагч сонгож олгох (`achievement-award-select-{id}`, `achievement-award-btn-{id}`). 401 → `achievements-login-link`, 403/409 → серверийн мессеж.
+- **Docker:** `scripts/docker-check.sh` (`npm run docker:check`) — тусдаа compose project-оор app + MongoDB-г шинээр build хийж асаагаад health 200, 401/403/201, `restart` болон `down → up`-ийн дараах persistence-ийг шалгаж, дараа нь цэвэрлэнэ.
+- **Бусдын файлд хийсэн жижиг засвар:** `e2e/validation.spec.js` — Playwright-д байхгүй `toHaveTextContent` → `toHaveText` (e2e/* нь TASK-06-ийн эзэмшил).
+- **Файл:** `backend/src/routes/achievements.js`, `backend/src/store/achievements.js`, `backend/src/validators/achievement.js`, `frontend/task-06-leaderboard/{Achievements.jsx,Achievements.css}`, `frontend/services/api.js`, `scripts/docker-check.sh`, `package.json` (`docker:check`), `README.md`, `docs/04-api-pages.md`, `team-spec.json`
+- **Тест:** `backend/tests/achievementsAuthz.test.js` (401/403/амжилт, хуурамч/logout token, own scope, claim), `backend/tests/achievements.test.js` ба `achievementAwards.test.js` (багшийн token-оор), `frontend/tests/Achievements.test.jsx` (явц, claim, олгох, 401/403), `e2e/achievements.spec.js` (`@auth @integration`)
+- **Хүлээн авах шалгуур:**
+  1. Нэвтрээгүй хүсэлт 401, STUDENT-ээр багшийн үйлдэл 403, TEACHER амжилттай (`authScenario`).
+  2. Оюутан `/achievements` дээр өөрийн явцыг харж, "Тэмдэг авах" дарахад `POST /api/me/achievements/claim` гарч тэмдэг "Авсан ✓" болно.
+  3. Root `npm run test:ci` (frontend + backend) амжилттай.
+  4. `npm run docker:check` бүх шалгалтыг давна.

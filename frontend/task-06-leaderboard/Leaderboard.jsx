@@ -44,7 +44,32 @@ function Avatar({ student, isMe }) {
   );
 }
 
+// TASK-06 (Lab 3): Багш чансаанд оролцохгүй тул хуудсыг role-оор хаана (WORK_ALLOCATION шалгуур 1).
 export default function Leaderboard({ user }) {
+  if (user?.role === "TEACHER") {
+    return (
+      <div className="lb-page" data-testid="page-leaderboard">
+        <Navbar user={user} />
+        <main className="lb-content">
+          <section className="lb-card lb-forbidden" data-testid="state-forbidden" role="alert">
+            <img src={trophy} alt="" />
+            <h1>Чансаа зөвхөн оюутнуудад харагдана</h1>
+            <p>Багш нар XP цуглуулдаггүй тул чансаанд ордоггүй. Суралцагчдын явцыг багшийн өрөөнөөс харна уу.</p>
+            <Link to="/teacher" className="lb-link" data-testid="leaderboard-goto-teacher">
+              Багшийн өрөө рүү →
+            </Link>
+            <Link to="/achievements" className="lb-link" data-testid="leaderboard-goto-achievements">
+              Тэмдэг удирдах →
+            </Link>
+          </section>
+        </main>
+      </div>
+    );
+  }
+  return <Ranking user={user} />;
+}
+
+function Ranking({ user }) {
   const currentUser = { id: user?.id };
   const [period, setPeriod] = useState("weekly");
   const [data, setData] = useState(null);
@@ -82,7 +107,14 @@ export default function Leaderboard({ user }) {
           </div>
           <div className="lb-tabs" role="tablist">
             {tabs.map(([key, label]) => (
-              <button key={key} role="tab" aria-selected={period === key} className="lb-tab" onClick={() => setPeriod(key)}>
+              <button
+                key={key}
+                role="tab"
+                aria-selected={period === key}
+                className="lb-tab"
+                data-testid={`leaderboard-tab-${key}`}
+                onClick={() => setPeriod(key)}
+              >
                 {label}
               </button>
             ))}
@@ -100,19 +132,19 @@ export default function Leaderboard({ user }) {
             </div>
 
             {error ? (
-              <div className="lb-state" role="alert">
+              <div className="lb-state" role="alert" data-testid="leaderboard-error">
                 <p>Чансааг ачаалж чадсангүй.</p>
-                <button className="lb-retry" onClick={retry}>Дахин оролдох</button>
+                <button className="lb-retry" data-testid="leaderboard-retry-btn" onClick={retry}>Дахин оролдох</button>
               </div>
             ) : !data ? (
-              <p className="lb-state">Ачаалж байна…</p>
+              <p className="lb-state" data-testid="leaderboard-loading">Ачаалж байна…</p>
             ) : rows.length === 0 ? (
-              <p className="lb-state">Чансаа бүрдээгүй байна.</p>
+              <p className="lb-state" data-testid="leaderboard-empty">Чансаа бүрдээгүй байна.</p>
             ) : (
               <>
-                <ol className="lb-podium" aria-label="Шилдэг гурав">
+                <ol className="lb-podium" aria-label="Шилдэг гурав" data-testid="leaderboard-podium">
                   {rows.slice(0, 3).map((row) => (
-                    <li key={row.id} className="lb-place">
+                    <li key={row.id} className="lb-place" data-testid={row.id === currentUser.id ? "leaderboard-row-me" : undefined}>
                       {row.rank === 1 && <img src={crown} alt="" />}
                       {/* Podium дээр дүр бүтнээрээ зогсоно */}
                       <span className="lb-podium-avatar">
@@ -128,9 +160,14 @@ export default function Leaderboard({ user }) {
                   <span>БАЙР / ОЮУТАН</span>
                   <span>{period === "weekly" ? "ДОЛОО ХОНОГИЙН XP" : "НИЙТ XP"}</span>
                 </div>
-                <ol className="lb-list" aria-label="Чансааны жагсаалт">
+                <ol className="lb-list" aria-label="Чансааны жагсаалт" data-testid="leaderboard-list">
                   {rows.slice(3).map((row) => (
-                    <li key={row.id} className="lb-row" aria-current={row.id === currentUser.id || undefined}>
+                    <li
+                      key={row.id}
+                      className="lb-row"
+                      aria-current={row.id === currentUser.id || undefined}
+                      data-testid={row.id === currentUser.id ? "leaderboard-row-me" : undefined}
+                    >
                       <span className="lb-rank">{row.rank}</span>
                       <Avatar student={row} isMe={row.id === currentUser.id} />
                       <div className="lb-student">
@@ -151,7 +188,7 @@ export default function Leaderboard({ user }) {
           <aside className="lb-side">
             {me && (
               <>
-                <section className="lb-progress">
+                <section className="lb-progress" data-testid="leaderboard-my-progress">
                   <div className="lb-progress-head">
                     <h2>Чиний ахиц</h2>
                     <img src={trendingUp} alt="" />

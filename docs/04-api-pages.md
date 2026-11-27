@@ -19,6 +19,7 @@
 | 10 | `/leaderboard` | Чансаа | `page-leaderboard` | Student, Teacher | TASK-06 | `GET /api/leaderboard` |
 | 11 | `/teacher` | Удирдах өрөө | `page-teacher-room` | Teacher | TASK-04 | `GET /api/teacher/overview`, `PUT/DELETE /api/teacher/courses/:id` |
 | 12 | `/teacher/courses/new` | Хичээл нэмэх | `page-teacher-course-form` | Teacher | TASK-04 | `POST /api/teacher/courses`, `POST /api/teacher/lectures`, `POST /api/uploads/material` |
+| 13 | `/achievements` | Тэмдэгүүд | `page-achievements` | Student, Teacher (удирдлага) | TASK-06 | `GET /api/achievements`, `GET /api/achievements/user/:userId`, `POST/PUT/DELETE /api/achievements[/:id]` |
 
 **Route-ийн зохион байгуулалт:**
 - `/` нь нэвтэрсэн бол `/dashboard`, үгүй бол `/login` руу redirect хийнэ (spec-ийн route биш).
@@ -62,7 +63,16 @@
 | 19 | PUT | `/api/lectures/:id` | Teacher | 200 | 401, 403, 404, 422 | TASK-05 |
 | 20 | DELETE | `/api/lectures/:id` | Teacher | 204 | 401, 403, 404 | TASK-05 |
 | 21 | POST | `/api/lectures/:id/knowledge-check` | Student | 200 | 401, 403, 404, 422 | TASK-05 |
-| 22 | GET | `/api/leaderboard` | Student, Teacher | 200 | 401, 422 | TASK-06 |
+| 22 | GET | `/api/leaderboard` | Student, Teacher | 200 | 422 | TASK-01 (хуудас нь TASK-06) |
+| 23 | GET | `/api/achievements` | Бүгд | 200 | 422 (`type`) | TASK-06 |
+| 24 | GET | `/api/achievements/:id` | Бүгд | 200 | 404 | TASK-06 |
+| 25 | POST | `/api/achievements` | Teacher | 201 | 401, 403, 422 | TASK-06 |
+| 26 | PUT | `/api/achievements/:id` | Teacher | 200 | 401, 403, 404, 422 | TASK-06 |
+| 27 | DELETE | `/api/achievements/:id` | Teacher | 204 | 401, 403, 404 | TASK-06 |
+| 28 | GET | `/api/achievements/user/:userId` | Бүгд | 200 | 404 | TASK-06 (Lab 5) |
+| 29 | POST | `/api/achievements/:id/award` | Teacher | 201 | 401, 403, 404, 409, 422 | TASK-06 (Lab 5) |
+| 30 | GET | `/api/me/achievements` | Student, Teacher | 200 | 401 | TASK-06 (Lab 6) |
+| 31 | POST | `/api/me/achievements/claim` | Student, Teacher | 200 | 401 | TASK-06 (Lab 6) |
 
 ## 4. Endpoint-ийн дэлгэрэнгүй
 
@@ -153,6 +163,31 @@
 **GET `/api/leaderboard?period=weekly|allTime`** → 200 `[ { "rank":1,"userId":"U02","name":"Бат-Эрдэнэ","xp":1240,"change":0 }, { "rank":4,"userId":"U01","name":"Саруул","xp":890,"change":1,"isMe":true } ]`. `period` өөр утгатай бол 422. Багш жагсаалтад орохгүй.
 
 **GET `/api/health`** → 200 `{ "status": "ok" }` (Lab 4-д TASK-01 серверийн суурь болгон хэрэгжүүлнэ).
+
+#### Achievement (тэмдэг) API — TASK-06 (Lab 4)
+Achievement: `{ "id":"A01","code":"first-steps","title":"Анхны алхам","description":"Анхны 100 XP-гээ цуглуул","icon":"🌱","type":"XP_TOTAL","threshold":100,"xpReward":10,"createdAt":"…","updatedAt":"…" }`
+
+- `type` ∈ `XP_TOTAL` (нийт XP), `STREAK` (дараалсан өдөр), `WEEKLY_RANK` (долоо хоногийн байр ≤ threshold).
+- Validation (422 `{ "message","field" }`): `code` (өгөөгүй бол сервер `badge-…` үүсгэнэ — Lab 6) 3–40, `^[a-z0-9]+(-[a-z0-9]+)*$`, давхардахгүй; `title` 2–60; `description` ≤ 200; `icon` 1–4 тэмдэгт (default `🏅`); `threshold` бүхэл тоо — XP_TOTAL 1–1 000 000, STREAK 1–365, WEEKLY_RANK 1–50; `xpReward` 0–1000 (default 0).
+
+**GET `/api/achievements?type=STREAK`** → 200 `[Achievement]`; буруу `type` → 422.
+**GET `/api/achievements/:id`** → 200 `Achievement`; 404 `{ "message":"Тэмдэг олдсонгүй" }`.
+**POST `/api/achievements`** → 201 `Achievement` (шинэ `id`); 422 талбарын алдаа эсвэл давхардсан `code`; 400 буруу JSON.
+**PUT `/api/achievements/:id`** → 200; ирээгүй талбар хэвээр үлдэж, эцсийн утгаараа шалгагдана; 404; 422.
+**DELETE `/api/achievements/:id`** → 204 body-гүй; 404. Тэмдгийг авсан `UserAchievement` бүртгэлүүд хамт устна.
+
+#### Achievement — MongoDB ба хамаарал (Lab 5)
+Model: `Achievement` (`_id` = `"A01"`), `UserAchievement { user → User, achievement → Achievement, awardedBy → User, awardedAt }`, (`user`, `achievement`) unique.
+`GET /api/achievements/:id` нь `holderCount` (тэмдэг авсан хэрэглэгчийн тоо)-г нэмж буцаана.
+
+**POST `/api/achievements/:id/award`** `{ "userId":"U05" }` → 201 `{ "id","awardedAt","awardedBy","user":{ "id","displayName","role" },"achievement":Achievement }`; хоосон `userId` эсвэл байхгүй хэрэглэгч → 422 (`field:"userId"`); байхгүй тэмдэг → 404; аль хэдийн авсан → 409.
+**GET `/api/achievements/user/:userId`** → 200 `[ { "id","awardedAt","achievement":Achievement } ]` (populate); байхгүй хэрэглэгч → 404.
+
+#### Achievement — Authentication/authorization (Lab 6)
+JWT Bearer (`authScenario.mode = "bearer"`, TASK-01-ийн `requireAuth`/`requireRole`). Унших (`GET /api/achievements[/:id]`, `/user/:userId`) нээлттэй.
+- `POST/PUT/DELETE /api/achievements[/:id]`, `POST /api/achievements/:id/award` → token-гүй/буруу/logout хийсэн token 401, STUDENT 403, TEACHER амжилттай. Олгоход `awardedBy` = багшийн id.
+- **GET `/api/me/achievements`** (өөрийн хүрээ) → 200 `[ Achievement + { "earned", "awardedAt", "progress": { "current","target","percent","reached" } } ]`. `current`: XP_TOTAL → `totalXp`, STREAK → `streakDays`, WEEKLY_RANK → долоо хоногийн байр (багшид `null`).
+- **POST `/api/me/achievements/claim`** → 200 `{ "awarded":[ { "id","title","icon","xpReward" } ], "achievements":[…] }` — зөвхөн token-ий эзэнд, босгод хүрсэн боловч аваагүй тэмдгийг олгоно; давтан дуудахад `awarded: []`.
 
 ## 5. Хүлээн авах шалгуур
 

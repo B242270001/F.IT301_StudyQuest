@@ -312,3 +312,45 @@ export const leaderboardApi = {
   getWeekly: () => fetchLeaderboard("weekly"),
   getAllTime: () => fetchLeaderboard("allTime"),
 };
+
+// 6b. Achievement Service (TASK-06, Lab 5) — MongoDB дээрх /api/achievements.
+// Алдаа гарвал ApiError(message, status, field) шиднэ: field нь маягтын аль талбарт харуулахыг заана.
+async function achievementRequest(path, { method = "GET", body } = {}) {
+  const token = authApi.getCurrentUser()?.token;
+  const headers = {};
+  if (token) headers.Authorization = `Bearer ${token}`;
+  if (body !== undefined) headers["Content-Type"] = "application/json";
+
+  let res;
+  try {
+    res = await fetch(path, {
+      method,
+      headers,
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+  } catch {
+    throw new ApiError("Сервертэй холбогдож чадсангүй", 0);
+  }
+  if (res.status === 204) return null;
+  const data = await res.json().catch(() => null);
+  if (!res.ok) {
+    throw new ApiError(data?.message || "Серверийн алдаа гарлаа", res.status, data?.field);
+  }
+  return data;
+}
+
+const achievementPath = (id = "") => `/api/achievements${id ? `/${encodeURIComponent(id)}` : ""}`;
+
+export const achievementsApi = {
+  list: () => achievementRequest(achievementPath()),
+  create: (data) => achievementRequest(achievementPath(), { method: "POST", body: data }),
+  update: (id, data) => achievementRequest(achievementPath(id), { method: "PUT", body: data }),
+  remove: (id) => achievementRequest(achievementPath(id), { method: "DELETE" }),
+  award: (id, userId) =>
+    achievementRequest(`${achievementPath(id)}/award`, { method: "POST", body: { userId } }),
+  listForUser: (userId) =>
+    achievementRequest(`/api/achievements/user/${encodeURIComponent(userId)}`),
+  // Lab 6: нэвтэрсэн хэрэглэгчийн өөрийн хүрээ (JWT шаардана)
+  mine: () => achievementRequest("/api/me/achievements"),
+  claim: () => achievementRequest("/api/me/achievements/claim", { method: "POST" }),
+};

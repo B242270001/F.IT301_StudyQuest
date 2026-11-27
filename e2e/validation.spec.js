@@ -7,9 +7,9 @@ test.describe("Frontend validation scenarios @validation", () => {
     await page.getByTestId("login-submit-btn").click();
 
     await expect(page.getByTestId("login-name-error")).toBeVisible();
-    await expect(page.getByTestId("login-name-error")).toHaveTextContent("Оюутны код эсвэл нэрээ оруулна уу");
+    await expect(page.getByTestId("login-name-error")).toHaveText("Оюутны код эсвэл нэрээ оруулна уу");
     await expect(page.getByTestId("login-password-error")).toBeVisible();
-    await expect(page.getByTestId("login-password-error")).toHaveTextContent("Нууц үгээ оруулна уу");
+    await expect(page.getByTestId("login-password-error")).toHaveText("Нууц үгээ оруулна уу");
   });
 
   test("shows login-error message on invalid credentials", async ({ page }) => {

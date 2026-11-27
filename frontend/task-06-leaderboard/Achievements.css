@@ -1,0 +1,439 @@
+/* TASK-06 (Lab 5): Тэмдэгүүдийн хуудас — Leaderboard-ийн өнгө, хэмжээтэй нийцүүлэв */
+#root:has(.ach-page) {
+  width: auto;
+  max-width: none;
+  border: 0;
+  text-align: left;
+}
+
+.ach-page {
+  min-height: 100vh;
+  background: #f7f6fc;
+  color: #28233d;
+  line-height: 1.45;
+  color-scheme: light;
+}
+
+.ach-page,
+.ach-content,
+.ach-content * {
+  box-sizing: border-box;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+.ach-content h1,
+.ach-content h2,
+.ach-content h3,
+.ach-content p {
+  margin: 0;
+}
+
+.ach-content :focus-visible {
+  outline: 2px solid #7c5cfc;
+  outline-offset: 2px;
+}
+
+.ach-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 64px;
+}
+
+.ach-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ach-heading h1 {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.ach-heading p {
+  color: #817b94;
+  font-size: 14px;
+}
+
+.ach-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 100px;
+  background: #eee9ff;
+  color: #7c5cfc;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ach-summary {
+  font-size: 14px;
+  padding: 8px 14px;
+}
+
+.ach-card {
+  background: #fff;
+  border: 1px solid #eae6f3;
+  border-radius: 24px;
+}
+
+/* ---------- Мэдэгдэл ---------- */
+.ach-banner {
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.ach-banner-success {
+  background: #e3f6ec;
+  color: #1d7a4b;
+}
+
+.ach-banner-error {
+  background: #fdecec;
+  color: #b42318;
+}
+
+.ach-banner-info {
+  background: #eef2ff;
+  color: #3f3a8a;
+}
+
+.ach-banner a {
+  color: inherit;
+  font-weight: 700;
+}
+
+/* ---------- Lab 6: явц, авах товч, олгох ---------- */
+.ach-heading-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.ach-heading-actions .ach-btn-primary {
+  align-self: center;
+}
+
+.ach-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ach-progress-bar {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 100px;
+  background: #ece8f7;
+}
+
+.ach-progress-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #7c5cfc;
+}
+
+.ach-badge.is-earned .ach-progress-bar span {
+  background: #22a06b;
+}
+
+.ach-progress-text {
+  color: #6f6886;
+  font-size: 12px;
+}
+
+.ach-status.ready {
+  color: #7c5cfc;
+}
+
+.ach-award {
+  display: flex;
+  gap: 8px;
+  min-width: 0;
+}
+
+.ach-award select {
+  flex: 1;
+  min-width: 0;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid #ddd7ec;
+  border-radius: 12px;
+  background: #fff;
+  color: #28233d;
+  font-size: 13px;
+}
+
+.ach-state .ach-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+/* ---------- Маягт ---------- */
+.ach-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+}
+
+.ach-form-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ach-form-head h2 {
+  font-size: 18px;
+}
+
+.ach-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+
+.ach-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.ach-field:last-child {
+  grid-column: 1 / -1;
+}
+
+.ach-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #4b4563;
+}
+
+.ach-field input,
+.ach-field select,
+.ach-field textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #ddd7ec;
+  border-radius: 12px;
+  background: #fff;
+  color: #28233d;
+  font-size: 14px;
+}
+
+.ach-field textarea {
+  resize: vertical;
+}
+
+.ach-field [aria-invalid="true"] {
+  border-color: #e5484d;
+  background: #fff8f8;
+}
+
+.ach-hint {
+  color: #9a94ad;
+  font-size: 12px;
+}
+
+.ach-field-error {
+  color: #d92d20;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ---------- Товч ---------- */
+.ach-btn {
+  min-height: 40px;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ach-btn:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.ach-btn-primary {
+  align-self: flex-start;
+  min-height: 48px;
+  padding: 10px 24px;
+  background: #7c5cfc;
+  box-shadow: inset 0 -4px 0 #5038b2;
+  color: #fff;
+}
+
+.ach-btn-ghost {
+  background: #f1eefa;
+  color: #5b4bb0;
+}
+
+.ach-btn-danger {
+  background: #fdecec;
+  color: #b42318;
+}
+
+/* ---------- Жагсаалт ---------- */
+.ach-list-card {
+  padding: 24px;
+}
+
+.ach-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 72px 16px;
+  color: #817b94;
+  font-size: 14px;
+  text-align: center;
+}
+
+.ach-state .ach-btn-primary {
+  align-self: center;
+}
+
+.ach-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ach-badge {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid #eae6f3;
+  border-radius: 18px;
+  background: #fbfaff;
+}
+
+.ach-badge.is-earned {
+  border-color: #c9b8ff;
+  background: linear-gradient(180deg, #f3eeff 0%, #fff 100%);
+}
+
+.ach-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: #eee9ff;
+  font-size: 28px;
+}
+
+.ach-badge:not(.is-earned)[data-earned="false"] .ach-icon {
+  filter: grayscale(1);
+  opacity: 0.55;
+}
+
+.ach-badge-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ach-badge-body h3 {
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+.ach-desc {
+  color: #6f6886;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.ach-goal {
+  color: #9a94ad;
+  font-size: 12px;
+}
+
+.ach-badge-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.ach-status {
+  color: #9a94ad;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ach-status.ok {
+  color: #1d7a4b;
+}
+
+.ach-actions {
+  display: flex;
+  gap: 8px;
+}
+
+@media (max-width: 1024px) {
+  .ach-content {
+    padding: 24px;
+  }
+
+  .ach-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .ach-content {
+    padding: 20px 16px;
+  }
+
+  .ach-heading h1 {
+    font-size: 22px;
+  }
+
+  .ach-form,
+  .ach-list-card {
+    padding: 16px;
+  }
+
+  .ach-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ach-btn-primary {
+    align-self: stretch;
+  }
+
+  .ach-heading-actions {
+    width: 100%;
+  }
+
+  .ach-heading-actions .ach-btn-primary {
+    flex: 1;
+  }
+}

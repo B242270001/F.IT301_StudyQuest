@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node src/server.js",
     "start:grader": "node src/server.js",
-    "test": "node --test tests/health.test.js tests/users.test.js tests/auth.test.js tests/notes.test.js tests/persistence.test.js tests/avatar.test.js tests/authz.test.js",
-    "test:ci": "node --test tests/health.test.js tests/users.test.js tests/auth.test.js tests/notes.test.js tests/persistence.test.js tests/avatar.test.js tests/authz.test.js"
+    "test": "node --test tests/health.test.js tests/users.test.js tests/auth.test.js tests/notes.test.js tests/persistence.test.js tests/avatar.test.js tests/authz.test.js tests/achievements.test.js tests/achievementAwards.test.js tests/achievementsAuthz.test.js",
+    "test:ci": "node --test tests/health.test.js tests/users.test.js tests/auth.test.js tests/notes.test.js tests/persistence.test.js tests/avatar.test.js tests/authz.test.js tests/achievements.test.js tests/achievementAwards.test.js tests/achievementsAuthz.test.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

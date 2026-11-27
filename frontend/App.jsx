@@ -29,6 +29,7 @@ import LectureDetail from "./task-05-explore/LectureDetail";
 // TASK-06: Leaderboard, UI States (Цогжавхлан Б.)
 import Leaderboard from "./task-06-leaderboard/Leaderboard";
 import GlobalUIStates from "./task-06-leaderboard/GlobalUIStates";
+import Achievements from "./task-06-leaderboard/Achievements";
 
 // Role бүрийн нүүр хуудас
 const HOME_PAGES = ["/dashboard", "/teacher"];
@@ -242,6 +243,17 @@ export default function App() {
           }
         />
         <Route path="/ui-states" element={<GlobalUIStates />} />
+        {/* TASK-06 (Lab 5): Тэмдэгүүд — /api/achievements (MongoDB) */}
+        <Route
+          path="/achievements"
+          element={
+            isLoggedIn ? (
+              <Achievements user={user} />
+            ) : (
+              <RequireLogin />
+            )
+          }
+        />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/login" />} />

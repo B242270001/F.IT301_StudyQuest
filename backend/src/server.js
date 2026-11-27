@@ -3,6 +3,7 @@ import { app } from "./app.js";
 import { getJwtSecret } from "./auth/jwt.js";
 import { connectDB } from "./db.js";
 import { seedUsers } from "./store/users.js";
+import { seedAchievements } from "./store/achievements.js";
 
 const PORT = Number(process.env.PORT) || 4000;
 
@@ -11,6 +12,9 @@ async function start() {
   await connectDB(process.env.MONGODB_URI);
   if (await seedUsers()) {
     console.log("MongoDB хоосон байсан тул анхны хэрэглэгчдийг үүсгэлээ");
+  }
+  if (await seedAchievements()) {
+    console.log("Анхны тэмдгүүдийг (achievements) үүсгэлээ"); // TASK-06
   }
   app.listen(PORT, () => {
     console.log(`StudyQuest API listening on ${PORT}`);
